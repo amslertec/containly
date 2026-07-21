@@ -421,12 +421,21 @@ export function StackDetailPage() {
     }
   };
 
-  const removeFile = async (file: string): Promise<void> => {
-    const ok = await confirm({ title: t('common.delete'), description: t('stacks.deleteFileConfirm', { name: file }), danger: true, confirmLabel: t('common.delete') });
+  const removeEntry = async (rel: string, isDir: boolean): Promise<void> => {
+    const name = rel.split('/').pop() ?? rel;
+    const ok = await confirm({
+      title: t('common.delete'),
+      description: isDir ? t('stacks.deleteFolderConfirm', { name }) : t('stacks.deleteFileConfirm', { name }),
+      danger: true,
+      confirmLabel: t('common.delete'),
+      confirmText: isDir ? name : undefined, // Ordner: Name tippen (rekursives Löschen absichern)
+    });
     if (!ok) return;
     try {
-      await mut.deleteFile.mutateAsync({ id, file });
-      if (selected === file) setSel(stack?.composeFile ?? null);
+      await mut.deleteFile.mutateAsync({ id, file: rel });
+      // Gelöschte Datei/Ordner aus Auswahl bzw. aktuellem Pfad entfernen.
+      if (selected === rel || (selected && selected.startsWith(`${rel}/`))) setSel(stack?.composeFile ?? null);
+      if (cwd === rel || cwd.startsWith(`${rel}/`)) setCwd(rel.split('/').slice(0, -1).join('/'));
       toast.success(t('common.delete'));
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : t('common.error'));
@@ -538,11 +547,11 @@ export function StackDetailPage() {
                   )}
                   <span className="min-w-0 flex-1 truncate font-mono">{f.name}</span>
                   {!f.isDir && <span className="shrink-0 text-[10px] text-faint tabular">{formatBytes(f.size)}</span>}
-                  {isAdmin && !f.isDir && !f.isCompose && (
+                  {isAdmin && !f.isCompose && (
                     <button
-                      onClick={(e) => { e.stopPropagation(); void removeFile(rel); }}
+                      onClick={(e) => { e.stopPropagation(); void removeEntry(rel, f.isDir); }}
                       className="shrink-0 text-faint opacity-0 transition-opacity hover:text-danger group-hover:opacity-100"
-                      title={t('common.delete')}
+                      title={f.isDir ? t('stacks.deleteFolder') : t('common.delete')}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>

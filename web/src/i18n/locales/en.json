@@ -415,7 +415,9 @@
     "searchPlaceholder": "Search stack, container or image …",
     "noResults": "No matches",
     "opRunning": "Running …",
-    "opDone": "Completed successfully."
+    "opDone": "Completed successfully.",
+    "deleteFolder": "Delete folder",
+    "deleteFolderConfirm": "Permanently delete folder “{{name}}” and all its contents?"
   },
   "audit": {
     "title": "Audit log",

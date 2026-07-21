@@ -415,7 +415,9 @@
     "searchPlaceholder": "Stack, Container oder Image suchen …",
     "noResults": "Keine Treffer",
     "opRunning": "Wird ausgeführt …",
-    "opDone": "Erfolgreich abgeschlossen."
+    "opDone": "Erfolgreich abgeschlossen.",
+    "deleteFolder": "Ordner löschen",
+    "deleteFolderConfirm": "Ordner „{{name}}“ samt gesamtem Inhalt unwiderruflich löschen?"
   },
   "audit": {
     "title": "Audit-Log",
