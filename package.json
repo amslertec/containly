@@ -2,7 +2,7 @@
   "name": "containly",
   "version": "0.1.0",
   "private": true,
-  "description": "A modern, secure, self-hosted Docker management web UI (Portainer alternative) with file-based Compose stacks.",
+  "description": "A modern, secure, self-hosted Docker management web UI with file-based Compose stacks.",
   "license": "AGPL-3.0-or-later",
   "author": "Pascal Amsler <pascal.amsler@amslertec.ch>",
   "homepage": "https://github.com/amslertec/containly",

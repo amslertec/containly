@@ -10,8 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ## [0.1.0] — 2026-07-21
 
 First public release. Containly is a modern, secure, self-hosted Docker
-management web UI (a Portainer alternative) where stack definitions live as
-version-controllable files on the filesystem instead of in a database.
+management web UI where stack definitions live as version-controllable files on
+the filesystem instead of in a database.
 
 ### Added
 

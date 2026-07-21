@@ -7,10 +7,9 @@
 
 <h1 align="center">Containly</h1>
 
-**A modern, secure, self-hosted Docker management web UI** — a Portainer
-alternative without vendor lock-in. Stack definitions live as version-controllable
-files on the filesystem, not in a database. Built for homelabs with multiple
-Docker hosts behind a reverse proxy.
+**A modern, secure, self-hosted Docker management web UI** — no vendor lock-in.
+Stack definitions live as version-controllable files on the filesystem, not in a
+database. Built for homelabs with multiple Docker hosts behind a reverse proxy.
 
 [![CI](https://github.com/amslertec/containly/actions/workflows/ci.yml/badge.svg)](https://github.com/amslertec/containly/actions/workflows/ci.yml)
 [![Docker Hub](https://img.shields.io/docker/v/amslertec/containly?logo=docker&label=Docker%20Hub&sort=semver)](https://hub.docker.com/r/amslertec/containly)
