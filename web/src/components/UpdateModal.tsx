@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowUpCircle, ExternalLink } from 'lucide-react';
 import { useVersion } from '../hooks/version';
+import { ReleaseNotes } from './ReleaseNotes';
 import { Button } from './ui/Button';
 
 const ACK_KEY = 'containly-update-ack';
@@ -49,11 +50,7 @@ export function UpdateModal() {
         <div className="mt-4">
           <p className="mb-2 text-sm font-medium text-ink">{data.releaseName || t('update.changesHeading')}</p>
           <div className="max-h-72 overflow-y-auto rounded-lg border border-border bg-surface-2 p-4">
-            {data.notes ? (
-              <pre className="whitespace-pre-wrap break-words font-sans text-sm text-ink">{data.notes}</pre>
-            ) : (
-              <p className="text-sm text-muted">{t('update.noNotes')}</p>
-            )}
+            {data.notes ? <ReleaseNotes text={data.notes} /> : <p className="text-sm text-muted">{t('update.noNotes')}</p>}
           </div>
           <a
             href={data.releaseUrl}

@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.3] — 2026-07-21
+
+### Added
+
+- Update notifications now render the release notes as **formatted markdown**
+  (headings, bold, bullet lists, links) instead of raw text.
+
+### Fixed
+
+- The Stacks page crashed (Radix `Slot` error) when no stack path was configured
+  yet — it now shows a clear message with a link to the Endpoints page.
+
+### Changed
+
+- GitHub release notes are taken from `CHANGELOG.md` (plus the auto-generated
+  "What's Changed" list), so the in-app update dialog shows the real changelog.
+
 ## [0.1.2] — 2026-07-21
 
 ### Added
@@ -73,7 +90,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/amslertec/containly/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/amslertec/containly/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/amslertec/containly/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/amslertec/containly/releases/tag/v0.1.0

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowUpCircle, CheckCircle2, ExternalLink, RefreshCw } from 'lucide-react';
 import { useVersion, useVersionCheck } from '../hooks/version';
+import { ReleaseNotes } from './ReleaseNotes';
 import { Button } from './ui/Button';
 import { Badge, Card } from './ui/primitives';
 import { toast } from './Toaster';
@@ -65,7 +66,7 @@ export function VersionPanel() {
           <p className="mb-2 text-sm font-medium text-ink">{data.releaseName || t('version.changes')}</p>
           {data.notes && (
             <div className="max-h-72 overflow-y-auto rounded-lg border border-border bg-surface-2 p-4">
-              <pre className="whitespace-pre-wrap break-words font-sans text-sm text-ink">{data.notes}</pre>
+              <ReleaseNotes text={data.notes} />
             </div>
           )}
           <a

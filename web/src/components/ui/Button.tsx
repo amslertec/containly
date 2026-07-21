@@ -38,7 +38,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   return (
     <Comp
       ref={ref}
-      disabled={disabled ?? loading}
+      // Slot (asChild) reicht `disabled` an ein <a>/<Link> weiter (ungültig) und
+      // erwartet GENAU ein Kind — daher nur im Button-Fall setzen bzw. den Spinner rendern.
+      disabled={asChild ? undefined : (disabled ?? loading)}
       className={cn(
         'inline-flex items-center justify-center font-medium whitespace-nowrap select-none',
         'transition-colors duration-100 disabled:opacity-50 disabled:pointer-events-none',
@@ -49,8 +51,14 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       )}
       {...props}
     >
-      {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-      {children}
+      {asChild ? (
+        children
+      ) : (
+        <>
+          {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+          {children}
+        </>
+      )}
     </Comp>
   );
 });
