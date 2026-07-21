@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="Logos/containly-schild-lockup-dark.svg">
-    <img src="Logos/containly-schild-lockup-teal.svg" alt="Containly" width="360">
+    <source media="(prefers-color-scheme: dark)" srcset="Logos/containly-schild-teal-dark.svg">
+    <img src="Logos/containly-schild-teal.svg" alt="Containly" width="96">
   </picture>
 </p>
 

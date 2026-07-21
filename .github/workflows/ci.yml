@@ -24,6 +24,11 @@ jobs:
       - name: Install
         run: npm ci
 
+      # The shared package is the API contract; server & web resolve it from
+      # shared/dist, so it must be built before typecheck/lint.
+      - name: Build shared contract
+        run: npm run build:shared
+
       - name: Lint
         run: npm run lint
 
