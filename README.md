@@ -68,13 +68,40 @@ docker compose up -d
 docker compose logs -f containly   # copy the one-time setup token from the logs
 ```
 
-On first start there is **no admin** yet. Containly prints a one-time **setup
-token** to the logs (also in `data/setup.token`). Open `http://<server-ip>:8420`,
-enter the token, and create the first administrator. After that, setup mode is
-closed permanently.
-
 For production, put a reverse proxy (Traefik/Caddy/nginx) with TLS in front, set
 `CONTAINLY_SECURE_COOKIES=true`, and bind the port locally (`127.0.0.1:8420`).
+
+### First-time setup (create the admin)
+
+On first start there is **no admin account** yet — Containly runs in *setup mode*
+and prints a one-time **setup token** to the logs, inside a boxed banner:
+
+```bash
+docker compose logs containly
+# or read it directly:
+cat data/setup.token
+```
+
+Then:
+
+1. Open **`http://<server-ip>:8420`** in your browser — the setup form appears
+   automatically while no admin exists.
+2. Enter a **username**, a **password** (you can reveal it and must confirm it),
+   and paste the **setup token**.
+3. Submit → the first administrator is created, setup mode closes permanently, and
+   the token is deleted.
+
+> If the page is **blank/black**, you're reaching Containly over plain HTTP with
+> `CONTAINLY_SECURE_COOKIES=true`. Set it to `false` (see `.env`), restart, and
+> hard-refresh the browser (Ctrl+Shift+R).
+
+## Screenshots
+
+|  |  |
+|---|---|
+| **First-time setup** | ![Setup](docs/screenshots/setup.png) |
+| **Dashboard** | ![Dashboard](docs/screenshots/dashboard.png) |
+| **Endpoints** | ![Endpoints](docs/screenshots/endpoints.png) |
 
 ### Hardening: filtered socket proxy (recommended)
 

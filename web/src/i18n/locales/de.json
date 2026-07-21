@@ -94,7 +94,11 @@
     "loginSubtitle": "Melde dich an deiner Docker-Verwaltung an",
     "changePassword": "Passwort ändern",
     "passwordChanged": "Passwort geändert",
-    "sessionExpired": "Sitzung abgelaufen — bitte erneut anmelden"
+    "sessionExpired": "Sitzung abgelaufen — bitte erneut anmelden",
+    "showPassword": "Passwort anzeigen",
+    "hidePassword": "Passwort verbergen",
+    "confirmPasswordLabel": "Passwort bestätigen",
+    "passwordMismatch": "Passwörter stimmen nicht überein"
   },
   "setup": {
     "title": "Containly einrichten",

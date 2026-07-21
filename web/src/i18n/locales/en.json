@@ -94,7 +94,11 @@
     "loginSubtitle": "Sign in to your Docker management",
     "changePassword": "Change password",
     "passwordChanged": "Password changed",
-    "sessionExpired": "Session expired — please sign in again"
+    "sessionExpired": "Session expired — please sign in again",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "confirmPasswordLabel": "Confirm password",
+    "passwordMismatch": "Passwords do not match"
   },
   "setup": {
     "title": "Set up Containly",

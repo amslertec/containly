@@ -7,6 +7,7 @@ import { useAuth } from '../app/AuthContext';
 import { AuthLayout } from './AuthLayout';
 import { Button } from '../components/ui/Button';
 import { Input, Label } from '../components/ui/primitives';
+import { PasswordInput } from '../components/ui/PasswordInput';
 import { evaluatePassword } from '../lib/passwordStrength';
 import { cn } from '../lib/utils';
 
@@ -23,12 +24,18 @@ export function SetupPage() {
   const [setupToken, setSetupToken] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const strength = useMemo(() => evaluatePassword(password), [password]);
+  const mismatch = confirm.length > 0 && confirm !== password;
   const canSubmit =
-    setupToken.trim().length > 0 && username.trim().length >= 3 && strength.valid && !loading;
+    setupToken.trim().length > 0 &&
+    username.trim().length >= 3 &&
+    strength.valid &&
+    confirm === password &&
+    !loading;
 
   const submit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
@@ -96,9 +103,8 @@ export function SetupPage() {
 
         <div>
           <Label htmlFor="su-pass">{t('auth.passwordLabel')}</Label>
-          <Input
+          <PasswordInput
             id="su-pass"
-            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="new-password"
@@ -136,6 +142,18 @@ export function SetupPage() {
               </ul>
             </div>
           )}
+        </div>
+
+        <div>
+          <Label htmlFor="su-pass2">{t('auth.confirmPasswordLabel')}</Label>
+          <PasswordInput
+            id="su-pass2"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            autoComplete="new-password"
+            required
+          />
+          {mismatch && <p className="mt-1 text-xs text-danger">{t('auth.passwordMismatch')}</p>}
         </div>
 
         {error && (
