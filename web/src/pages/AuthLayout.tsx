@@ -37,13 +37,6 @@ export function AuthLayout({
           </p>
         </div>
 
-        <div
-          className="relative z-10 flex items-center gap-2 text-xs"
-          style={{ color: 'var(--w-primary-ink)', opacity: 0.75 }}
-        >
-          <ShieldCheck className="h-4 w-4" />
-          <span>Argon2id · Session-Cookies · CSRF · Audit-Log</span>
-        </div>
       </aside>
 
       {/* Formular-Panel */}

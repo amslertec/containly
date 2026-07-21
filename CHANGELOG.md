@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.2] — 2026-07-21
+
+### Added
+
+- **Setup**: reveal-password toggle and a **confirm-password** field when creating
+  the first admin.
+- README **screenshots** (setup, dashboard, endpoints) and a clearer first-time
+  setup guide.
+
+### Changed
+
+- Removed the crypto/feature badge from the setup and login screens.
+
 ## [0.1.1] — 2026-07-21
 
 ### Added
@@ -60,6 +73,7 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/amslertec/containly/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/amslertec/containly/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/amslertec/containly/releases/tag/v0.1.0
