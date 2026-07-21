@@ -16,8 +16,10 @@ services:
     container_name: containly
     restart: unless-stopped
     environment:
-      # Behind TLS / a reverse proxy: true. Plain HTTP test on the LAN: false.
-      CONTAINLY_SECURE_COOKIES: "true"
+      # Keep "false" when reaching Containly over plain HTTP (http://<ip>:8420) —
+      # with "true" over HTTP the browser upgrades assets to HTTPS and you get a
+      # BLANK page. Set "true" ONLY behind a reverse proxy that terminates HTTPS.
+      CONTAINLY_SECURE_COOKIES: "false"
       CONTAINLY_TRUST_PROXY: "true"
       LOG_LEVEL: "info"
       # Session secret & master key are generated in /data at runtime.

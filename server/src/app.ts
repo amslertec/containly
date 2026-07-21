@@ -20,6 +20,7 @@ import { userRoutes } from './routes/users.js';
 import { systemRoutes } from './routes/system.js';
 import { backupRoutes } from './routes/backup.js';
 import { registryRoutes } from './routes/registries.js';
+import { versionRoutes } from './routes/version.js';
 import { registerLogsWs } from './ws/logs.js';
 import { registerStatsWs } from './ws/stats.js';
 import { registerExecWs } from './ws/exec.js';
@@ -90,6 +91,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(systemRoutes);
   await app.register(backupRoutes);
   await app.register(registryRoutes);
+  await app.register(versionRoutes);
 
   // WebSocket-Routen
   await registerLogsWs(app);

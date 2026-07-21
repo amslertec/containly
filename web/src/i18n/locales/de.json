@@ -413,7 +413,9 @@
     "newFile": "Neue Datei",
     "fileExists": "Datei existiert bereits",
     "searchPlaceholder": "Stack, Container oder Image suchen …",
-    "noResults": "Keine Treffer"
+    "noResults": "Keine Treffer",
+    "opRunning": "Wird ausgeführt …",
+    "opDone": "Erfolgreich abgeschlossen."
   },
   "audit": {
     "title": "Audit-Log",
@@ -450,7 +452,8 @@
     "tabs": {
       "audit": "Audit-Log",
       "backup": "Backup & Restore",
-      "registries": "Registries"
+      "registries": "Registries",
+      "version": "Version"
     }
   },
   "roles": {
@@ -548,5 +551,26 @@
     "connectedTitle": "Angemeldete Registries",
     "none": "Keine Registry angemeldet",
     "noneHint": "Pulls laufen anonym (Docker-Hub-Limit 100/6h)."
+  },
+  "update": {
+    "title": "Neue Version verfügbar",
+    "subtitle": "Version {{latest}} ist verfügbar — du nutzt {{current}}.",
+    "changesHeading": "Änderungen",
+    "noNotes": "Keine Release-Notes verfügbar.",
+    "releaseDetails": "Release-Details ansehen",
+    "acknowledge": "Verstanden"
+  },
+  "version": {
+    "title": "Version",
+    "updateAvailable": "Update verfügbar",
+    "upToDate": "Aktuell",
+    "installed": "Installiert: {{version}}",
+    "newest": "neueste: {{version}}",
+    "lastChecked": "Zuletzt geprüft",
+    "changes": "Änderungen",
+    "viewRelease": "Release ansehen",
+    "checkNow": "Jetzt prüfen",
+    "toastUpdate": "Update auf {{version}} verfügbar",
+    "toastUptodate": "Du bist auf dem neuesten Stand"
   }
 }

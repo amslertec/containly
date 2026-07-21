@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { Wordmark } from '../components/Logo';
 import { EndpointSwitcher } from '../components/EndpointSwitcher';
+import { UpdateModal } from '../components/UpdateModal';
 import { LangToggle, ThemeToggle } from '../components/ThemeLangControls';
 import { useAuth } from './AuthContext';
 import { cn } from '../lib/utils';
@@ -122,6 +123,7 @@ export function AppShell() {
           <Outlet />
         </main>
       </div>
+      <UpdateModal />
     </div>
   );
 }

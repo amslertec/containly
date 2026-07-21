@@ -7,4 +7,5 @@ export * from './schemas/stack.js';
 export * from './schemas/updates.js';
 export * from './schemas/backup.js';
 export * from './schemas/registry.js';
+export * from './schemas/version.js';
 export * from './schemas/ws.js';

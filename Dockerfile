@@ -31,7 +31,10 @@ RUN npm prune --omit=dev
 # ── Stage 2: Runtime ─────────────────────────────────────────────────────────
 FROM node:22-bookworm-slim AS runner
 WORKDIR /app
+# Injected from the release tag by CI (falls back to "dev" for local builds).
+ARG CONTAINLY_VERSION=dev
 ENV NODE_ENV=production \
+    CONTAINLY_VERSION=$CONTAINLY_VERSION \
     CONTAINLY_WEB_ROOT=/app/web/dist \
     CONTAINLY_DATA_DIR=/data \
     CONTAINLY_STACKS_DIR=/stacks \

@@ -42,6 +42,8 @@ jobs:
           # amd64 only for now: Vite 8/Rolldown's arm64 native binding isn't
           # reliably installed under emulation (npm optional-deps bug #4828).
           platforms: linux/amd64
+          build-args: |
+            CONTAINLY_VERSION=${{ steps.meta.outputs.version }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
