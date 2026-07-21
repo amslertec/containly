@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.4] — 2026-07-21
+
+### Added
+
+- **Live terminal output** for stack deploy / down / start / stop / restart — the
+  `docker compose` output now streams in real time over WebSocket (pull progress,
+  container creation, errors) with auto-scroll, instead of only showing the final
+  result. Works for local and remote (helper-container) endpoints.
+
 ## [0.1.3] — 2026-07-21
 
 ### Added
@@ -90,7 +99,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.3...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.4...HEAD
+[0.1.4]: https://github.com/amslertec/containly/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/amslertec/containly/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/amslertec/containly/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/amslertec/containly/compare/v0.1.0...v0.1.1

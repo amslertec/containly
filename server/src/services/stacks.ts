@@ -334,4 +334,25 @@ export function stackAction(id: string, action: StackAction): Promise<string> {
   return compose(id, [...STACK_ACTIONS[action]]);
 }
 
+/** Streaming-Varianten (Live-Terminal): `up`/`down` + alle Lifecycle-Aktionen. */
+const STREAM_OPS = {
+  up: ['up', '-d', '--remove-orphans'],
+  down: ['down'],
+  ...STACK_ACTIONS,
+} as const;
+export type StackStreamOp = keyof typeof STREAM_OPS;
+
+/** Führt eine Stack-Operation aus und streamt die Ausgabe live über `onData`. */
+export async function streamStackOp(
+  id: string,
+  op: StackStreamOp,
+  onData: (chunk: string) => void,
+): Promise<number> {
+  const { dir, name, fs } = await resolveStack(id);
+  const files = await fs.listDir(dir);
+  const composeFile = pickComposeFile(files);
+  if (!composeFile) throw new Error('Keine Compose-Datei im Projekt gefunden');
+  return fs.composeStream(dir, projectName(name), composeFile, [...STREAM_OPS[op]], onData);
+}
+
 export { removeHelper };

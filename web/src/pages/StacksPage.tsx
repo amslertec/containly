@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
@@ -315,6 +316,7 @@ export function StackDetailPage() {
   const { t } = useTranslation();
   const { id } = useParams({ from: '/stacks/$id' });
   const navigate = useNavigate();
+  const qc = useQueryClient();
   const { setSelected } = useEndpoints();
   const { isAdmin } = useAuth();
   const mut = useStackMutations();
@@ -384,30 +386,48 @@ export function StackDetailPage() {
     }
   };
 
-  // Führt eine Stack-Operation aus und zeigt ihre Ausgabe live im Terminal-Modal.
-  const runOp = async (title: string, run: () => Promise<{ output: string }>): Promise<void> => {
-    setDeployLog({ title, text: t('stacks.opRunning'), error: false, running: true });
-    try {
-      const res = await run();
-      setDeployLog({ title, text: res.output?.trim() || t('stacks.opDone'), error: false });
-    } catch (err) {
-      setDeployLog({ title, text: err instanceof ApiError ? err.message : String(err), error: true });
-    }
+  // Live-Streaming der `docker compose`-Ausgabe über WebSocket (Terminal-Ansicht).
+  const streamOp = (title: string, op: string): void => {
+    setDeployLog({ title, text: '', error: false, running: true });
+    const proto = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const ws = new WebSocket(`${proto}://${window.location.host}/api/stacks/${id}/deploy/stream?op=${op}`);
+    let buf = '';
+    ws.onmessage = (e) => {
+      let msg: { type: string; data?: string; code?: number; message?: string };
+      try {
+        msg = JSON.parse(typeof e.data === 'string' ? e.data : '');
+      } catch {
+        return;
+      }
+      if (msg.type === 'data') {
+        buf += msg.data ?? '';
+        setDeployLog((l) => (l && l.running ? { ...l, text: buf } : l));
+      } else if (msg.type === 'end') {
+        setDeployLog((l) => (l ? { ...l, running: false, error: msg.code !== 0, text: buf || t('stacks.opDone') } : l));
+        void qc.invalidateQueries({ queryKey: ['stack', id] });
+        void qc.invalidateQueries({ queryKey: ['stacks'] });
+        ws.close();
+      } else if (msg.type === 'error') {
+        setDeployLog((l) => (l ? { ...l, running: false, error: true, text: (buf ? `${buf}\n` : '') + (msg.message ?? '') } : l));
+        ws.close();
+      }
+    };
+    ws.onerror = () => setDeployLog((l) => (l && l.running ? { ...l, running: false, error: true, text: `${buf}\n[${t('common.error')}]` } : l));
   };
 
   const deploy = async (): Promise<void> => {
     if (dirty && !(await saveFile())) return;
-    await runOp(t('stacks.redeploy'), () => mut.deploy.mutateAsync(id));
+    streamOp(t('stacks.redeploy'), 'up');
   };
 
   const down = async (): Promise<void> => {
     const ok = await confirm({ title: t('stacks.down'), description: t('stacks.downConfirm', { name: stack?.name }), danger: true, confirmLabel: t('stacks.down') });
     if (!ok) return;
-    await runOp(t('stacks.down'), () => mut.down.mutateAsync(id));
+    streamOp(t('stacks.down'), 'down');
   };
 
-  const runAction = (action: StackActionName): Promise<void> =>
-    runOp(t(`stacks.${action}`), () => mut.action.mutateAsync({ id, action }));
+  const runAction = (action: StackActionName): void => streamOp(t(`stacks.${action}`), action);
+  const opRunning = !!deployLog?.running;
 
   const removeStack = async (): Promise<void> => {
     const ok = await confirm({ title: t('common.delete'), description: t('stacks.deleteConfirm', { name: stack?.name }), danger: true, confirmLabel: t('common.delete'), confirmText: stack?.name });
@@ -464,24 +484,24 @@ export function StackDetailPage() {
         </div>
         {isAdmin && (
           <div className="flex flex-wrap items-center gap-2">
-            <Button variant="secondary" size="sm" onClick={() => void saveFile()} loading={mut.saveFile.isPending} disabled={!dirty}>
+            <Button variant="secondary" size="sm" onClick={() => void saveFile()} loading={mut.saveFile.isPending} disabled={!dirty || opRunning}>
               <Save className="h-4 w-4" /> {t('common.save')}
             </Button>
             <div className="mx-1 h-6 w-px bg-border" />
-            <Button variant="subtle" size="sm" onClick={() => void runAction('start')} loading={mut.action.isPending}>
+            <Button variant="subtle" size="sm" onClick={() => runAction('start')} disabled={opRunning}>
               <Play className="h-4 w-4" /> {t('stacks.start')}
             </Button>
-            <Button variant="subtle" size="sm" onClick={() => void runAction('stop')} loading={mut.action.isPending}>
+            <Button variant="subtle" size="sm" onClick={() => runAction('stop')} disabled={opRunning}>
               <Square className="h-4 w-4" /> {t('stacks.stop')}
             </Button>
-            <Button variant="subtle" size="sm" onClick={() => void runAction('restart')} loading={mut.action.isPending}>
+            <Button variant="subtle" size="sm" onClick={() => runAction('restart')} disabled={opRunning}>
               <RotateCw className="h-4 w-4" /> {t('stacks.restart')}
             </Button>
             <div className="mx-1 h-6 w-px bg-border" />
-            <Button variant="subtle" size="sm" onClick={() => void down()} loading={mut.down.isPending}>
+            <Button variant="subtle" size="sm" onClick={() => void down()} disabled={opRunning}>
               <Power className="h-4 w-4" /> {t('stacks.down')}
             </Button>
-            <Button variant="primary" size="sm" onClick={() => void deploy()} loading={mut.deploy.isPending}>
+            <Button variant="primary" size="sm" onClick={() => void deploy()} loading={opRunning} disabled={opRunning}>
               <Ship className="h-4 w-4" /> {t('stacks.redeploy')}
             </Button>
           </div>

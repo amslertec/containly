@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CheckCircle2, X, XCircle } from 'lucide-react';
 import { Button } from './ui/Button';
@@ -12,6 +13,12 @@ export interface DeployLog {
 /** Terminal-style modal showing the output of a stack deploy/down/action. */
 export function DeployOutputModal({ log, onClose }: { log: DeployLog | null; onClose: () => void }) {
   const { t } = useTranslation();
+  const preRef = useRef<HTMLPreElement>(null);
+  // Wächst der Stream, immer ans Ende scrollen (wie ein Terminal).
+  useEffect(() => {
+    const el = preRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [log?.text]);
   if (!log) return null;
   return (
     <div
@@ -40,7 +47,10 @@ export function DeployOutputModal({ log, onClose }: { log: DeployLog | null; onC
             </button>
           )}
         </div>
-        <pre className="flex-1 overflow-auto whitespace-pre-wrap break-words bg-[#0a1417] p-4 font-mono text-[12.5px] leading-relaxed text-[#d6e0dd]">
+        <pre
+          ref={preRef}
+          className="flex-1 overflow-auto whitespace-pre-wrap break-words bg-[#0a1417] p-4 font-mono text-[12.5px] leading-relaxed text-[#d6e0dd]"
+        >
           {log.text || '…'}
         </pre>
         <div className="flex justify-end border-t border-border px-4 py-3">

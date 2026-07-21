@@ -24,6 +24,7 @@ import { versionRoutes } from './routes/version.js';
 import { registerLogsWs } from './ws/logs.js';
 import { registerStatsWs } from './ws/stats.js';
 import { registerExecWs } from './ws/exec.js';
+import { registerStackDeployWs } from './ws/stack-deploy.js';
 
 export async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({
@@ -97,6 +98,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await registerLogsWs(app);
   await registerStatsWs(app);
   await registerExecWs(app);
+  await registerStackDeployWs(app);
 
   app.get('/healthz', async () => ({ ok: true }));
 

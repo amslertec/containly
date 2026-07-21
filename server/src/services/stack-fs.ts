@@ -1,4 +1,4 @@
-import { execFile } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
 import {
   mkdirSync,
   readdirSync,
@@ -49,6 +49,14 @@ export interface StackFs {
   remove(path: string): Promise<void>;
   /** `docker compose` im Projektordner — läuft nativ auf dem Ziel-Host. */
   compose(dir: string, project: string, composeFile: string, args: string[]): Promise<string>;
+  /** Wie `compose`, aber streamt die Ausgabe live (onData) und liefert den Exit-Code. */
+  composeStream(
+    dir: string,
+    project: string,
+    composeFile: string,
+    args: string[],
+    onData: (chunk: string) => void,
+  ): Promise<number>;
 }
 
 /* ── Lokal: direkter node:fs-Zugriff (socket-Endpoints / gemountete Pfade) ──── */
@@ -129,6 +137,25 @@ class LocalFs implements StackFs {
     } finally {
       cleanup();
     }
+  }
+  async composeStream(
+    dir: string,
+    project: string,
+    composeFile: string,
+    args: string[],
+    onData: (chunk: string) => void,
+  ): Promise<number> {
+    const { env, cleanup } = await getDockerEnv(this.endpoint);
+    return new Promise<number>((resolve, reject) => {
+      const child = spawn('docker', ['compose', '-p', project, '-f', join(dir, composeFile), ...args], {
+        cwd: dir,
+        env: { ...process.env, ...env },
+      });
+      child.stdout.on('data', (d: Buffer) => onData(d.toString('utf8')));
+      child.stderr.on('data', (d: Buffer) => onData(d.toString('utf8')));
+      child.on('error', (e) => { cleanup(); reject(e); });
+      child.on('close', (code) => { cleanup(); resolve(code ?? 0); });
+    });
   }
 }
 
@@ -369,6 +396,32 @@ class RemoteFs implements StackFs {
     );
     if (exit !== 0) throw new Error((stderr || stdout).trim() || 'compose fehlgeschlagen');
     return stdout + stderr;
+  }
+
+  async composeStream(
+    dir: string,
+    project: string,
+    composeFile: string,
+    args: string[],
+    onData: (chunk: string) => void,
+  ): Promise<number> {
+    const docker = getDocker(this.endpoint);
+    const container = await ensureHelper(this.endpoint);
+    const exec = await container.exec({
+      Cmd: ['docker', 'compose', '-p', project, '-f', join(dir, composeFile), ...args],
+      AttachStdout: true,
+      AttachStderr: true,
+      WorkingDir: dir,
+    });
+    const stream = await exec.start({ hijack: true, stdin: false });
+    await new Promise<void>((res, rej) => {
+      const w = new Writable({ write(c, _e, cb) { onData(Buffer.from(c).toString('utf8')); cb(); } });
+      docker.modem.demuxStream(stream, w, w);
+      stream.on('end', () => res());
+      stream.on('error', rej);
+    });
+    const info = await exec.inspect();
+    return info.ExitCode ?? 0;
   }
 }
 
