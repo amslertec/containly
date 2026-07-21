@@ -1,4 +1,11 @@
-# Containly
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="Logos/containly-schild-lockup-dark.svg">
+    <img src="Logos/containly-schild-lockup-teal.svg" alt="Containly" width="360">
+  </picture>
+</p>
+
+<h1 align="center">Containly</h1>
 
 **A modern, secure, self-hosted Docker management web UI** — a Portainer
 alternative without vendor lock-in. Stack definitions live as version-controllable
