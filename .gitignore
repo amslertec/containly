@@ -37,3 +37,6 @@ logs/
 NAMING-UND-LOGO.md
 /docker-compose.override.yml
 Logos/README.txt
+
+# Docker Hub repo overview (paste manually; not for git/image)
+DOCKERHUB.md
