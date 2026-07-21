@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.1] — 2026-07-21
+
+### Added
+
+- **Self-update notification** — checks the latest GitHub release, shows an update
+  modal with the changelog when a newer version exists, and a Settings **"Version"**
+  tab with a manual "check now". The running version is injected from the release tag.
+- **Stack lifecycle from the detail view** — Start / Stop / Restart buttons alongside
+  deploy / down, with the command output shown in a terminal-style modal.
+- **Delete entire folders** (recursively) from the stack file browser.
+
+### Changed
+
+- The example `docker-compose.yml` now loads all configuration from `.env`
+  (`env_file`), so there is a single source of truth for settings.
+
+### Fixed
+
+- `CONTAINLY_SECURE_COOKIES` now defaults to `false` so fresh installs reached over
+  plain HTTP render correctly. With `true` over HTTP the CSP `upgrade-insecure-requests`
+  directive upgraded assets to HTTPS (not served) and produced a blank page.
+
 ## [0.1.0] — 2026-07-21
 
 First public release. Containly is a modern, secure, self-hosted Docker
@@ -38,5 +60,6 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/amslertec/containly/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/amslertec/containly/releases/tag/v0.1.0
