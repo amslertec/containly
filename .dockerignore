@@ -1,0 +1,17 @@
+node_modules
+*/node_modules
+**/dist
+**/*.tsbuildinfo
+.git
+.gitignore
+.env
+.env.local
+data
+stacks
+certs
+*.sqlite
+*.sqlite-*
+*.log
+.vscode
+.idea
+README.md

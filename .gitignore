@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Build output
+dist/
+*/dist/
+*.tsbuildinfo
+
+# Runtime data — never commit secrets or the live DB
+.env
+.env.local
+data/
+stacks/
+*.sqlite
+*.sqlite-*
+*.db
+
+# Live deployment config (nutze docker-compose.example.yml als Vorlage)
+/docker-compose.yml
+
+# TLS client certs / keys for remote Docker endpoints
+certs/
+*.pem
+*.key
+*.crt
+
+# Logs
+*.log
+logs/
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+NAMING-UND-LOGO.md
+/docker-compose.override.yml
+Logos/README.txt

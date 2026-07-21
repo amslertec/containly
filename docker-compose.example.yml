@@ -1,0 +1,75 @@
+# ── Containly — example deployment ───────────────────────────────────────────
+# Copy this file to `docker-compose.yml` and adjust it.
+#
+# ⚠️ Security-critical: Containly talks to the Docker socket (= root on the host).
+#    For hardened setups use the socket-proxy (profile "hardened").
+#
+#   Start:   docker compose up -d
+#   Logs:    docker compose logs -f containly
+#   Update:  docker compose pull && docker compose up -d
+services:
+  containly:
+    # Prebuilt image from Docker Hub (recommended):
+    image: amslertec/containly:latest
+    # …or build locally instead of pulling:
+    # build: .
+    container_name: containly
+    restart: unless-stopped
+    environment:
+      # Behind TLS / a reverse proxy: true. Plain HTTP test on the LAN: false.
+      CONTAINLY_SECURE_COOKIES: "true"
+      CONTAINLY_TRUST_PROXY: "true"
+      LOG_LEVEL: "info"
+      # Session secret & master key are generated in /data at runtime.
+    volumes:
+      # DB, session secret, master key (0600).
+      - ./data:/data
+      # Compose stacks created by Containly.
+      - ./stacks:/stacks
+      # Stack scanning: mount the host directory that holds your docker-compose
+      # projects at the SAME path (path inside the container = path on the host)
+      # so the per-endpoint stack paths resolve correctly. Adjust this!
+      - /path/to/your/compose-projects:/path/to/your/compose-projects
+      # Full socket access (= root on the host). Alternative: socket-proxy below.
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      # Bind locally only and terminate TLS at a reverse proxy:
+      - "127.0.0.1:8420:8420"
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:8420/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ── Optional (recommended): filtered Docker socket proxy (least privilege) ───
+  # Enable with:  docker compose --profile hardened up -d
+  # Then add a TCP endpoint in Containly on  tcp://socket-proxy:2375  (internal
+  # network only; never expose plain 2375 externally!) and remove the direct
+  # socket mount above.
+  socket-proxy:
+    image: tecnativa/docker-socket-proxy:latest
+    container_name: containly-socket-proxy
+    profiles: ["hardened"]
+    restart: unless-stopped
+    privileged: false
+    environment:
+      CONTAINERS: "1"
+      IMAGES: "1"
+      NETWORKS: "1"
+      VOLUMES: "1"
+      INFO: "1"
+      POST: "1" # allow mutations (start/stop/deploy) — intentionally enabled
+      EXEC: "1" # exec console
+      # Everything else stays blocked by default (e.g. SWARM, system shutdown).
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - containly-internal
+
+networks:
+  containly-internal:
+    driver: bridge

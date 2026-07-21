@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 64" width="300" height="64" fill="none">
+  <g transform="translate(0,8)">
+    <path d="M24 7 L39 12 L39 24 C39 32 32 38 24 41 C16 38 9 32 9 24 L9 12 Z" stroke="#0B7D72" stroke-width="3" stroke-linejoin="round"></path>
+    <circle cx="16" cy="22" r="2.6" fill="#0B7D72"></circle>
+    <circle cx="24" cy="22" r="2.6" fill="#C2661A"></circle>
+    <circle cx="32" cy="22" r="2.6" fill="#0B7D72"></circle>
+  </g>
+  <text x="62" y="34" font-family="&#39;Space Grotesk&#39;, system-ui, sans-serif" font-size="30" font-weight="600" letter-spacing="-0.6" fill="#16201D">Containly</text>
+  <text x="63" y="50" font-family="&#39;IBM Plex Mono&#39;, ui-monospace, monospace" font-size="9.5" letter-spacing="0.2" fill="#64716C">Container über alle deine Docker-Hosts verwalten.</text>
+</svg>

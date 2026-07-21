@@ -1,0 +1,290 @@
+@import 'tailwindcss';
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Containly Design-System
+   Semantische Tokens als CSS-Variablen (Runtime-Theme-Switch), in Tailwind v4
+   über @theme referenziert, damit Utilities wie `bg-surface` live umschalten.
+   ────────────────────────────────────────────────────────────────────────── */
+
+@theme {
+  --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace;
+  --font-display: 'Space Grotesk Variable', 'IBM Plex Sans', ui-sans-serif, sans-serif;
+
+  --color-bg: var(--w-bg);
+  --color-bg-sunken: var(--w-bg-sunken);
+  --color-surface: var(--w-surface);
+  --color-surface-2: var(--w-surface-2);
+  --color-surface-hover: var(--w-surface-hover);
+  --color-border: var(--w-border);
+  --color-border-strong: var(--w-border-strong);
+  --color-ink: var(--w-ink);
+  --color-muted: var(--w-muted);
+  --color-faint: var(--w-faint);
+
+  --color-primary: var(--w-primary);
+  --color-primary-hover: var(--w-primary-hover);
+  --color-primary-ink: var(--w-primary-ink);
+  --color-primary-soft: var(--w-primary-soft);
+
+  --color-signal: var(--w-signal);
+  --color-signal-soft: var(--w-signal-soft);
+
+  --color-run: var(--w-run);
+  --color-run-soft: var(--w-run-soft);
+  --color-pause: var(--w-pause);
+  --color-pause-soft: var(--w-pause-soft);
+  --color-stop: var(--w-stop);
+  --color-stop-soft: var(--w-stop-soft);
+  --color-danger: var(--w-danger);
+  --color-danger-hover: var(--w-danger-hover);
+  --color-danger-soft: var(--w-danger-soft);
+  --color-warn: var(--w-warn);
+  --color-warn-soft: var(--w-warn-soft);
+
+  --radius-xs: 3px;
+  --radius-sm: 5px;
+  --radius-md: 7px;
+  --radius-lg: 11px;
+  --radius-xl: 16px;
+}
+
+/* Light (Default) — kühles „Papier", kein warmes Creme. */
+:root {
+  --w-bg: #eef2f1;
+  --w-bg-sunken: #e4eae8;
+  --w-surface: #ffffff;
+  --w-surface-2: #f4f7f6;
+  --w-surface-hover: #eef3f2;
+  --w-border: #d5dfdc;
+  --w-border-strong: #bcc9c6;
+  --w-ink: #0c1b1f;
+  --w-muted: #55676a;
+  --w-faint: #7d8f92;
+
+  --w-primary: #0b7d72;
+  --w-primary-hover: #096a61;
+  --w-primary-ink: #ffffff;
+  --w-primary-soft: #d3ece8;
+
+  --w-signal: #c2661a;
+  --w-signal-soft: #f6e2cf;
+
+  --w-run: #1a8a45;
+  --w-run-soft: #d3ecd9;
+  --w-pause: #2563b8;
+  --w-pause-soft: #d6e3f6;
+  --w-stop: #6c7a7d;
+  --w-stop-soft: #dde5e4;
+  --w-danger: #c33636;
+  --w-danger-hover: #a72a2a;
+  --w-danger-soft: #f5d9d9;
+  --w-warn: #a9791a;
+  --w-warn-soft: #f3e6c9;
+
+  --w-shadow: 0 1px 2px rgba(12, 27, 31, 0.06), 0 4px 12px rgba(12, 27, 31, 0.05);
+  --w-shadow-lg: 0 8px 30px rgba(12, 27, 31, 0.14);
+  color-scheme: light;
+}
+
+/* Dark */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --w-bg: #0a1417;
+    --w-bg-sunken: #060e10;
+    --w-surface: #10201f;
+    --w-surface-2: #16292b;
+    --w-surface-hover: #1a3033;
+    --w-border: #21393b;
+    --w-border-strong: #315053;
+    --w-ink: #e4ede9;
+    --w-muted: #93a8a6;
+    --w-faint: #6c8180;
+
+    --w-primary: #2bb6a2;
+    --w-primary-hover: #38c7b2;
+    --w-primary-ink: #04201c;
+    --w-primary-soft: #123330;
+
+    --w-signal: #e2934e;
+    --w-signal-soft: #33241a;
+
+    --w-run: #3fb95a;
+    --w-run-soft: #122e1c;
+    --w-pause: #4f8ff0;
+    --w-pause-soft: #132638;
+    --w-stop: #8798a0;
+    --w-stop-soft: #1c2c2e;
+    --w-danger: #f0555a;
+    --w-danger-hover: #ff6a6f;
+    --w-danger-soft: #331519;
+    --w-warn: #e3b341;
+    --w-warn-soft: #2e2712;
+
+    --w-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 18px rgba(0, 0, 0, 0.35);
+    --w-shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);
+    color-scheme: dark;
+  }
+}
+
+/* Manuelle Übersteuerung (persistiert) — gewinnt in beide Richtungen. */
+:root[data-theme='light'] {
+  --w-bg: #eef2f1;
+  --w-bg-sunken: #e4eae8;
+  --w-surface: #ffffff;
+  --w-surface-2: #f4f7f6;
+  --w-surface-hover: #eef3f2;
+  --w-border: #d5dfdc;
+  --w-border-strong: #bcc9c6;
+  --w-ink: #0c1b1f;
+  --w-muted: #55676a;
+  --w-faint: #7d8f92;
+  --w-primary: #0b7d72;
+  --w-primary-hover: #096a61;
+  --w-primary-ink: #ffffff;
+  --w-primary-soft: #d3ece8;
+  --w-signal: #c2661a;
+  --w-signal-soft: #f6e2cf;
+  --w-run: #1a8a45;
+  --w-run-soft: #d3ecd9;
+  --w-pause: #2563b8;
+  --w-pause-soft: #d6e3f6;
+  --w-stop: #6c7a7d;
+  --w-stop-soft: #dde5e4;
+  --w-danger: #c33636;
+  --w-danger-hover: #a72a2a;
+  --w-danger-soft: #f5d9d9;
+  --w-warn: #a9791a;
+  --w-warn-soft: #f3e6c9;
+  --w-shadow: 0 1px 2px rgba(12, 27, 31, 0.06), 0 4px 12px rgba(12, 27, 31, 0.05);
+  --w-shadow-lg: 0 8px 30px rgba(12, 27, 31, 0.14);
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --w-bg: #0a1417;
+  --w-bg-sunken: #060e10;
+  --w-surface: #10201f;
+  --w-surface-2: #16292b;
+  --w-surface-hover: #1a3033;
+  --w-border: #21393b;
+  --w-border-strong: #315053;
+  --w-ink: #e4ede9;
+  --w-muted: #93a8a6;
+  --w-faint: #6c8180;
+  --w-primary: #2bb6a2;
+  --w-primary-hover: #38c7b2;
+  --w-primary-ink: #04201c;
+  --w-primary-soft: #123330;
+  --w-signal: #e2934e;
+  --w-signal-soft: #33241a;
+  --w-run: #3fb95a;
+  --w-run-soft: #122e1c;
+  --w-pause: #4f8ff0;
+  --w-pause-soft: #132638;
+  --w-stop: #8798a0;
+  --w-stop-soft: #1c2c2e;
+  --w-danger: #f0555a;
+  --w-danger-hover: #ff6a6f;
+  --w-danger-soft: #331519;
+  --w-warn: #e3b341;
+  --w-warn-soft: #2e2712;
+  --w-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 18px rgba(0, 0, 0, 0.35);
+  --w-shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);
+  color-scheme: dark;
+}
+
+/* ── Basis ─────────────────────────────────────────────────────────────── */
+* {
+  border-color: var(--w-border);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--w-bg);
+  color: var(--w-ink);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Signage-Label: das typografische Signatur-Element (Ladelisten-Ästhetik). */
+.eyebrow {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  font-weight: 600;
+  font-size: 11px;
+  color: var(--w-faint);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+/* Fokus für interaktive Nicht-Formularelemente (Links, Buttons). */
+:where(a, button, [role='button'], [tabindex]):focus-visible {
+  outline: 2px solid var(--w-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
+/* Formularfelder: ruhiger, IMMER sichtbarer Fokus-Ring — auch bei Mausklick
+   (nicht nur :focus-visible). Border wird eingefärbt, dazu ein weicher Halo. */
+:where(input, select, textarea):focus,
+:where(input, select, textarea):focus-visible {
+  outline: none;
+  border-color: var(--w-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--w-primary) 22%, transparent);
+}
+
+/* Mobil: Schriftgröße ≥ 16px verhindert das automatische Hineinzoomen beim Fokus. */
+@media (max-width: 640px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Dezente Scrollbars im Instrumenten-Stil. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--w-border-strong) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--w-border-strong);
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--w-faint);
+  background-clip: content-box;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* xterm-Terminal an die Flächenfarbe angleichen. */
+.xterm .xterm-viewport {
+  background-color: transparent !important;
+}
