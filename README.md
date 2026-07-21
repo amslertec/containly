@@ -58,10 +58,10 @@ mkdir containly && cd containly
 curl -fsSL https://raw.githubusercontent.com/amslertec/containly/main/docker-compose.example.yml -o docker-compose.yml
 curl -fsSL https://raw.githubusercontent.com/amslertec/containly/main/.env.example -o .env
 
-# Edit docker-compose.yml — at minimum:
-#   - the compose-projects volume mount (path on the host = path in the container)
-#   - CONTAINLY_SECURE_COOKIES: true behind HTTPS, false for plain HTTP on the LAN
-#   - the published port (127.0.0.1:8420 behind a proxy, or 0.0.0.0:8420 for direct LAN)
+# All app config lives in .env (the compose file loads it via env_file). Edit .env —
+# at minimum keep CONTAINLY_SECURE_COOKIES=false for plain HTTP (true only behind HTTPS).
+# In docker-compose.yml, adjust the compose-projects volume mount
+# (path on the host = path in the container).
 
 docker compose pull
 docker compose up -d
@@ -69,11 +69,12 @@ docker compose logs -f containly   # copy the one-time setup token from the logs
 ```
 
 On first start there is **no admin** yet. Containly prints a one-time **setup
-token** to the logs (also in `data/setup.token`). Open the UI, enter the token, and
-create the first administrator. After that, setup mode is closed permanently.
+token** to the logs (also in `data/setup.token`). Open `http://<server-ip>:8420`,
+enter the token, and create the first administrator. After that, setup mode is
+closed permanently.
 
-Containly listens on `127.0.0.1:8420` by default — put a reverse proxy
-(Traefik/Caddy/nginx) with TLS in front of it.
+For production, put a reverse proxy (Traefik/Caddy/nginx) with TLS in front, set
+`CONTAINLY_SECURE_COOKIES=true`, and bind the port locally (`127.0.0.1:8420`).
 
 ### Hardening: filtered socket proxy (recommended)
 

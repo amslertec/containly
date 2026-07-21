@@ -22,7 +22,10 @@ export const config = {
   secretPath: resolve(dataDir, 'session.secret'),
   masterKeyPath: resolve(dataDir, 'master.key'),
   sessionSecretEnv: process.env.CONTAINLY_SESSION_SECRET ?? '',
-  secureCookies: bool(process.env.CONTAINLY_SECURE_COOKIES, true),
+  // Default false: works over plain HTTP out of the box (fresh installs). Set to
+  // true ONLY behind a TLS-terminating reverse proxy — over HTTP, true triggers
+  // CSP upgrade-insecure-requests and the page renders BLANK.
+  secureCookies: bool(process.env.CONTAINLY_SECURE_COOKIES, false),
   trustProxy: bool(process.env.CONTAINLY_TRUST_PROXY, true),
   dockerSocket: process.env.DOCKER_SOCKET ?? '/var/run/docker.sock',
   logLevel: process.env.LOG_LEVEL ?? 'info',
