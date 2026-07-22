@@ -3,7 +3,7 @@
 # (better-sqlite3, argon2) are compiled in the builder; the runtime is stripped
 # down and the bundled npm (a CVE source we don't need at runtime) is removed.
 
-FROM node:22-alpine AS builder
+FROM node:26-alpine AS builder
 WORKDIR /app
 
 # Build toolchain for node-gyp (native addons). Not copied into the runtime.
@@ -33,7 +33,7 @@ RUN npm run build
 RUN npm prune --omit=dev
 
 # ── Runtime ──────────────────────────────────────────────────────────────────
-FROM node:22-alpine AS runner
+FROM node:26-alpine AS runner
 WORKDIR /app
 # Injected from the release tag by CI (falls back to "dev" for local builds).
 ARG CONTAINLY_VERSION=dev
