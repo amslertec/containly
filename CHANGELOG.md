@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [0.1.6] — 2026-07-22
 
+### Added
+
+- **Updates now recreate the running container.** Applying an image update (single
+  or bulk) pulls the new image and then **recreates** every container using it — with
+  the same name, env, ports, volumes, networks and restart policy — so it immediately
+  runs the new image. Works for standalone and Compose-managed containers (Compose
+  labels are preserved) and over the Docker API (local + remote).
+
 ### Security
 
 - **Removed the bundled Docker CLI/Compose toolchain from the image.** `docker

@@ -497,7 +497,9 @@
     "pulled": "Pulled {{image}} — recreate the container to apply.",
     "updateAll": "Update all ({{count}})",
     "bulkProgress": "Updating {{done}}/{{total}} …",
-    "bulkDone": "{{ok}}/{{total}} images updated"
+    "bulkDone": "{{ok}}/{{total}} images updated",
+    "update": "Update",
+    "updatedRecreated": "{{image}} updated · {{count}} container(s) recreated"
   },
   "twofa": {
     "title": "Two-factor authentication",

@@ -497,7 +497,9 @@
     "pulled": "{{image}} geholt — Container zum Anwenden neu erstellen.",
     "updateAll": "Alle aktualisieren ({{count}})",
     "bulkProgress": "Aktualisiere {{done}}/{{total}} …",
-    "bulkDone": "{{ok}}/{{total}} Images aktualisiert"
+    "bulkDone": "{{ok}}/{{total}} Images aktualisiert",
+    "update": "Aktualisieren",
+    "updatedRecreated": "{{image}} aktualisiert · {{count}} Container neu erstellt"
   },
   "twofa": {
     "title": "Zwei-Faktor-Authentifizierung",

@@ -1,6 +1,6 @@
 import type { BulkJob } from '@containly/shared';
 import { checkUpdates } from '../docker/updates.js';
-import { pullImage } from '../docker/resources.js';
+import { applyImageUpdate } from '../docker/resources.js';
 import { logger } from '../logger.js';
 
 /**
@@ -45,7 +45,7 @@ export async function startBulkUpdate(endpoint: string): Promise<BulkJob> {
     for (const image of pending) {
       job.current = image;
       try {
-        await pullImage(endpoint, image);
+        await applyImageUpdate(endpoint, image);
       } catch (e) {
         job.errors.push({ image, error: e instanceof Error ? e.message : String(e) });
       }

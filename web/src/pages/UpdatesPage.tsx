@@ -51,10 +51,19 @@ export function UpdatesPage() {
     if (locked) return;
     setPullingKey(row._endpointId + row.image);
     try {
-      await api.post(`/api/images/pull?endpoint=${encodeURIComponent(row._endpointId)}`, { image: row.image });
+      const res = await api.post<{ recreated: string[] }>('/api/updates/apply', {
+        endpoint: row._endpointId,
+        image: row.image,
+      });
       void qc.invalidateQueries({ queryKey: ['updates', row._endpointId] });
       void qc.invalidateQueries({ queryKey: ['images', row._endpointId] });
-      toast.success(t('updates.pulled', { image: row.image }));
+      void qc.invalidateQueries({ queryKey: ['containers', row._endpointId] });
+      void qc.invalidateQueries({ queryKey: ['stacks'] });
+      toast.success(
+        res.recreated.length > 0
+          ? t('updates.updatedRecreated', { image: row.image, count: res.recreated.length })
+          : t('updates.pulled', { image: row.image }),
+      );
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : t('common.error'));
     } finally {
@@ -168,7 +177,7 @@ export function UpdatesPage() {
                         loading={pullingKey === row._endpointId + row.image}
                         disabled={locked}
                       >
-                        <Download className="h-4 w-4" /> {t('updates.pull')}
+                        <Download className="h-4 w-4" /> {t('updates.update')}
                       </Button>
                     )}
                   </Td>

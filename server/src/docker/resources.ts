@@ -1,3 +1,4 @@
+import type Docker from 'dockerode';
 import type {
   ImageSummary,
   NetworkSummary,
@@ -43,6 +44,84 @@ export async function pullImage(endpoint: string, image: string): Promise<void> 
       );
     });
   });
+}
+
+/**
+ * Erstellt einen Container mit identischer Konfiguration neu, aber mit `newImage`
+ * (Watchtower-Stil). Netzwerke/Volumes/Env/Labels/HostConfig bleiben erhalten.
+ */
+async function recreateContainer(docker: Docker, id: string, newImage: string): Promise<string> {
+  const container = docker.getContainer(id);
+  const info = await container.inspect();
+  const name = info.Name.replace(/^\//, '');
+  const wasRunning = !!info.State?.Running;
+  const shortId = info.Id.slice(0, 12);
+
+  // Netzwerke: Aliase + IPAM erhalten, Laufzeit-Felder (IPs) verwerfen. createContainer
+  // akzeptiert nur EIN Netzwerk — weitere danach verbinden.
+  const nets = info.NetworkSettings?.Networks ?? {};
+  const netNames = Object.keys(nets);
+  const cleanEndpoint = (n: (typeof nets)[string]) => ({
+    Aliases: (n.Aliases ?? []).filter((a: string) => a && a !== shortId && !info.Id.startsWith(a)),
+    IPAMConfig: n.IPAMConfig ?? undefined,
+  });
+
+  const createOpts: Parameters<Docker['createContainer']>[0] = {
+    name,
+    Image: newImage,
+    Hostname: info.Config.Hostname,
+    Domainname: info.Config.Domainname,
+    User: info.Config.User,
+    Env: info.Config.Env,
+    Cmd: info.Config.Cmd,
+    Entrypoint: info.Config.Entrypoint,
+    Labels: info.Config.Labels,
+    WorkingDir: info.Config.WorkingDir,
+    ExposedPorts: info.Config.ExposedPorts,
+    Volumes: info.Config.Volumes,
+    HostConfig: info.HostConfig,
+    ...(netNames[0]
+      ? { NetworkingConfig: { EndpointsConfig: { [netNames[0]]: cleanEndpoint(nets[netNames[0]]!) } } }
+      : {}),
+  };
+
+  if (wasRunning) await container.stop().catch(() => undefined);
+  await container.remove({ force: true });
+
+  const created = await docker.createContainer(createOpts);
+  // Weitere Netzwerke (ab dem zweiten) verbinden.
+  for (let i = 1; i < netNames.length; i++) {
+    const nm = netNames[i]!;
+    await docker
+      .getNetwork(nm)
+      .connect({ Container: created.id, EndpointConfig: cleanEndpoint(nets[nm]!) })
+      .catch(() => undefined);
+  }
+  if (wasRunning) await created.start();
+  return name;
+}
+
+/**
+ * Zieht das neue Image UND erstellt alle Container, die es nutzen, neu, damit sie
+ * sofort das aktuelle Image verwenden. Liefert die Namen der neu erstellten Container.
+ */
+export async function applyImageUpdate(endpoint: string, image: string): Promise<string[]> {
+  const docker = getDocker(endpoint);
+  // Betroffene Container VOR dem Pull ermitteln (danach wandert der Tag auf die neue ID).
+  const affected = await docker.listContainers({ all: true, filters: { ancestor: [image] } });
+  const ids = affected.map((c) => c.Id);
+
+  await pullImage(endpoint, image);
+
+  const recreated: string[] = [];
+  for (const id of ids) {
+    try {
+      recreated.push(await recreateContainer(docker, id, image));
+    } catch {
+      /* einzelner Recreate-Fehler bricht den Rest nicht ab */
+    }
+  }
+  return recreated;
 }
 
 export async function removeImage(endpoint: string, id: string, force: boolean): Promise<void> {

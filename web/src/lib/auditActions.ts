@@ -33,6 +33,7 @@ const LABELS: Record<string, { de: string; en: string }> = {
   'image.tag': { de: 'Image getaggt', en: 'Image tagged' },
   'image.remove': { de: 'Image entfernt', en: 'Image removed' },
   'image.prune': { de: 'Images aufgeräumt', en: 'Images pruned' },
+  'image.update': { de: 'Image aktualisiert (Recreate)', en: 'Image updated (recreate)' },
 
   'volume.create': { de: 'Volume erstellt', en: 'Volume created' },
   'volume.remove': { de: 'Volume entfernt', en: 'Volume removed' },
