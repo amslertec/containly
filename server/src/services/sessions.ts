@@ -96,6 +96,44 @@ export function destroySession(token: string): void {
   db.prepare('DELETE FROM sessions WHERE id = ?').run(hashToken(token));
 }
 
+export interface SessionInfo {
+  id: string; // SHA-256-Hash des Tokens (opake, sichere Kennung fürs Widerrufen)
+  createdAt: number;
+  lastSeen: number;
+  userAgent: string | null;
+  ip: string | null;
+  current: boolean;
+}
+
+/** Aktive Sitzungen eines Benutzers (aktuelle markiert), neueste zuerst. */
+export function listUserSessions(userId: number, currentToken: string): SessionInfo[] {
+  const currentId = hashToken(currentToken);
+  const rows = db
+    .prepare(
+      'SELECT id, created_at, last_seen, user_agent, ip FROM sessions WHERE user_id = ? ORDER BY last_seen DESC',
+    )
+    .all(userId) as {
+    id: string;
+    created_at: number;
+    last_seen: number;
+    user_agent: string | null;
+    ip: string | null;
+  }[];
+  return rows.map((r) => ({
+    id: r.id,
+    createdAt: r.created_at,
+    lastSeen: r.last_seen,
+    userAgent: r.user_agent,
+    ip: r.ip,
+    current: r.id === currentId,
+  }));
+}
+
+/** Widerruft eine Sitzung des Benutzers per (Hash-)ID. Liefert true, wenn entfernt. */
+export function revokeUserSession(userId: number, id: string): boolean {
+  return db.prepare('DELETE FROM sessions WHERE user_id = ? AND id = ?').run(userId, id).changes > 0;
+}
+
 export function destroyAllUserSessions(userId: number): void {
   db.prepare('DELETE FROM sessions WHERE user_id = ?').run(userId);
 }

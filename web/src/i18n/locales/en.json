@@ -830,5 +830,23 @@
     "sources": "Sources",
     "sourcesInfo": "Template lists in Portainer JSON format. Multiple sources supported.",
     "sourcesTitle": "Catalog sources"
+  },
+  "sessions": {
+    "title": "Active sessions",
+    "info": "Devices your account is signed in on. You can sign out any you don’t recognise.",
+    "current": "current",
+    "revoke": "Sign out",
+    "revoked": "Session signed out",
+    "lastSeen": "last seen {{when}}"
+  },
+  "favorites": {
+    "toggle": "Toggle favorite"
+  },
+  "layers": {
+    "title": "Layers",
+    "summary": "{{count}} layers · {{size}}",
+    "command": "Command",
+    "size": "Size",
+    "oldest": "Oldest layer: {{when}}"
   }
 }

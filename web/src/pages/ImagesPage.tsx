@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
-import { ArrowUpCircle, Download, Search, ShieldHalf, Tag as TagIcon, Trash2 } from 'lucide-react';
+import { ArrowUpCircle, Download, Layers as LayersIcon, Search, ShieldHalf, Tag as TagIcon, Trash2 } from 'lucide-react';
 import type { ImageSummary, PruneResult } from '@containly/shared';
 import { useEndpoints } from '../app/EndpointContext';
 import { useAuth } from '../app/AuthContext';
@@ -11,6 +11,7 @@ import { useUpdateFlags } from '../hooks/updates';
 import { useVulns } from '../hooks/vulns';
 import { VulnBadges } from '../components/VulnBadges';
 import { CveModal } from '../components/CveModal';
+import { ImageLayersModal } from '../components/ImageLayersModal';
 import type { CveDetail } from '@containly/shared';
 import { Page, PageHeader } from '../components/PageHeader';
 import { ImageSearchInput } from '../components/ImageSearchInput';
@@ -65,6 +66,7 @@ export function ImagesPage() {
   const vulns = useVulns();
   const [rescanning, setRescanning] = useState(false);
   const [cveModal, setCveModal] = useState<{ img: Row; sev: CveDetail['severity'] | 'ALL' } | null>(null);
+  const [layersImg, setLayersImg] = useState<Row | null>(null);
 
   const doRescan = async (): Promise<void> => {
     if (isAll) return;
@@ -285,24 +287,33 @@ export function ImagesPage() {
                 <Td className="text-right"><span className="tabular text-muted">{formatBytes(img.size)}</span></Td>
                 <Td><span className="text-muted">{relativeTime(img.created)}</span></Td>
                 <Td className="text-right">
-                  {isAdmin && (
-                    <div className="flex items-center justify-end gap-1">
-                      <button
-                        title={t('images.tag')}
-                        onClick={() => setTagImage(img)}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-surface-2 hover:text-ink"
-                      >
-                        <TagIcon className="h-4 w-4" />
-                      </button>
-                      <button
-                        title={t('common.remove')}
-                        onClick={() => void doRemove(img)}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-danger-soft hover:text-danger"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  )}
+                  <div className="flex items-center justify-end gap-1">
+                    <button
+                      title={t('layers.title')}
+                      onClick={() => setLayersImg(img)}
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-surface-2 hover:text-ink"
+                    >
+                      <LayersIcon className="h-4 w-4" />
+                    </button>
+                    {isAdmin && (
+                      <>
+                        <button
+                          title={t('images.tag')}
+                          onClick={() => setTagImage(img)}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-surface-2 hover:text-ink"
+                        >
+                          <TagIcon className="h-4 w-4" />
+                        </button>
+                        <button
+                          title={t('common.remove')}
+                          onClick={() => void doRemove(img)}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-danger-soft hover:text-danger"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </Td>
               </Tr>
             ))}
@@ -338,6 +349,14 @@ export function ImagesPage() {
           imageName={cveModal.img.repoTags[0] ?? shortId(cveModal.img.id)}
           initialSeverity={cveModal.sev}
           onClose={() => setCveModal(null)}
+        />
+      )}
+      {layersImg && (
+        <ImageLayersModal
+          endpointId={layersImg._endpointId}
+          imageId={layersImg.id}
+          imageName={layersImg.repoTags[0] ?? shortId(layersImg.id)}
+          onClose={() => setLayersImg(null)}
         />
       )}
     </Page>

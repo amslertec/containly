@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.24] — 2026-07-22
+
+### Added
+
+- **Active session management** (Profile → Security): see every device your account is
+  signed in on (browser/OS, IP, last-seen, the current one marked) and sign out any of
+  them individually.
+- **Pinned/favourite containers.** Star a container to pin it to the top of the
+  Containers list. Favourites are stored per user on the server (by endpoint + name, so
+  they survive a recreate) and sync across your devices.
+- **Image layer view.** A layers button on the Images page opens a breakdown of an
+  image's layers (`docker history`): the command that created each layer, its size
+  (with a relative bar) and age — so you can see what makes an image big.
+
 ## [0.1.23] — 2026-07-22
 
 ### Added
@@ -458,7 +472,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.23...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.24...HEAD
+[0.1.24]: https://github.com/amslertec/containly/compare/v0.1.23...v0.1.24
 [0.1.23]: https://github.com/amslertec/containly/compare/v0.1.22...v0.1.23
 [0.1.22]: https://github.com/amslertec/containly/compare/v0.1.21...v0.1.22
 [0.1.21]: https://github.com/amslertec/containly/compare/v0.1.20...v0.1.21

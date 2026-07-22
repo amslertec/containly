@@ -12,6 +12,7 @@ import {
   ScrollText,
   Search,
   Square,
+  Star,
   Trash2,
   X,
   Zap,
@@ -22,6 +23,7 @@ import { useEndpoints } from '../app/EndpointContext';
 import { useAuth } from '../app/AuthContext';
 import { useScopedList, type ScopedItem } from '../hooks/useScopedList';
 import { useUpdateFlags } from '../hooks/updates';
+import { useFavorites } from '../hooks/favorites';
 import { useConfirm } from '../hooks/useConfirm';
 import { Page, PageHeader } from '../components/PageHeader';
 import { Button } from '../components/ui/Button';
@@ -65,6 +67,7 @@ export function ContainersPage() {
   const { isAdmin } = useAuth();
   const qc = useQueryClient();
   const updates = useUpdateFlags();
+  const { isFav, toggle: toggleFav } = useFavorites();
   const { data, isLoading, isError, error, refetch } = useScopedList<
     ContainerSummary,
     { containers: ContainerSummary[] }
@@ -113,8 +116,13 @@ export function ContainersPage() {
     }
     const acc = SORT[sort.col] ?? SORT.name!;
     // Stabiler Tie-Breaker (ID) → gleich-bewertete Zeilen springen bei Reload nicht.
-    return sortRows(list, acc, sort.dir, (c) => c.id);
-  }, [data, filter, query, sort]);
+    const sorted = sortRows(list, acc, sort.dir, (c) => c.id);
+    // Favoriten immer zuoberst (unter Beibehaltung der Sortierung innerhalb der Gruppen).
+    return [
+      ...sorted.filter((c) => isFav(c._endpointId, c.names[0] ?? '')),
+      ...sorted.filter((c) => !isFav(c._endpointId, c.names[0] ?? '')),
+    ];
+  }, [data, filter, query, sort, isFav]);
 
   const pg = usePagination(filtered, 10);
 
@@ -388,6 +396,16 @@ export function ContainersPage() {
                       </td>
                       <td className="whitespace-nowrap py-2.5 pr-4">
                         <div className="flex items-center justify-end gap-1">
+                          <button
+                            title={t('favorites.toggle')}
+                            onClick={() => toggleFav(c._endpointId, c.names[0] ?? '')}
+                            className={cn(
+                              'inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-surface-2',
+                              isFav(c._endpointId, c.names[0] ?? '') ? 'text-amber-400' : 'text-muted hover:text-ink',
+                            )}
+                          >
+                            <Star className="h-4 w-4" fill={isFav(c._endpointId, c.names[0] ?? '') ? 'currentColor' : 'none'} />
+                          </button>
                           <Link
                             to="/containers/$id"
                             params={{ id: c.id }}

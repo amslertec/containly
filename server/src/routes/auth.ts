@@ -1,5 +1,6 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import { z } from 'zod';
 import QRCode from 'qrcode';
 import {
   ChangePasswordSchema,
@@ -31,6 +32,8 @@ import {
   createSession,
   destroyOtherUserSessions,
   destroySession,
+  listUserSessions,
+  revokeUserSession,
 } from '../services/sessions.js';
 import { getSessionSecret } from '../services/secrets.js';
 import { encryptSecret, decryptSecret } from '../services/crypto.js';
@@ -189,6 +192,21 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     const { language } = UpdateLanguageSchema.parse(req.body);
     setUserLanguage(ctx.userId, language);
     return { user: getUserById(ctx.userId) };
+  });
+
+  // Aktive Sitzungen des eigenen Kontos (mit aktueller markiert).
+  app.get('/api/auth/sessions', { preHandler: requireAuth }, async (req) => {
+    const ctx = currentUser(req);
+    return { sessions: listUserSessions(ctx.userId, ctx.sessionId) };
+  });
+
+  // Eine eigene Sitzung widerrufen (per Hash-ID).
+  app.delete('/api/auth/sessions/:id', { preHandler: requireAuth }, async (req) => {
+    const ctx = currentUser(req);
+    const { id } = z.object({ id: z.string().min(1).max(128) }).parse(req.params);
+    revokeUserSession(ctx.userId, id);
+    audit({ userId: ctx.userId, username: ctx.username, action: 'session.revoke', ip: req.ip });
+    return { ok: true as const };
   });
 
   app.post('/api/auth/password', { preHandler: requireAuth }, async (req) => {

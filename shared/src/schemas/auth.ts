@@ -65,6 +65,17 @@ export type User = z.infer<typeof UserSchema>;
 export const UpdateLanguageSchema = z.object({ language: LocaleSchema });
 export type UpdateLanguage = z.infer<typeof UpdateLanguageSchema>;
 
+/** Eine aktive Sitzung (für die Sitzungsverwaltung im Profil). */
+export const SessionInfoSchema = z.object({
+  id: z.string(),
+  createdAt: z.number(),
+  lastSeen: z.number(),
+  userAgent: z.string().nullable(),
+  ip: z.string().nullable(),
+  current: z.boolean(),
+});
+export type SessionInfo = z.infer<typeof SessionInfoSchema>;
+
 /** Optionale E-Mail-Adresse (leer erlaubt = keine Adresse). */
 export const EmailSchema = z
   .string()

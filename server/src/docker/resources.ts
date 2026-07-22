@@ -155,6 +155,25 @@ export async function removeImage(endpoint: string, id: string, force: boolean):
   await getDocker(endpoint).getImage(id).remove({ force });
 }
 
+/** Layer eines Images (`docker history`), Basis-Layer zuerst. */
+export async function imageHistory(endpoint: string, id: string): Promise<import('@containly/shared').ImageLayer[]> {
+  const raw = (await getDocker(endpoint).getImage(id).history()) as {
+    Created: number;
+    CreatedBy: string;
+    Size: number;
+    Comment: string;
+  }[];
+  // Docker liefert neueste zuerst → umkehren, damit der Basis-Layer oben steht.
+  return raw
+    .map((l) => ({
+      createdBy: (l.CreatedBy ?? '').replace(/^\/bin\/sh -c #\(nop\)\s*/, '').replace(/^\/bin\/sh -c\s*/, 'RUN '),
+      size: l.Size ?? 0,
+      created: l.Created ?? 0,
+      comment: l.Comment ?? '',
+    }))
+    .reverse();
+}
+
 export async function tagImage(
   endpoint: string,
   id: string,

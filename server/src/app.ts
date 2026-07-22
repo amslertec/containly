@@ -25,6 +25,7 @@ import { scheduleRoutes } from './routes/schedule.js';
 import { volumeBrowseRoutes } from './routes/volume-browse.js';
 import { gitopsRoutes } from './routes/gitops.js';
 import { catalogRoutes } from './routes/catalog.js';
+import { favoriteRoutes } from './routes/favorites.js';
 import { versionRoutes } from './routes/version.js';
 import { registerLogsWs } from './ws/logs.js';
 import { registerStatsWs } from './ws/stats.js';
@@ -106,6 +107,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(volumeBrowseRoutes);
   await app.register(gitopsRoutes);
   await app.register(catalogRoutes);
+  await app.register(favoriteRoutes);
   await app.register(versionRoutes);
 
   // WebSocket-Routen

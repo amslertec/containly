@@ -832,5 +832,23 @@
     "sources": "Quellen",
     "sourcesInfo": "Template-Listen im Portainer-JSON-Format. Mehrere Quellen möglich.",
     "sourcesTitle": "Katalog-Quellen"
+  },
+  "sessions": {
+    "title": "Aktive Sitzungen",
+    "info": "Geräte, auf denen dein Konto angemeldet ist. Unbekannte kannst du einzeln abmelden.",
+    "current": "aktuell",
+    "revoke": "Abmelden",
+    "revoked": "Sitzung abgemeldet",
+    "lastSeen": "zuletzt {{when}}"
+  },
+  "favorites": {
+    "toggle": "Favorit umschalten"
+  },
+  "layers": {
+    "title": "Layer",
+    "summary": "{{count}} Layer · {{size}}",
+    "command": "Befehl",
+    "size": "Größe",
+    "oldest": "Ältester Layer: {{when}}"
   }
 }

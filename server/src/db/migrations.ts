@@ -221,6 +221,19 @@ const migrations: Migration[] = [
       );
     `,
   },
+  {
+    version: 12,
+    name: 'favorites',
+    up: `
+      -- Angepinnte Container je Benutzer (nach Endpoint + Name, übersteht Recreate).
+      CREATE TABLE favorites (
+        user_id  INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        endpoint TEXT NOT NULL,
+        name     TEXT NOT NULL,
+        PRIMARY KEY (user_id, endpoint, name)
+      );
+    `,
+  },
 ];
 
 export function runMigrations(db: Database): void {

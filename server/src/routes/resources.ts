@@ -12,6 +12,7 @@ import {
 import {
   createNetwork,
   createVolume,
+  imageHistory,
   listImages,
   listNetworks,
   listVolumes,
@@ -100,6 +101,14 @@ export async function resourceRoutes(app: FastifyInstance): Promise<void> {
     const { endpoint } = ListQuerySchema.parse(req.query);
     assertEndpoint(endpoint);
     return getVulnState(endpoint);
+  });
+
+  // Layer eines Images (docker history) für die Layer-Ansicht.
+  app.get('/api/images/:id/history', { preHandler: requireAuth }, async (req) => {
+    const { endpoint } = ListQuerySchema.parse(req.query);
+    const { id } = IdParams.parse(req.params);
+    assertEndpoint(endpoint);
+    return { layers: await docker(() => imageHistory(endpoint, id)) };
   });
 
   // Detaillierte CVE-Liste eines Images (für das Detail-Modal).

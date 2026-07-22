@@ -15,6 +15,15 @@ export const ImageSummarySchema = z.object({
 });
 export type ImageSummary = z.infer<typeof ImageSummarySchema>;
 
+/** Ein Layer eines Images (aus `docker history`). */
+export const ImageLayerSchema = z.object({
+  createdBy: z.string(), // der Dockerfile-Befehl (CreatedBy)
+  size: z.number(),
+  created: z.number(), // epoch (Sekunden)
+  comment: z.string(),
+});
+export type ImageLayer = z.infer<typeof ImageLayerSchema>;
+
 /** Vulnerability-Zusammenfassung eines Images (Trivy-Scan). */
 export const ImageVulnSchema = z.object({
   imageId: z.string(),

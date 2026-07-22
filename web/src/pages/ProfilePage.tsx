@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Check,
   Copy,
@@ -7,12 +8,13 @@ import {
   KeyRound,
   LogOut,
   Mail,
+  MonitorSmartphone,
   ShieldCheck,
   ShieldOff,
   Smartphone,
   UserRound,
 } from 'lucide-react';
-import type { TwoFactorSetup } from '@containly/shared';
+import type { SessionInfo, TwoFactorSetup } from '@containly/shared';
 import { useAuth } from '../app/AuthContext';
 import { useChangePassword } from '../hooks/admin';
 import { evaluatePassword } from '../lib/passwordStrength';
@@ -20,8 +22,10 @@ import { Page, PageHeader } from '../components/PageHeader';
 import { Button } from '../components/ui/Button';
 import { Badge, Card, Input, Label } from '../components/ui/primitives';
 import { PasswordInput } from '../components/ui/PasswordInput';
+import { LoadingState } from '../components/States';
 import { toast } from '../components/Toaster';
 import { api, ApiError } from '../lib/api';
+import { relativeTime } from '../lib/time';
 import { cn } from '../lib/utils';
 
 type Tab = 'account' | 'password' | 'security';
@@ -208,11 +212,79 @@ function PasswordTab() {
 /* ── Sicherheit / 2FA ─────────────────────────────────────────────────────── */
 function SecurityTab() {
   const { user, refresh } = useAuth();
-  return user?.totpEnabled ? (
-    <TwoFactorActive onChange={() => void refresh()} />
-  ) : (
-    <TwoFactorSetupFlow onEnabled={() => void refresh()} />
+  return (
+    <div className="grid gap-5">
+      {user?.totpEnabled ? (
+        <TwoFactorActive onChange={() => void refresh()} />
+      ) : (
+        <TwoFactorSetupFlow onEnabled={() => void refresh()} />
+      )}
+      <SessionsCard />
+    </div>
   );
+}
+
+/** Aktive Sitzungen des eigenen Kontos ansehen + einzeln abmelden. */
+function SessionsCard() {
+  const { t } = useTranslation();
+  const qc = useQueryClient();
+  const { data, isLoading } = useQuery({
+    queryKey: ['sessions'],
+    queryFn: () => api.get<{ sessions: SessionInfo[] }>('/api/auth/sessions'),
+    select: (d) => d.sessions,
+  });
+  const revoke = useMutation({
+    mutationFn: (id: string) => api.delete(`/api/auth/sessions/${encodeURIComponent(id)}`),
+    onSuccess: () => {
+      toast.success(t('sessions.revoked'));
+      void qc.invalidateQueries({ queryKey: ['sessions'] });
+    },
+    onError: (err) => toast.error(err instanceof ApiError ? err.message : t('common.error')),
+  });
+
+  return (
+    <Card className="p-5">
+      <div className="mb-1 flex items-center gap-2">
+        <MonitorSmartphone className="h-5 w-5 text-primary" />
+        <h2 className="text-base font-semibold text-ink" style={{ fontFamily: 'var(--font-display)' }}>
+          {t('sessions.title')}
+        </h2>
+      </div>
+      <p className="mb-4 text-sm text-muted">{t('sessions.info')}</p>
+      {isLoading ? (
+        <LoadingState />
+      ) : (
+        <div className="divide-y divide-border rounded-lg border border-border">
+          {(data ?? []).map((s) => (
+            <div key={s.id} className="flex flex-wrap items-center gap-3 px-3 py-2.5">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="truncate text-[13px] text-ink">{prettyUserAgent(s.userAgent)}</span>
+                  {s.current && <Badge tone="run">{t('sessions.current')}</Badge>}
+                </div>
+                <div className="font-mono text-[11px] text-faint">
+                  {s.ip ?? '—'} · {t('sessions.lastSeen', { when: relativeTime(new Date(s.lastSeen).toISOString()) })}
+                </div>
+              </div>
+              {!s.current && (
+                <Button variant="ghost" size="sm" onClick={() => revoke.mutate(s.id)} loading={revoke.isPending}>
+                  <LogOut className="h-4 w-4" /> {t('sessions.revoke')}
+                </Button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </Card>
+  );
+}
+
+/** Grobe, lesbare Geräte-/Browser-Beschreibung aus dem User-Agent. */
+function prettyUserAgent(ua: string | null): string {
+  if (!ua) return 'Unbekanntes Gerät';
+  const os = /Windows/.test(ua) ? 'Windows' : /Mac OS X|Macintosh/.test(ua) ? 'macOS' : /Android/.test(ua) ? 'Android' : /iPhone|iPad|iOS/.test(ua) ? 'iOS' : /Linux/.test(ua) ? 'Linux' : '';
+  const br = /Edg\//.test(ua) ? 'Edge' : /OPR\/|Opera/.test(ua) ? 'Opera' : /Chrome\//.test(ua) ? 'Chrome' : /Firefox\//.test(ua) ? 'Firefox' : /Safari\//.test(ua) ? 'Safari' : '';
+  return [br, os].filter(Boolean).join(' · ') || ua.slice(0, 40);
 }
 
 function TwoFactorSetupFlow({ onEnabled }: { onEnabled: () => void }) {
