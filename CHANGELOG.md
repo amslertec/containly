@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.25] — 2026-07-22
+
+### Fixed
+
+- **Image tag, remove and the new layer view failed for images whose reference
+  contains `:` or `/`** (i.e. basically every tagged image, e.g. `nginx:latest` or
+  `amslertec/app:1.2`, and full `sha256:…` IDs). The image reference was passed as a URL
+  path segment, but the id validation rejected the `:` and a `/` broke path routing
+  entirely. The reference is now passed as a query/body field instead, so tagging,
+  removing and viewing layers work for all image names. Verified end-to-end on an image
+  with both `/` and `:` in its name.
+
 ## [0.1.24] — 2026-07-22
 
 ### Added
@@ -472,7 +484,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.24...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.25...HEAD
+[0.1.25]: https://github.com/amslertec/containly/compare/v0.1.24...v0.1.25
 [0.1.24]: https://github.com/amslertec/containly/compare/v0.1.23...v0.1.24
 [0.1.23]: https://github.com/amslertec/containly/compare/v0.1.22...v0.1.23
 [0.1.22]: https://github.com/amslertec/containly/compare/v0.1.21...v0.1.22

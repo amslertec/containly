@@ -45,6 +45,14 @@ function assertEndpoint(id: string): void {
 }
 
 const IdParams = z.object({ id: DockerIdSchema });
+// Image-Referenzen (sha256:…, repo:tag, registry/name:tag) enthalten „:" und „/" — die
+// dürfen NICHT im URL-Pfad stehen (Routing bricht am „/"). Daher als Query/Body-Feld.
+const ImageRefSchema = z
+  .string()
+  .min(1)
+  .max(255)
+  .regex(/^[a-zA-Z0-9][a-zA-Z0-9_./:@-]*$/, 'Ungültige Image-Referenz');
+const ImageRefQuery = ListQuerySchema.extend({ ref: ImageRefSchema });
 const NameParams = z.object({ name: DockerIdSchema });
 
 export async function resourceRoutes(app: FastifyInstance): Promise<void> {
@@ -65,25 +73,28 @@ export async function resourceRoutes(app: FastifyInstance): Promise<void> {
     return { ok: true as const };
   });
 
-  app.post('/api/images/:id/tag', { preHandler: requireAdmin }, async (req) => {
+  // Image taggen (Referenz im Body, damit „:/" sauber funktionieren).
+  app.post('/api/images/tag', { preHandler: requireAdmin }, async (req) => {
     const ctx = currentUser(req);
     const { endpoint } = ListQuerySchema.parse(req.query);
-    const { id } = IdParams.parse(req.params);
-    const { repo, tag } = TagImageSchema.parse(req.body);
+    const { ref, repo, tag } = z
+      .object({ ref: ImageRefSchema })
+      .and(TagImageSchema)
+      .parse(req.body);
     assertEndpoint(endpoint);
-    await docker(() => tagImage(endpoint, id, repo, tag));
+    await docker(() => tagImage(endpoint, ref, repo, tag));
     audit({ userId: ctx.userId, username: ctx.username, action: 'image.tag', endpointId: endpoint, target: `${repo}:${tag}`, ip: req.ip });
     return { ok: true as const };
   });
 
-  app.delete('/api/images/:id', { preHandler: requireAdmin }, async (req) => {
+  // Image entfernen (Referenz als Query-Feld).
+  app.delete('/api/images', { preHandler: requireAdmin }, async (req) => {
     const ctx = currentUser(req);
-    const { endpoint } = ListQuerySchema.parse(req.query);
-    const { id } = IdParams.parse(req.params);
+    const { endpoint, ref } = ImageRefQuery.parse(req.query);
     const { force } = RemoveImageQuerySchema.parse(req.query);
     assertEndpoint(endpoint);
-    await docker(() => removeImage(endpoint, id, force));
-    audit({ userId: ctx.userId, username: ctx.username, action: 'image.remove', endpointId: endpoint, target: id, detail: { force }, ip: req.ip });
+    await docker(() => removeImage(endpoint, ref, force));
+    audit({ userId: ctx.userId, username: ctx.username, action: 'image.remove', endpointId: endpoint, target: ref, detail: { force }, ip: req.ip });
     return { ok: true as const };
   });
 
@@ -103,12 +114,11 @@ export async function resourceRoutes(app: FastifyInstance): Promise<void> {
     return getVulnState(endpoint);
   });
 
-  // Layer eines Images (docker history) für die Layer-Ansicht.
-  app.get('/api/images/:id/history', { preHandler: requireAuth }, async (req) => {
-    const { endpoint } = ListQuerySchema.parse(req.query);
-    const { id } = IdParams.parse(req.params);
+  // Layer eines Images (docker history) für die Layer-Ansicht — Referenz als Query.
+  app.get('/api/images/history', { preHandler: requireAuth }, async (req) => {
+    const { endpoint, ref } = ImageRefQuery.parse(req.query);
     assertEndpoint(endpoint);
-    return { layers: await docker(() => imageHistory(endpoint, id)) };
+    return { layers: await docker(() => imageHistory(endpoint, ref)) };
   });
 
   // Detaillierte CVE-Liste eines Images (für das Detail-Modal).

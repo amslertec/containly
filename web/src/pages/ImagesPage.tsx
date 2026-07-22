@@ -147,7 +147,7 @@ export function ImagesPage() {
     if (!ok) return;
     try {
       await api.delete(
-        `/api/images/${encodeURIComponent(img.repoTags[0] ?? img.id)}?endpoint=${encodeURIComponent(img._endpointId)}&force=${img.containers > 0}`,
+        `/api/images?endpoint=${encodeURIComponent(img._endpointId)}&ref=${encodeURIComponent(img.repoTags[0] ?? img.id)}&force=${img.containers > 0}`,
       );
       invalidate(img._endpointId);
       toast.success(t('common.remove'));
@@ -331,8 +331,8 @@ export function ImagesPage() {
           if (!tagImage) return;
           try {
             await api.post(
-              `/api/images/${encodeURIComponent(tagImage.repoTags[0] ?? tagImage.id)}/tag?endpoint=${encodeURIComponent(tagImage._endpointId)}`,
-              { repo, tag },
+              `/api/images/tag?endpoint=${encodeURIComponent(tagImage._endpointId)}`,
+              { ref: tagImage.repoTags[0] ?? tagImage.id, repo, tag },
             );
             invalidate(tagImage._endpointId);
             toast.success(`${repo}:${tag}`);

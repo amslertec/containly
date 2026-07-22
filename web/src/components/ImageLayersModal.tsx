@@ -28,7 +28,7 @@ export function ImageLayersModal({
     queryKey: ['image-history', endpointId, imageId],
     queryFn: () =>
       api.get<{ layers: ImageLayer[] }>(
-        `/api/images/${encodeURIComponent(imageId)}/history?endpoint=${encodeURIComponent(endpointId)}`,
+        `/api/images/history?endpoint=${encodeURIComponent(endpointId)}&ref=${encodeURIComponent(imageId)}`,
       ),
     select: (d) => d.layers,
   });
