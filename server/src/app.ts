@@ -21,6 +21,7 @@ import { systemRoutes } from './routes/system.js';
 import { backupRoutes } from './routes/backup.js';
 import { registryRoutes } from './routes/registries.js';
 import { notificationRoutes } from './routes/notifications.js';
+import { scheduleRoutes } from './routes/schedule.js';
 import { versionRoutes } from './routes/version.js';
 import { registerLogsWs } from './ws/logs.js';
 import { registerStatsWs } from './ws/stats.js';
@@ -47,6 +48,9 @@ export async function buildApp(): Promise<FastifyInstance> {
         imgSrc: ["'self'", 'data:'],
         fontSrc: ["'self'", 'data:'],
         connectSrc: ["'self'", 'ws:', 'wss:'],
+        // PWA: Service-Worker (sw.js/workbox) + Web-App-Manifest (alle same-origin).
+        workerSrc: ["'self'"],
+        manifestSrc: ["'self'"],
         objectSrc: ["'none'"],
         frameAncestors: ["'none'"],
         baseUri: ["'self'"],
@@ -94,6 +98,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(backupRoutes);
   await app.register(registryRoutes);
   await app.register(notificationRoutes);
+  await app.register(scheduleRoutes);
   await app.register(versionRoutes);
 
   // WebSocket-Routen

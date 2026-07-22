@@ -172,6 +172,25 @@ const migrations: Migration[] = [
       ALTER TABLE users ADD COLUMN language TEXT;
     `,
   },
+  {
+    version: 10,
+    name: 'scheduled_jobs',
+    up: `
+      -- Geplante Wartungs-Jobs (ein Eintrag je Typ).
+      CREATE TABLE scheduled_jobs (
+        type           TEXT PRIMARY KEY,          -- z. B. 'image.prune'
+        enabled        INTEGER NOT NULL DEFAULT 0,
+        frequency      TEXT NOT NULL DEFAULT 'daily',  -- 'daily' | 'weekly'
+        hour           INTEGER NOT NULL DEFAULT 3,
+        minute         INTEGER NOT NULL DEFAULT 0,
+        weekday        INTEGER NOT NULL DEFAULT 0,     -- 0 = Sonntag (nur weekly)
+        passphrase_enc TEXT NOT NULL DEFAULT '',       -- nur Backup (AES-256-GCM)
+        last_run       TEXT,
+        last_status    TEXT,                           -- 'ok' | 'error'
+        last_detail    TEXT
+      );
+    `,
+  },
 ];
 
 export function runMigrations(db: Database): void {

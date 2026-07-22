@@ -8,5 +8,6 @@ export * from './schemas/updates.js';
 export * from './schemas/backup.js';
 export * from './schemas/registry.js';
 export * from './schemas/notifications.js';
+export * from './schemas/schedule.js';
 export * from './schemas/version.js';
 export * from './schemas/ws.js';

@@ -9,6 +9,7 @@ import { pruneSessions } from './services/sessions.js';
 import { checkUpdates } from './docker/updates.js';
 import { runVulnScan } from './services/vuln-scanner.js';
 import { startMonitor, notifyImageUpdates, notifyContainlyUpdate } from './services/monitor.js';
+import { startScheduler } from './services/scheduler.js';
 import { fetchLatest } from './routes/version.js';
 import { VERSION } from './version.js';
 import { buildApp } from './app.js';
@@ -61,6 +62,8 @@ async function main(): Promise<void> {
   const vulnTimer = setInterval(() => void runVulnScan(), 6 * 60 * 60_000);
   // Ereignis-Monitor (Endpoint/Container/Performance → E-Mail-Benachrichtigungen).
   const monitorTimer = startMonitor();
+  // Geplante Wartung (Prune/Update-Check/Vuln-Scan/Backup/Auto-Update).
+  const schedulerTimer = startScheduler();
   healthTimer.unref();
   pruneTimer.unref();
   firstUpdate.unref();
@@ -76,6 +79,7 @@ async function main(): Promise<void> {
     clearInterval(healthTimer);
     clearInterval(pruneTimer);
     clearInterval(monitorTimer);
+    clearInterval(schedulerTimer);
     try {
       await app.close();
       closeDb();

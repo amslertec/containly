@@ -608,7 +608,8 @@
       "backup": "Backup & Restore",
       "registries": "Registries",
       "version": "Version",
-      "notifications": "Benachrichtigungen"
+      "notifications": "Benachrichtigungen",
+      "schedule": "Zeitplan"
     },
     "emailColumn": "E-Mail",
     "emailPlaceholder": "name@example.com",
@@ -734,5 +735,55 @@
     "checkNow": "Jetzt prüfen",
     "toastUpdate": "Update auf {{version}} verfügbar",
     "toastUptodate": "Du bist auf dem neuesten Stand"
+  },
+  "schedule": {
+    "title": "Geplante Wartung",
+    "info": "Wiederkehrende Wartungsaufgaben. Zeiten in Server-Zeit.",
+    "serverTime": "Serverzeit: {{time}}",
+    "daily": "Täglich",
+    "weekly": "Wöchentlich",
+    "destructive": "destruktiv",
+    "runNow": "Jetzt ausführen",
+    "ran": "Ausgeführt",
+    "lastRun": "Zuletzt: {{when}} —",
+    "passphrase": "Backup-Passphrase",
+    "passphraseSet": "•••••••• (gespeichert)",
+    "passphraseHint": "Passphrase zum Verschlüsseln",
+    "autoUpdateHint": "Aktualisiert nur Container mit dem Label com.containly.auto-update=true (im Compose-File gesetzt).",
+    "weekdays": {
+      "0": "Sonntag",
+      "1": "Montag",
+      "2": "Dienstag",
+      "3": "Mittwoch",
+      "4": "Donnerstag",
+      "5": "Freitag",
+      "6": "Samstag"
+    },
+    "jobs": {
+      "image_prune": {
+        "label": "Image-Prune",
+        "desc": "Ungenutzte Images auf allen Hosts entfernen."
+      },
+      "volume_prune": {
+        "label": "Volume-Prune",
+        "desc": "Ungenutzte Volumes entfernen — Daten gehen verloren."
+      },
+      "update_check": {
+        "label": "Update-Check",
+        "desc": "Registry auf neue Image-Versionen prüfen."
+      },
+      "vuln_scan": {
+        "label": "Vulnerability-Scan",
+        "desc": "Trivy-Scan aller Images neu ausführen."
+      },
+      "backup": {
+        "label": "Backup",
+        "desc": "Verschlüsseltes Backup nach /data/backups erstellen."
+      },
+      "auto_update": {
+        "label": "Auto-Update",
+        "desc": "Markierte Container automatisch auf das neue Image bringen."
+      }
+    }
   }
 }

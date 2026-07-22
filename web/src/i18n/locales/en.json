@@ -608,7 +608,8 @@
       "backup": "Backup & restore",
       "registries": "Registries",
       "version": "Version",
-      "notifications": "Notifications"
+      "notifications": "Notifications",
+      "schedule": "Schedule"
     },
     "emailColumn": "Email",
     "emailPlaceholder": "name@example.com",
@@ -732,5 +733,55 @@
     "checkNow": "Check now",
     "toastUpdate": "Update to {{version}} available",
     "toastUptodate": "You're on the latest version"
+  },
+  "schedule": {
+    "title": "Scheduled maintenance",
+    "info": "Recurring maintenance tasks. Times are in server time.",
+    "serverTime": "Server time: {{time}}",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "destructive": "destructive",
+    "runNow": "Run now",
+    "ran": "Done",
+    "lastRun": "Last: {{when}} —",
+    "passphrase": "Backup passphrase",
+    "passphraseSet": "•••••••• (saved)",
+    "passphraseHint": "Passphrase for encryption",
+    "autoUpdateHint": "Only updates containers with the label com.containly.auto-update=true (set in the compose file).",
+    "weekdays": {
+      "0": "Sunday",
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday"
+    },
+    "jobs": {
+      "image_prune": {
+        "label": "Image prune",
+        "desc": "Remove unused images on all hosts."
+      },
+      "volume_prune": {
+        "label": "Volume prune",
+        "desc": "Remove unused volumes — data is lost."
+      },
+      "update_check": {
+        "label": "Update check",
+        "desc": "Check the registry for new image versions."
+      },
+      "vuln_scan": {
+        "label": "Vulnerability scan",
+        "desc": "Re-run the Trivy scan on all images."
+      },
+      "backup": {
+        "label": "Backup",
+        "desc": "Create an encrypted backup to /data/backups."
+      },
+      "auto_update": {
+        "label": "Auto-update",
+        "desc": "Automatically pull the new image for labeled containers."
+      }
+    }
   }
 }

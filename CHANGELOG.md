@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.18] — 2026-07-22
+
+### Added
+
+- **Scheduled maintenance (Settings → Schedule).** Recurring jobs, each with an on/off
+  switch, daily/weekly cadence, weekday + time (server time), a "run now" button and a
+  last-run status:
+  - image prune, volume prune (destructive, with a warning), update check,
+    vulnerability scan, encrypted backup (written to `/data/backups`, keeping the last
+    14), and **auto-update**.
+  - **Auto-update** only touches containers labelled `com.containly.auto-update=true`
+    (Watchtower-style) — it pulls the new image and recreates them via the existing
+    deputy/recreate mechanism.
+- **Installable PWA.** Containly now ships a web manifest, icons (incl. maskable) and a
+  service worker (Workbox), so it can be installed to the home screen / desktop and run
+  standalone. API and health requests are never cached.
+
+### Changed
+
+- The **Settings tab bar** is now horizontally scrollable on narrow screens (no
+  wrapping or clipping), so all tabs are reachable on mobile.
+
 ## [0.1.17] — 2026-07-22
 
 ### Added
@@ -338,7 +360,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.17...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.18...HEAD
+[0.1.18]: https://github.com/amslertec/containly/compare/v0.1.17...v0.1.18
 [0.1.17]: https://github.com/amslertec/containly/compare/v0.1.16...v0.1.17
 [0.1.16]: https://github.com/amslertec/containly/compare/v0.1.15...v0.1.16
 [0.1.15]: https://github.com/amslertec/containly/compare/v0.1.14...v0.1.15
