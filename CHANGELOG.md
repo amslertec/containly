@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.27] — 2026-07-22
+
+### Added
+
+- **Environment variable editor.** The container detail page has a new **Environment**
+  tab listing all variables with secret values (PASSWORD/TOKEN/KEY/…) masked behind a
+  reveal toggle. Admins can add, edit and remove variables; saving recreates the
+  container with the same image (Docker can't change env live) through the rollback-safe
+  recreate path.
+- **Container file browser.** A new **Files** tab browses the filesystem of a running
+  container over the Docker API (no helper container): navigate directories, download,
+  upload and delete files. Works on both GNU and BusyBox/Alpine images; stopped
+  containers and minimal scratch/distroless images (no shell) show a clear notice
+  instead of a raw error.
+- **Resource history.** Container stats now persist to a metrics table (sampled every
+  60 s, 7-day retention) and the Stats tab plots CPU and memory over 1 h / 6 h / 24 h /
+  7 d ranges.
+- **Richer dashboard.** The dashboard now highlights what needs attention
+  (stopped/unhealthy containers, available updates, images with critical CVEs) and the
+  containers with the most restarts.
+- **Stack diff before redeploy.** Each deploy snapshots the compose file; a **Changes**
+  button on the stack page shows a line diff against the last deployed version, so you
+  see exactly what will change before redeploying.
+
+### Fixed
+
+- **Notification bell dropdown was off-screen.** The bell moved from the sidebar to a
+  top bar in the top-right of the app, so its dropdown now opens leftward from the right
+  edge and stays fully on screen.
+- **Clicking a notification no longer navigates away.** Feed entries now just display the
+  message instead of jumping to the page that triggered the event.
+
 ## [0.1.26] — 2026-07-22
 
 ### Added
@@ -503,7 +535,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.26...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.27...HEAD
+[0.1.27]: https://github.com/amslertec/containly/compare/v0.1.26...v0.1.27
 [0.1.26]: https://github.com/amslertec/containly/compare/v0.1.25...v0.1.26
 [0.1.25]: https://github.com/amslertec/containly/compare/v0.1.24...v0.1.25
 [0.1.24]: https://github.com/amslertec/containly/compare/v0.1.23...v0.1.24

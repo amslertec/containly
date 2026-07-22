@@ -17,11 +17,13 @@ import {
   getStack,
   listStackDir,
   listStacks,
+  readComposeContent,
   readStackFile,
   saveStackContent,
   stackAction,
   writeStackFile,
 } from '../services/stacks.js';
+import { saveDeploySnapshot, getStackDiff } from '../services/stack-snapshot.js';
 import { getEndpoint } from '../docker/endpoints.js';
 import { currentUser, requireAdmin, requireAuth } from '../plugins/auth.js';
 import { audit } from '../services/audit.js';
@@ -90,12 +92,27 @@ export async function stackRoutes(app: FastifyInstance): Promise<void> {
     const { id } = IdParams.parse(req.params);
     try {
       const output = await deployStack(id);
+      // Nach erfolgreichem Deploy den aktuellen Compose-Inhalt als Snapshot merken (für den Diff).
+      try {
+        const cur = await readComposeContent(id);
+        if (cur) saveDeploySnapshot(cur.endpoint, id, cur.content);
+      } catch {
+        /* Snapshot ist best-effort */
+      }
       audit({ userId: ctx.userId, username: ctx.username, action: 'stack.deploy', ip: req.ip });
       return { ok: true as const, output };
     } catch (err) {
       audit({ userId: ctx.userId, username: ctx.username, action: 'stack.deploy', outcome: 'error', ip: req.ip });
       stackError(err);
     }
+  });
+
+  // Diff des aktuellen Compose-Inhalts gegen den zuletzt deployten Snapshot.
+  app.get('/api/stacks/:id/diff', { preHandler: requireAuth }, async (req) => {
+    const { id } = IdParams.parse(req.params);
+    const cur = await readComposeContent(id);
+    if (!cur) return { hasPrevious: false, changed: false, lines: [] };
+    return getStackDiff(cur.endpoint, id, cur.content);
   });
 
   app.post('/api/stacks/:id/down', { preHandler: requireAdmin }, async (req) => {

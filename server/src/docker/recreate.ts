@@ -114,6 +114,7 @@ export async function safeRecreateContainer(
   id: string,
   newImage: string,
   log: (msg: string) => void = () => undefined,
+  envOverride?: string[],
 ): Promise<string> {
   const info = await docker.getContainer(id).inspect();
   // Ab jetzt IMMER über die aufgelöste ID arbeiten (nicht den evtl. übergebenen Namen):
@@ -128,9 +129,9 @@ export async function safeRecreateContainer(
     );
   }
   const { opts, name, netNames, nets, fullId, shortId } = buildCreateOpts(info, newImage);
-  // Alte Image-Default-Envs (z.B. CONTAINLY_VERSION) nicht einfrieren — neue Defaults
-  // aus dem neuen Image durchlassen.
-  opts.Env = await envWithoutStaleImageDefaults(docker, info);
+  // Env: entweder explizit gesetzt (Env-Editor) oder — beim Update — alte Image-Default-
+  // Envs (z.B. CONTAINLY_VERSION) nicht einfrieren, damit neue Defaults durchkommen.
+  opts.Env = envOverride ?? (await envWithoutStaleImageDefaults(docker, info));
   const wasRunning = !!info.State?.Running;
   const backupName = `${name}-containly-old`;
 

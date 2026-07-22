@@ -2,6 +2,7 @@ import type { Duplex } from 'node:stream';
 import type Docker from 'dockerode';
 import type { ContainerAction, ContainerInspect, ContainerStats, ContainerSummary } from '@containly/shared';
 import { getDocker } from './endpoints.js';
+import { safeRecreateContainer } from './recreate.js';
 
 function mapPorts(ports: Docker.Port[] | undefined): ContainerSummary['ports'] {
   if (!ports) return [];
@@ -128,6 +129,22 @@ export async function removeContainer(
   opts: { force: boolean; volumes: boolean },
 ): Promise<void> {
   await getDocker(endpointId).getContainer(id).remove({ force: opts.force, v: opts.volumes });
+}
+
+/**
+ * Ändert die Umgebungsvariablen eines Containers. Docker kann Env nicht live ändern —
+ * der Container wird daher mit gleichem Image aber neuer Env neu erstellt (rollback-
+ * sicher). Liefert den (unveränderten) Container-Namen.
+ */
+export async function updateContainerEnv(
+  endpointId: string,
+  id: string,
+  env: string[],
+): Promise<string> {
+  const docker = getDocker(endpointId);
+  const info = await docker.getContainer(id).inspect();
+  const image = info.Config.Image; // gleiches Image behalten
+  return safeRecreateContainer(docker, info.Id, image, () => undefined, env);
 }
 
 /** Log-Stream (follow). Aufrufer ist für Cleanup verantwortlich. */

@@ -45,6 +45,7 @@ import { Pagination } from '../components/ui/Pagination';
 import { Dialog, DialogContent, DialogTitle } from '../components/ui/Dialog';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { DeployOutputModal, type DeployLog } from '../components/DeployOutputModal';
+import { StackDiffButton } from '../components/StackDiff';
 import { GitStackDialog } from '../components/GitStackDialog';
 import { toast } from '../components/Toaster';
 import { api, ApiError } from '../lib/api';
@@ -547,6 +548,7 @@ export function StackDetailPage() {
               <RotateCw className="h-4 w-4" /> {t('stacks.restart')}
             </Button>
             <div className="mx-1 h-6 w-px bg-border" />
+            <StackDiffButton id={id} />
             <Button variant="subtle" size="sm" onClick={() => void down()} disabled={opRunning}>
               <Power className="h-4 w-4" /> {t('stacks.down')}
             </Button>

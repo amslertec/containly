@@ -95,16 +95,13 @@ export function AppShell() {
       >
         <div className="flex items-center justify-between px-4 py-4">
           <Wordmark subtitle={t('app.tagline')} />
-          <div className="flex items-center gap-1">
-            <NotificationBell />
-            <button
-              className="text-muted hover:text-ink lg:hidden"
-              onClick={() => setMobileOpen(false)}
-              aria-label={t('common.close')}
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </div>
+          <button
+            className="text-muted hover:text-ink lg:hidden"
+            onClick={() => setMobileOpen(false)}
+            aria-label={t('common.close')}
+          >
+            <X className="h-5 w-5" />
+          </button>
         </div>
 
         <div className="px-3 pb-2">
@@ -154,6 +151,10 @@ export function AppShell() {
           <div className="ml-auto">
             <NotificationBell />
           </div>
+        </header>
+        {/* Desktop-Top-Leiste: Glocke oben rechts (Dropdown öffnet nach links, bleibt im Bild). */}
+        <header className="hidden items-center justify-end border-b border-border px-4 py-2 lg:flex">
+          <NotificationBell />
         </header>
         <main className="min-w-0 flex-1 overflow-hidden">
           <PullToRefresh className="h-full overflow-y-auto">

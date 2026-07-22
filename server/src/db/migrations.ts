@@ -256,6 +256,31 @@ const migrations: Migration[] = [
       );
     `,
   },
+  {
+    version: 14,
+    name: 'metrics_and_stack_snapshots',
+    up: `
+      -- Ressourcen-Zeitreihe (CPU/RAM je Container, periodisch gesampelt).
+      CREATE TABLE metrics (
+        endpoint     TEXT NOT NULL,
+        container_id TEXT NOT NULL,
+        ts           INTEGER NOT NULL,  -- epoch ms
+        cpu          REAL NOT NULL,     -- Prozent
+        mem          REAL NOT NULL,     -- Prozent des Limits
+        mem_bytes    INTEGER NOT NULL DEFAULT 0
+      );
+      CREATE INDEX idx_metrics_lookup ON metrics(endpoint, container_id, ts);
+
+      -- Snapshot des zuletzt deployten Compose-Inhalts je Stack (für den Diff).
+      CREATE TABLE stack_deploys (
+        endpoint   TEXT NOT NULL,
+        stack_id   TEXT NOT NULL,
+        content    TEXT NOT NULL,       -- zusammengeführter Compose-Inhalt beim Deploy
+        deployed_at TEXT NOT NULL DEFAULT (datetime('now')),
+        PRIMARY KEY (endpoint, stack_id)
+      );
+    `,
+  },
 ];
 
 export function runMigrations(db: Database): void {

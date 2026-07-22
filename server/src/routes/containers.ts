@@ -11,6 +11,7 @@ import {
   inspectContainer,
   listContainers,
   removeContainer,
+  updateContainerEnv,
 } from '../docker/containers.js';
 import { getEndpoint } from '../docker/endpoints.js';
 import { currentUser, requireAdmin, requireAuth } from '../plugins/auth.js';
@@ -96,6 +97,20 @@ export async function containerRoutes(app: FastifyInstance): Promise<void> {
       detail: { force: opts.force, volumes: opts.volumes },
       ip: req.ip,
     });
+    return { ok: true as const };
+  });
+
+  // Umgebungsvariablen ändern (erstellt den Container mit gleichem Image neu).
+  app.post('/api/containers/:id/env', { preHandler: requireAdmin }, async (req) => {
+    const ctx = currentUser(req);
+    const { endpoint } = ListQuerySchema.parse(req.query);
+    const { id } = ParamsSchema.parse(req.params);
+    const { env } = z
+      .object({ env: z.array(z.string().max(4096)).max(500) })
+      .parse(req.body);
+    assertEndpoint(endpoint);
+    await docker(() => updateContainerEnv(endpoint, id, env));
+    audit({ userId: ctx.userId, username: ctx.username, action: 'container.env', endpointId: endpoint, target: id, ip: req.ip });
     return { ok: true as const };
   });
 }

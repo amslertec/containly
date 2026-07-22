@@ -12,5 +12,7 @@ export * from './schemas/schedule.js';
 export * from './schemas/volumebrowse.js';
 export * from './schemas/gitops.js';
 export * from './schemas/catalog.js';
+export * from './schemas/metrics.js';
+export * from './schemas/stackdiff.js';
 export * from './schemas/version.js';
 export * from './schemas/ws.js';

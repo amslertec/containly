@@ -343,7 +343,15 @@
     "exitedError": "Exited with error code {{code}}",
     "manyRestarts": "Restarted {{count}}×",
     "updatesAvailable_one": "{{count}} image update available",
-    "updatesAvailable_other": "{{count}} image updates available"
+    "updatesAvailable_other": "{{count}} image updates available",
+    "attention": "Needs attention",
+    "allGood": "All good",
+    "stoppedUnhealthy": "{{count}} stopped/unhealthy",
+    "updatesAvailable": "{{count}} updates available",
+    "criticalCves": "{{count}} images with critical vulnerabilities",
+    "topRestarts": "Most restarts",
+    "restarts": "{{count}} restarts",
+    "noRestarts": "No notable restarts"
   },
   "containers": {
     "title": "Containers",
@@ -407,7 +415,8 @@
       "mode": "Mode",
       "readonly": "read-only",
       "readwrite": "read/write",
-      "openPort": "Open: {{href}}"
+      "openPort": "Open: {{href}}",
+      "files": "Files"
     }
   },
   "logs": {
@@ -856,5 +865,33 @@
     "title": "Notifications",
     "markRead": "Mark all read",
     "empty": "No notifications"
+  },
+  "env": {
+    "title": "Environment",
+    "empty": "No environment variables",
+    "add": "Add variable",
+    "save": "Save & recreate",
+    "saveTitle": "Change environment",
+    "saved": "Environment saved — container is being recreated",
+    "recreateWarn": "Docker cannot change environment variables live. The container is recreated with the same image (brief interruption)."
+  },
+  "metrics": {
+    "history": "History",
+    "cpu": "CPU",
+    "memory": "Memory",
+    "range1h": "1h",
+    "range6h": "6h",
+    "range24h": "24h",
+    "range7d": "7d",
+    "noData": "No history yet"
+  },
+  "stackdiff": {
+    "title": "Changes since last deploy",
+    "changes": "Changes",
+    "firstDeploy": "Not deployed yet — nothing to compare.",
+    "noChanges": "No changes since the last deploy."
+  },
+  "cfiles": {
+    "notRunning": "File access requires a running container."
   }
 }

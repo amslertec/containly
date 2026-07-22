@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Bell, CheckCheck, ShieldAlert, TriangleAlert, Info } from 'lucide-react';
-import type { FeedItem, FeedResponse } from '@containly/shared';
+import type { FeedResponse } from '@containly/shared';
 import { api } from '../lib/api';
 import { relativeTime } from '../lib/time';
 import { cn } from '../lib/utils';
@@ -23,7 +22,6 @@ const tkey = (type: string): string => type.replace('.', '_');
  */
 export function NotificationBell({ className }: { className?: string }) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -46,12 +44,6 @@ export function NotificationBell({ className }: { className?: string }) {
 
   const markRead = (): void => {
     void api.post('/api/notifications/feed/read', {}).finally(() => void qc.invalidateQueries({ queryKey: ['feed'] }));
-  };
-
-  const openItem = (it: FeedItem): void => {
-    if (it.link) void navigate({ to: it.link });
-    markRead();
-    setOpen(false);
   };
 
   return (
@@ -92,22 +84,21 @@ export function NotificationBell({ className }: { className?: string }) {
               items.map((it) => {
                 const { Icon, cls } = SEV_ICON[it.severity];
                 return (
-                  <button
+                  <div
                     key={it.id}
-                    onClick={() => openItem(it)}
-                    className="flex w-full items-start gap-2.5 border-b border-border px-3 py-2.5 text-left last:border-0 hover:bg-surface-hover"
+                    className="flex items-start gap-2.5 border-b border-border px-3 py-2.5 last:border-0"
                   >
                     <Icon className={cn('mt-0.5 h-4 w-4 shrink-0', cls)} />
                     <span className="min-w-0 flex-1">
                       <span className="block text-[13px] text-ink">{t(`notifications.types.${tkey(it.type)}.label`)}</span>
                       {(it.target || it.detail) && (
-                        <span className="block truncate font-mono text-[11px] text-muted">
+                        <span className="block break-all font-mono text-[11px] text-muted">
                           {[it.target, it.detail].filter(Boolean).join(' · ')}
                         </span>
                       )}
                       <span className="block text-[10.5px] text-faint">{relativeTime(new Date(it.createdAt).toISOString())}</span>
                     </span>
-                  </button>
+                  </div>
                 );
               })
             )}

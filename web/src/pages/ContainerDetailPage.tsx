@@ -12,6 +12,8 @@ import { Badge, Card, KeyValue } from '../components/ui/primitives';
 import { StatusDot, stateTone } from '../components/StatusDot';
 import { LoadingState, ErrorState } from '../components/States';
 import { LogViewer } from '../components/LogViewer';
+import { EnvTab } from '../components/EnvTab';
+import { ContainerFiles } from '../components/ContainerFiles';
 import { toast } from '../components/Toaster';
 
 // Schwere Panels (xterm/Charts) erst bei Bedarf laden → kleineres Haupt-Bundle.
@@ -25,8 +27,8 @@ import { ApiError } from '../lib/api';
 import { absoluteTime, relativeTime } from '../lib/time';
 import { shortId, cn, portHref } from '../lib/utils';
 
-type Tab = 'overview' | 'logs' | 'stats' | 'console' | 'inspect';
-const TABS: Tab[] = ['overview', 'logs', 'stats', 'console', 'inspect'];
+type Tab = 'overview' | 'logs' | 'stats' | 'console' | 'env' | 'files' | 'inspect';
+const TABS: Tab[] = ['overview', 'logs', 'stats', 'console', 'env', 'files', 'inspect'];
 
 export function ContainerDetailPage() {
   const { t } = useTranslation();
@@ -136,6 +138,12 @@ export function ContainerDetailPage() {
           <Suspense fallback={<LoadingState />}>
             <ExecConsole endpoint={selected} id={id} running={running} />
           </Suspense>
+        )}
+        {tab === 'env' && <EnvTab endpoint={selected} id={id} env={c.env} canEdit={isAdmin} onSaved={() => void refetch()} />}
+        {tab === 'files' && (
+          <div className="h-[calc(100dvh-320px)] min-h-[360px]">
+            <ContainerFiles endpoint={selected} id={id} running={running} />
+          </div>
         )}
         {tab === 'inspect' && (
           <Card className="overflow-auto p-4">

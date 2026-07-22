@@ -343,7 +343,15 @@
     "exitedError": "Beendet mit Fehlercode {{code}}",
     "manyRestarts": "{{count}}× neu gestartet",
     "updatesAvailable_one": "{{count}} Image-Update verfügbar",
-    "updatesAvailable_other": "{{count}} Image-Updates verfügbar"
+    "updatesAvailable_other": "{{count}} Image-Updates verfügbar",
+    "attention": "Braucht Aufmerksamkeit",
+    "allGood": "Alles in Ordnung",
+    "stoppedUnhealthy": "{{count}} gestoppt/unhealthy",
+    "updatesAvailable": "{{count}} Updates verfügbar",
+    "criticalCves": "{{count}} Images mit kritischen Lücken",
+    "topRestarts": "Häufigste Neustarts",
+    "restarts": "{{count}} Neustarts",
+    "noRestarts": "Keine auffälligen Neustarts"
   },
   "containers": {
     "title": "Container",
@@ -395,7 +403,7 @@
       "finished": "Beendet",
       "exitCode": "Exit-Code",
       "health": "Health",
-      "env": "Umgebungsvariablen",
+      "env": "Umgebung",
       "mounts": "Mounts",
       "networks": "Netzwerke",
       "ports": "Ports",
@@ -407,7 +415,8 @@
       "mode": "Modus",
       "readonly": "nur lesen",
       "readwrite": "lesen/schreiben",
-      "openPort": "Öffnen: {{href}}"
+      "openPort": "Öffnen: {{href}}",
+      "files": "Dateien"
     }
   },
   "logs": {
@@ -858,5 +867,33 @@
     "title": "Benachrichtigungen",
     "markRead": "Alle gelesen",
     "empty": "Keine Benachrichtigungen"
+  },
+  "env": {
+    "title": "Umgebung",
+    "empty": "Keine Umgebungsvariablen",
+    "add": "Variable hinzufügen",
+    "save": "Speichern & neu erstellen",
+    "saveTitle": "Umgebung ändern",
+    "saved": "Umgebung gespeichert — Container wird neu erstellt",
+    "recreateWarn": "Docker kann Umgebungsvariablen nicht live ändern. Der Container wird mit gleichem Image neu erstellt (kurze Unterbrechung)."
+  },
+  "metrics": {
+    "history": "Verlauf",
+    "cpu": "CPU",
+    "memory": "RAM",
+    "range1h": "1 Std.",
+    "range6h": "6 Std.",
+    "range24h": "24 Std.",
+    "range7d": "7 Tage",
+    "noData": "Noch keine Verlaufsdaten"
+  },
+  "stackdiff": {
+    "title": "Änderungen seit letztem Deploy",
+    "changes": "Änderungen",
+    "firstDeploy": "Noch kein Deploy — nichts zu vergleichen.",
+    "noChanges": "Keine Änderungen seit dem letzten Deploy."
+  },
+  "cfiles": {
+    "notRunning": "Datei-Zugriff nur bei laufendem Container."
   }
 }

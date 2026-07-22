@@ -315,6 +315,17 @@ async function compose(id: string, args: string[]): Promise<string> {
 export function deployStack(id: string): Promise<string> {
   return compose(id, ['up', '-d', '--remove-orphans']);
 }
+
+/** Liest den aktuellen Inhalt der Haupt-Compose-Datei eines Stacks (für Snapshot/Diff). */
+export async function readComposeContent(
+  id: string,
+): Promise<{ endpoint: string; content: string } | null> {
+  const { endpoint, dir, fs } = await resolveStack(id);
+  const files = await fs.listDir(dir);
+  const composeFile = pickComposeFile(files);
+  if (!composeFile) return null;
+  return { endpoint, content: await fs.readFile(join(dir, composeFile)) };
+}
 export function downStack(id: string): Promise<string> {
   return compose(id, ['down']);
 }
