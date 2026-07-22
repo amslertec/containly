@@ -500,7 +500,8 @@
     "bulkProgress": "Aktualisiere {{done}}/{{total}} …",
     "bulkDone": "{{ok}}/{{total}} Images aktualisiert",
     "update": "Aktualisieren",
-    "updatedRecreated": "{{image}} aktualisiert · {{count}} Container neu erstellt"
+    "updatedRecreated": "{{image}} aktualisiert · {{count}} Container neu erstellt",
+    "selfUpdateStarted": "Containly aktualisiert sich selbst — die Seite lädt gleich neu."
   },
   "twofa": {
     "title": "Zwei-Faktor-Authentifizierung",

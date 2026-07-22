@@ -1,3 +1,5 @@
+import os from 'node:os';
+import { readFileSync } from 'node:fs';
 import type Docker from 'dockerode';
 import type {
   ImageSummary,
@@ -6,7 +8,33 @@ import type {
   VolumeSummary,
 } from '@containly/shared';
 import { getDocker } from './endpoints.js';
+import { safeRecreateContainer } from './recreate.js';
 import { authConfigForImage } from '../services/registry.js';
+import { logger } from '../logger.js';
+
+/** Ermittelt die eigene Container-ID (cgroup/mountinfo, sonst Hostname = Kurz-ID). */
+function readSelfContainerId(): string {
+  for (const f of ['/proc/self/cgroup', '/proc/self/mountinfo']) {
+    try {
+      const m = readFileSync(f, 'utf8').match(/\b[0-9a-f]{64}\b/);
+      if (m) return m[0];
+    } catch {
+      /* nicht vorhanden */
+    }
+  }
+  return os.hostname();
+}
+const SELF_ID = readSelfContainerId();
+
+/**
+ * Ist das der Container, in dem Containly SELBST läuft? (darf sich nicht selbst
+ * recreaten). `docker` liefert volle 64-Zeichen-IDs; SELF_ID ist entweder die volle
+ * ID (cgroup/mountinfo) oder die Kurz-ID (Hostname) — beides matcht nur den eigenen
+ * Container per Präfix. Andere Container werden NIE fälschlich als „self" erkannt.
+ */
+function isSelfContainer(containerId: string): boolean {
+  return !!SELF_ID && (containerId === SELF_ID || containerId.startsWith(SELF_ID));
+}
 
 /* ── Images ─────────────────────────────────────────────────────────────── */
 export async function listImages(endpoint: string): Promise<ImageSummary[]> {
@@ -54,81 +82,63 @@ export async function pullImage(endpoint: string, image: string): Promise<void> 
 }
 
 /**
- * Erstellt einen Container mit identischer Konfiguration neu, aber mit `newImage`
- * (Watchtower-Stil). Netzwerke/Volumes/Env/Labels/HostConfig bleiben erhalten.
+ * Startet den Self-Update-Deputy: einen kurzlebigen Zweit-Container aus dem NEUEN
+ * Image, der den laufenden Containly-Container gegen das neue Image austauscht.
+ * Nötig, weil ein Container sich nicht selbst neu erstellen kann (er schießt sich
+ * beim `stop`/`remove` selbst ab). Der Deputy überlebt den Neustart des Haupt-
+ * Containers und entfernt sich danach selbst (AutoRemove).
  */
-async function recreateContainer(docker: Docker, id: string, newImage: string): Promise<string> {
-  const container = docker.getContainer(id);
-  const info = await container.inspect();
-  const name = info.Name.replace(/^\//, '');
-  const wasRunning = !!info.State?.Running;
-  const shortId = info.Id.slice(0, 12);
-
-  // Netzwerke: Aliase + IPAM erhalten, Laufzeit-Felder (IPs) verwerfen. createContainer
-  // akzeptiert nur EIN Netzwerk — weitere danach verbinden.
-  const nets = info.NetworkSettings?.Networks ?? {};
-  const netNames = Object.keys(nets);
-  const cleanEndpoint = (n: (typeof nets)[string]) => ({
-    Aliases: (n.Aliases ?? []).filter((a: string) => a && a !== shortId && !info.Id.startsWith(a)),
-    IPAMConfig: n.IPAMConfig ?? undefined,
+async function spawnSelfUpdateDeputy(docker: Docker, selfId: string, image: string): Promise<void> {
+  const deputy = await docker.createContainer({
+    Image: image,
+    // Läuft NICHT als Server, sondern als Einmal-Deputy.
+    Cmd: ['node', 'server/dist/self-update.js'],
+    Env: [`CONTAINLY_SELF_UPDATE=${selfId}`, `CONTAINLY_SELF_UPDATE_IMAGE=${image}`],
+    Labels: { 'com.containly.role': 'self-update' },
+    HostConfig: {
+      Binds: ['/var/run/docker.sock:/var/run/docker.sock'],
+      AutoRemove: true,
+      RestartPolicy: { Name: 'no' },
+    },
   });
-
-  const createOpts: Parameters<Docker['createContainer']>[0] = {
-    name,
-    Image: newImage,
-    Hostname: info.Config.Hostname,
-    Domainname: info.Config.Domainname,
-    User: info.Config.User,
-    Env: info.Config.Env,
-    Cmd: info.Config.Cmd,
-    Entrypoint: info.Config.Entrypoint,
-    Labels: info.Config.Labels,
-    WorkingDir: info.Config.WorkingDir,
-    ExposedPorts: info.Config.ExposedPorts,
-    Volumes: info.Config.Volumes,
-    HostConfig: info.HostConfig,
-    ...(netNames[0]
-      ? { NetworkingConfig: { EndpointsConfig: { [netNames[0]]: cleanEndpoint(nets[netNames[0]]!) } } }
-      : {}),
-  };
-
-  if (wasRunning) await container.stop().catch(() => undefined);
-  await container.remove({ force: true });
-
-  const created = await docker.createContainer(createOpts);
-  // Weitere Netzwerke (ab dem zweiten) verbinden.
-  for (let i = 1; i < netNames.length; i++) {
-    const nm = netNames[i]!;
-    await docker
-      .getNetwork(nm)
-      .connect({ Container: created.id, EndpointConfig: cleanEndpoint(nets[nm]!) })
-      .catch(() => undefined);
-  }
-  if (wasRunning) await created.start();
-  return name;
+  await deputy.start();
+  logger.info({ selfId, image }, 'Self-Update-Deputy gestartet');
 }
 
 /**
  * Zieht das neue Image UND erstellt alle Container, die es nutzen, neu, damit sie
- * sofort das aktuelle Image verwenden. Liefert die Namen der neu erstellten Container.
+ * sofort das aktuelle Image verwenden. Der Container, in dem Containly SELBST läuft,
+ * kann sich nicht selbst neu erstellen — dafür wird ein Deputy-Container gestartet
+ * (`selfUpdate: true`). Liefert die Namen der direkt neu erstellten Container.
  */
-export async function applyImageUpdate(endpoint: string, image: string): Promise<string[]> {
+export async function applyImageUpdate(
+  endpoint: string,
+  image: string,
+): Promise<{ recreated: string[]; selfUpdate: boolean }> {
   const docker = getDocker(endpoint);
   // Betroffene Container VOR dem Pull ermitteln (danach wandert der Tag auf die neue ID).
   const affected = await docker.listContainers({ all: true, filters: { ancestor: [image] } });
-  const ids = affected.map((c) => c.Id);
 
   await pullImage(endpoint, image);
 
   const recreated: string[] = [];
-  for (const id of ids) {
+  let selfUpdate = false;
+  for (const c of affected) {
+    // Der eigene Container wird über den Deputy ersetzt, nicht hier (Selbstmord-Schutz).
+    if (isSelfContainer(c.Id)) {
+      selfUpdate = true;
+      continue;
+    }
     try {
-      recreated.push(await recreateContainer(docker, id, image));
-    } catch {
-      /* einzelner Recreate-Fehler bricht den Rest nicht ab */
+      recreated.push(await safeRecreateContainer(docker, c.Id, image, (m) => logger.debug(m)));
+    } catch (err) {
+      logger.warn({ err, container: c.Id }, 'Recreate fehlgeschlagen');
     }
   }
-  return recreated;
+
+  if (selfUpdate) await spawnSelfUpdateDeputy(docker, SELF_ID, image);
+
+  return { recreated, selfUpdate };
 }
 
 export async function removeImage(endpoint: string, id: string, force: boolean): Promise<void> {

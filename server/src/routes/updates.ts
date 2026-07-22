@@ -38,9 +38,9 @@ export async function updateRoutes(app: FastifyInstance): Promise<void> {
       .parse(req.body);
     if (!getEndpoint(endpoint)) throw Errors.notFound(`Endpoint nicht gefunden: ${endpoint}`);
     try {
-      const recreated = await applyImageUpdate(endpoint, image);
+      const { recreated, selfUpdate } = await applyImageUpdate(endpoint, image);
       audit({ userId: ctx.userId, username: ctx.username, action: 'image.update', endpointId: endpoint, target: image, ip: req.ip });
-      return { ok: true as const, recreated };
+      return { ok: true as const, recreated, selfUpdate };
     } catch (err) {
       audit({ userId: ctx.userId, username: ctx.username, action: 'image.update', outcome: 'error', endpointId: endpoint, target: image, ip: req.ip });
       if (err instanceof AppError) throw err;

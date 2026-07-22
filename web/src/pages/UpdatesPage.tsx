@@ -51,10 +51,17 @@ export function UpdatesPage() {
     if (locked) return;
     setPullingKey(row._endpointId + row.image);
     try {
-      const res = await api.post<{ recreated: string[] }>('/api/updates/apply', {
+      const res = await api.post<{ recreated: string[]; selfUpdate: boolean }>('/api/updates/apply', {
         endpoint: row._endpointId,
         image: row.image,
       });
+      if (res.selfUpdate) {
+        // Containly ersetzt sich gerade selbst über den Deputy-Container und startet
+        // neu — die Seite nach kurzer Zeit neu laden.
+        toast.success(t('updates.selfUpdateStarted'));
+        window.setTimeout(() => window.location.reload(), 9000);
+        return;
+      }
       void qc.invalidateQueries({ queryKey: ['updates', row._endpointId] });
       void qc.invalidateQueries({ queryKey: ['images', row._endpointId] });
       void qc.invalidateQueries({ queryKey: ['containers', row._endpointId] });

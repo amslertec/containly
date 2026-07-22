@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.9] — 2026-07-22
+
+### Fixed
+
+- **Containly can now update itself.** Applying an update to Containly's own image
+  previously pulled the new image but left the container running the old version — a
+  container cannot `stop`/`remove` and recreate *itself* (it kills its own process
+  mid-operation). Containly now delegates its own recreate to a short-lived **deputy
+  container** started from the new image (with the Docker socket): it replaces the
+  running Containly container and then removes itself. The Compose project labels are
+  preserved, so a Compose-managed Containly stays recognised by `docker compose`.
+
+### Changed
+
+- **Container recreate on update is now rollback-safe.** For every container an update
+  recreates, the old container is renamed aside and only removed once the new one has
+  started; if creating/starting the new container fails, the previous one is restored
+  and started again. This applies to all endpoints (local and remote).
+
+> **Note:** self-update only works once the *running* Containly already contains this
+> mechanism (0.1.9+). To move an older install onto it once, update manually with
+> `docker compose pull && docker compose up -d`. From 0.1.9 onward, updating Containly
+> from the Updates page works.
+
 ## [0.1.8] — 2026-07-22
 
 ### Fixed
@@ -171,7 +195,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.8...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.9...HEAD
+[0.1.9]: https://github.com/amslertec/containly/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/amslertec/containly/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/amslertec/containly/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/amslertec/containly/compare/v0.1.5...v0.1.6

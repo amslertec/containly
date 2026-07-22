@@ -1,0 +1,111 @@
+import type Docker from 'dockerode';
+
+type ContainerInspect = Awaited<ReturnType<Docker.Container['inspect']>>;
+type CreateOpts = Parameters<Docker['createContainer']>[0];
+type NetworkMap = NonNullable<ContainerInspect['NetworkSettings']>['Networks'];
+type NetworkEndpoint = NetworkMap[string];
+
+/** Laufzeit-Felder (IPs, Container-Kurz-ID) aus einem Netzwerk-Endpoint entfernen. */
+function cleanEndpoint(n: NetworkEndpoint, fullId: string, shortId: string) {
+  return {
+    Aliases: (n.Aliases ?? []).filter((a: string) => a && a !== shortId && !fullId.startsWith(a)),
+    IPAMConfig: n.IPAMConfig ?? undefined,
+  };
+}
+
+/**
+ * Baut aus einem `inspect` die `createContainer`-Optionen für ein neues Image.
+ * Netzwerke/Volumes/Env/Labels/HostConfig bleiben erhalten. createContainer
+ * akzeptiert nur EIN Netzwerk inline — weitere werden danach verbunden.
+ */
+export function buildCreateOpts(info: ContainerInspect, newImage: string) {
+  const name = info.Name.replace(/^\//, '');
+  const shortId = info.Id.slice(0, 12);
+  const nets = info.NetworkSettings?.Networks ?? {};
+  const netNames = Object.keys(nets);
+
+  const opts: CreateOpts = {
+    name,
+    Image: newImage,
+    Hostname: info.Config.Hostname,
+    Domainname: info.Config.Domainname,
+    User: info.Config.User,
+    Env: info.Config.Env,
+    Cmd: info.Config.Cmd,
+    Entrypoint: info.Config.Entrypoint,
+    Labels: info.Config.Labels,
+    WorkingDir: info.Config.WorkingDir,
+    ExposedPorts: info.Config.ExposedPorts,
+    Volumes: info.Config.Volumes,
+    HostConfig: info.HostConfig,
+    ...(netNames[0]
+      ? {
+          NetworkingConfig: {
+            EndpointsConfig: { [netNames[0]]: cleanEndpoint(nets[netNames[0]]!, info.Id, shortId) },
+          },
+        }
+      : {}),
+  };
+
+  return { opts, name, netNames, nets, fullId: info.Id, shortId };
+}
+
+/** Verbindet die Netzwerke ab dem zweiten (das erste wird bei createContainer inline gesetzt). */
+async function connectExtraNets(
+  docker: Docker,
+  containerId: string,
+  netNames: string[],
+  nets: NetworkMap,
+  fullId: string,
+  shortId: string,
+): Promise<void> {
+  for (let i = 1; i < netNames.length; i++) {
+    const nm = netNames[i]!;
+    await docker
+      .getNetwork(nm)
+      .connect({ Container: containerId, EndpointConfig: cleanEndpoint(nets[nm]!, fullId, shortId) })
+      .catch(() => undefined);
+  }
+}
+
+/**
+ * Erstellt einen Container mit identischer Konfiguration neu, aber mit `newImage`
+ * (Watchtower-Stil), ABSICHERT mit Rollback: der alte Container wird erst umbenannt,
+ * nicht sofort gelöscht. Schlägt das Erstellen/Starten des neuen fehl, kommt der
+ * alte Container unter seinem Namen zurück und wird wieder gestartet.
+ */
+export async function safeRecreateContainer(
+  docker: Docker,
+  id: string,
+  newImage: string,
+  log: (msg: string) => void = () => undefined,
+): Promise<string> {
+  const container = docker.getContainer(id);
+  const info = await container.inspect();
+  const { opts, name, netNames, nets, fullId, shortId } = buildCreateOpts(info, newImage);
+  const wasRunning = !!info.State?.Running;
+  const backupName = `${name}-containly-old`;
+
+  log(`recreate ${name} → ${newImage}`);
+  if (wasRunning) await container.stop().catch(() => undefined);
+  // Alten Container aus dem Weg benennen (Name muss frei sein für den neuen).
+  await docker.getContainer(backupName).remove({ force: true }).catch(() => undefined);
+  await container.rename({ name: backupName });
+
+  try {
+    const created = await docker.createContainer(opts);
+    await connectExtraNets(docker, created.id, netNames, nets, fullId, shortId);
+    if (wasRunning) await created.start();
+    log(`started new ${name}, removing old`);
+    await container.remove({ force: true }).catch(() => undefined);
+    return name;
+  } catch (err) {
+    log(`recreate failed, rolling back ${name}: ${err instanceof Error ? err.message : String(err)}`);
+    // Halb erstellten neuen Container (falls vorhanden) entfernen …
+    await docker.getContainer(name).remove({ force: true }).catch(() => undefined);
+    // … und den alten unter seinem Namen zurückholen.
+    await container.rename({ name }).catch(() => undefined);
+    if (wasRunning) await docker.getContainer(name).start().catch(() => undefined);
+    throw err;
+  }
+}

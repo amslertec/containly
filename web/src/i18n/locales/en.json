@@ -500,7 +500,8 @@
     "bulkProgress": "Updating {{done}}/{{total}} …",
     "bulkDone": "{{ok}}/{{total}} images updated",
     "update": "Update",
-    "updatedRecreated": "{{image}} updated · {{count}} container(s) recreated"
+    "updatedRecreated": "{{image}} updated · {{count}} container(s) recreated",
+    "selfUpdateStarted": "Containly is updating itself — the page will reload shortly."
   },
   "twofa": {
     "title": "Two-factor authentication",
