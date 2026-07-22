@@ -35,7 +35,7 @@ import { Page, PageHeader } from '../components/PageHeader';
 import { Button } from '../components/ui/Button';
 import { Badge, Card, Input, Label, Textarea } from '../components/ui/primitives';
 import { TableWrap, THead, Th, Tr, Td, ResizableTable, useColumnResize, type Column } from '../components/ui/Table';
-import { useTablePrefs } from '../hooks/useTablePrefs';
+import { useTablePrefs, sortRows } from '../hooks/useTablePrefs';
 import { Select } from '../components/ui/Select';
 import { StatusDot, stateTone } from '../components/StatusDot';
 import { LoadingState, ErrorState, EmptyState } from '../components/States';
@@ -124,13 +124,7 @@ export function StacksPage() {
         )
       : scoped;
     const acc = STK_SORT[sort.col];
-    if (!acc) return list;
-    const dir = sort.dir === 'asc' ? 1 : -1;
-    return [...list].sort((a, b) => {
-      const av = acc(a);
-      const bv = acc(b);
-      return av < bv ? -dir : av > bv ? dir : 0;
-    });
+    return acc ? sortRows(list, acc, sort.dir, (s) => s.id) : list;
   }, [scoped, q, sort]);
   const pg = usePagination(stacks, 10);
 

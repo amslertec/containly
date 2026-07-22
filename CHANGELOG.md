@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.15] — 2026-07-22
+
+### Fixed
+
+- **Networks page showed 0 containers for every network.** Docker's network list
+  endpoint does not include container membership (only `inspect` does), so the count
+  was always zero. It is now derived from the container list and shows the real number
+  of containers attached to each network.
+- **Sorted tables no longer jump around on refresh.** Sorting a column with many equal
+  values (e.g. all volumes with driver `local`) had no tiebreaker, so equal rows
+  reshuffled every time the data refreshed. Sorting is now stable (equal rows keep a
+  fixed order across refreshes) on all tables.
+
+### Changed
+
+- Removed sorting on low-value columns where it wasn't useful: **Images → "Containers"**,
+  **Volumes → "Driver"**, and **Networks → "Scope"** are no longer sortable (still
+  resizable).
+
 ## [0.1.14] — 2026-07-22
 
 ### Added
@@ -25,6 +44,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Changed
 
 - Checkboxes are now rendered in the app's own style instead of the browser default.
+
+## [0.1.13] — 2026-07-22
 
 ### Fixed
 
@@ -267,7 +288,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.14...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.15...HEAD
+[0.1.15]: https://github.com/amslertec/containly/compare/v0.1.14...v0.1.15
 [0.1.14]: https://github.com/amslertec/containly/compare/v0.1.13...v0.1.14
 [0.1.13]: https://github.com/amslertec/containly/compare/v0.1.12...v0.1.13
 [0.1.12]: https://github.com/amslertec/containly/compare/v0.1.11...v0.1.12

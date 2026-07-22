@@ -17,6 +17,30 @@ interface TablePrefs {
 const KEY = (id: string): string => `containly:table:${id}`;
 
 /**
+ * Stabil sortieren: primär nach `acc`, bei Gleichstand nach `tie` (immer aufsteigend).
+ * Der Tie-Breaker verhindert, dass gleich-bewertete Zeilen (z.B. alle Treiber „local")
+ * bei jeder Daten-Aktualisierung „springen", weil Docker die Liste in wechselnder
+ * Reihenfolge liefert.
+ */
+export function sortRows<T>(
+  list: T[],
+  acc: (x: T) => string | number,
+  dir: 'asc' | 'desc',
+  tie: (x: T) => string | number,
+): T[] {
+  const d = dir === 'asc' ? 1 : -1;
+  return [...list].sort((a, b) => {
+    const av = acc(a);
+    const bv = acc(b);
+    if (av < bv) return -d;
+    if (av > bv) return d;
+    const at = tie(a);
+    const bt = tie(b);
+    return at < bt ? -1 : at > bt ? 1 : 0;
+  });
+}
+
+/**
  * Persistiert Sortierung und Spaltenbreiten einer Tabelle in localStorage, sodass
  * sie beim nächsten Öffnen der Seite erhalten bleiben. `defaultWidths` liefert die
  * Startbreiten (px) je Spaltenschlüssel; `defaultSort` die Anfangssortierung.

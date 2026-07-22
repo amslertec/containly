@@ -234,7 +234,20 @@ export async function pruneVolumes(endpoint: string): Promise<PruneResult> {
 const SYSTEM_NETWORKS = new Set(['bridge', 'host', 'none']);
 
 export async function listNetworks(endpoint: string): Promise<NetworkSummary[]> {
-  const nets = (await getDocker(endpoint).listNetworks()) as RawNetwork[];
+  const docker = getDocker(endpoint);
+  // `listNetworks` liefert das Container-Feld NICHT (nur `inspect` tut das). Daher die
+  // Zuordnung aus der Container-Liste ableiten: je Container die verbundenen Netzwerk-IDs.
+  const [nets, containers] = await Promise.all([
+    docker.listNetworks() as Promise<RawNetwork[]>,
+    docker.listContainers({ all: true }) as Promise<RawContainerNet[]>,
+  ]);
+  const countById = new Map<string, number>();
+  for (const c of containers) {
+    for (const net of Object.values(c.NetworkSettings?.Networks ?? {})) {
+      const id = net?.NetworkID;
+      if (id) countById.set(id, (countById.get(id) ?? 0) + 1);
+    }
+  }
   return nets.map((n) => ({
     id: n.Id,
     name: n.Name,
@@ -243,7 +256,7 @@ export async function listNetworks(endpoint: string): Promise<NetworkSummary[]> 
     internal: n.Internal ?? false,
     attachable: n.Attachable ?? false,
     subnet: n.IPAM?.Config?.[0]?.Subnet ?? null,
-    containers: n.Containers ? Object.keys(n.Containers).length : 0,
+    containers: countById.get(n.Id) ?? (n.Containers ? Object.keys(n.Containers).length : 0),
     labels: n.Labels ?? {},
     system: SYSTEM_NETWORKS.has(n.Name),
   }));
@@ -259,6 +272,10 @@ interface RawNetwork {
   IPAM?: { Config?: { Subnet?: string }[] };
   Containers?: Record<string, unknown>;
   Labels?: Record<string, string>;
+}
+
+interface RawContainerNet {
+  NetworkSettings?: { Networks?: Record<string, { NetworkID?: string } | undefined> };
 }
 
 export async function createNetwork(

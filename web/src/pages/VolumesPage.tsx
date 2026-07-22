@@ -12,7 +12,7 @@ import { Page, PageHeader } from '../components/PageHeader';
 import { Button } from '../components/ui/Button';
 import { Badge, Input, Label } from '../components/ui/primitives';
 import { ResizableTable, Tr, Td, useColumnResize, type Column } from '../components/ui/Table';
-import { useTablePrefs } from '../hooks/useTablePrefs';
+import { useTablePrefs, sortRows } from '../hooks/useTablePrefs';
 import { Dialog, DialogContent, DialogTitle } from '../components/ui/Dialog';
 import { LoadingState, ErrorState, EmptyState } from '../components/States';
 import { usePagination } from '../hooks/usePagination';
@@ -33,7 +33,6 @@ const VOL_WIDTHS: Record<string, number> = {
 };
 const VOL_SORT: Record<string, (r: Row) => string | number> = {
   name: (r) => r.name.toLowerCase(),
-  driver: (r) => r.driver.toLowerCase(),
   status: (r) => (r.inUse ? 1 : 0),
 };
 
@@ -60,7 +59,7 @@ export function VolumesPage() {
   const columns = useMemo<Column[]>(() => {
     const cols: Column[] = [
       { key: 'name', label: t('volumes.columns.name'), sortable: true, resizable: true, align: 'left' },
-      { key: 'driver', label: t('volumes.columns.driver'), sortable: true, resizable: true, align: 'left' },
+      { key: 'driver', label: t('volumes.columns.driver'), resizable: true, align: 'left' },
     ];
     if (isAll) cols.push({ key: 'host', label: t('common.host'), resizable: true, align: 'left' });
     cols.push({ key: 'mountpoint', label: t('volumes.columns.mountpoint'), resizable: true, align: 'left' });
@@ -71,17 +70,9 @@ export function VolumesPage() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    let list = q ? data.filter((v) => v.name.toLowerCase().includes(q)) : data;
+    const list = q ? data.filter((v) => v.name.toLowerCase().includes(q)) : data;
     const acc = VOL_SORT[sort.col];
-    if (acc) {
-      const dir = sort.dir === 'asc' ? 1 : -1;
-      list = [...list].sort((a, b) => {
-        const av = acc(a);
-        const bv = acc(b);
-        return av < bv ? -dir : av > bv ? dir : 0;
-      });
-    }
-    return list;
+    return acc ? sortRows(list, acc, sort.dir, (v) => v.name + v._endpointId) : list;
   }, [data, query, sort]);
 
   const pg = usePagination(filtered, 10);

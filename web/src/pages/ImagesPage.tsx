@@ -13,7 +13,7 @@ import { ImageSearchInput } from '../components/ImageSearchInput';
 import { Button } from '../components/ui/Button';
 import { Badge, Input, Label } from '../components/ui/primitives';
 import { ResizableTable, Tr, Td, useColumnResize, type Column } from '../components/ui/Table';
-import { useTablePrefs } from '../hooks/useTablePrefs';
+import { useTablePrefs, sortRows } from '../hooks/useTablePrefs';
 import { Dialog, DialogContent, DialogTitle } from '../components/ui/Dialog';
 import { LoadingState, ErrorState, EmptyState } from '../components/States';
 import { usePagination } from '../hooks/usePagination';
@@ -37,7 +37,6 @@ const IMG_WIDTHS: Record<string, number> = {
 };
 const IMG_SORT: Record<string, (r: Row) => string | number> = {
   tag: (r) => (r.repoTags[0] ?? '').toLowerCase(),
-  usedBy: (r) => r.containers,
   size: (r) => r.size,
   created: (r) => r.created,
 };
@@ -68,7 +67,7 @@ export function ImagesPage() {
     const cols: Column[] = [
       { key: 'tag', label: t('images.columns.tag'), sortable: true, resizable: true, align: 'left' },
       { key: 'id', label: t('images.columns.id'), resizable: true, align: 'left' },
-      { key: 'usedBy', label: t('images.columns.usedBy'), sortable: true, resizable: true, align: 'left' },
+      { key: 'usedBy', label: t('images.columns.usedBy'), resizable: true, align: 'left' },
     ];
     if (isAll) cols.push({ key: 'host', label: t('common.host'), resizable: true, align: 'left' });
     cols.push({ key: 'size', label: t('images.columns.size'), sortable: true, resizable: true, align: 'right' });
@@ -79,21 +78,13 @@ export function ImagesPage() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    let list = q
+    const list = q
       ? data.filter(
           (i) => i.repoTags.some((tg) => tg.toLowerCase().includes(q)) || i.id.toLowerCase().includes(q),
         )
       : data;
     const acc = IMG_SORT[sort.col];
-    if (acc) {
-      const dir = sort.dir === 'asc' ? 1 : -1;
-      list = [...list].sort((a, b) => {
-        const av = acc(a);
-        const bv = acc(b);
-        return av < bv ? -dir : av > bv ? dir : 0;
-      });
-    }
-    return list;
+    return acc ? sortRows(list, acc, sort.dir, (i) => i.id) : list;
   }, [data, query, sort]);
 
   const pg = usePagination(filtered, 10);

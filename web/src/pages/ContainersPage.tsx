@@ -30,7 +30,7 @@ import { Badge, Input } from '../components/ui/primitives';
 import { StatusDot, stateTone } from '../components/StatusDot';
 import { LoadingState, ErrorState, EmptyState } from '../components/States';
 import { usePagination } from '../hooks/usePagination';
-import { useTablePrefs } from '../hooks/useTablePrefs';
+import { useTablePrefs, sortRows } from '../hooks/useTablePrefs';
 import { ResizableTable, useColumnResize, type Column } from '../components/ui/Table';
 import { Pagination } from '../components/ui/Pagination';
 import { ConfirmDialog } from '../components/ConfirmDialog';
@@ -110,14 +110,8 @@ export function ContainersPage() {
       );
     }
     const acc = SORT[sort.col] ?? SORT.name!;
-    const dir = sort.dir === 'asc' ? 1 : -1;
-    return [...list].sort((a, b) => {
-      const av = acc(a);
-      const bv = acc(b);
-      if (av < bv) return -dir;
-      if (av > bv) return dir;
-      return 0;
-    });
+    // Stabiler Tie-Breaker (ID) → gleich-bewertete Zeilen springen bei Reload nicht.
+    return sortRows(list, acc, sort.dir, (c) => c.id);
   }, [data, filter, query, sort]);
 
   const pg = usePagination(filtered, 10);
