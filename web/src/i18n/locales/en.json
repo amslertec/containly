@@ -419,7 +419,8 @@
     "tail": "Lines",
     "streamEnded": "Log stream ended",
     "waiting": "Waiting for log output …",
-    "download": "Download"
+    "download": "Download",
+    "custom": "Custom …"
   },
   "console": {
     "title": "Exec console",

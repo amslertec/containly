@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.23] — 2026-07-22
+
+### Added
+
+- **Custom log line count.** The log tail selector is now the app's own dropdown
+  (instead of the browser-native one) with presets **plus a "Custom…" option** to type
+  an arbitrary number (e.g. 100000). The server limit was raised from 5,000 to
+  1,000,000 lines and the display buffer grows to match the chosen value.
+- **App catalog pagination** (25 per page) so the catalog page isn't overcrowded.
+
+### Fixed
+
+- **App catalog logos now show.** External logo images were blocked by the
+  content-security-policy (`img-src 'self' data:`), so every template fell back to the
+  default icon. The policy now allows external images, so the real app logos load
+  (with the icon as a fallback when a logo is missing or fails to load).
+
 ## [0.1.22] — 2026-07-22
 
 ### Added
@@ -441,7 +458,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.22...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.23...HEAD
+[0.1.23]: https://github.com/amslertec/containly/compare/v0.1.22...v0.1.23
 [0.1.22]: https://github.com/amslertec/containly/compare/v0.1.21...v0.1.22
 [0.1.21]: https://github.com/amslertec/containly/compare/v0.1.20...v0.1.21
 [0.1.20]: https://github.com/amslertec/containly/compare/v0.1.19...v0.1.20

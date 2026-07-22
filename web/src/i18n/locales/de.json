@@ -419,7 +419,8 @@
     "tail": "Zeilen",
     "streamEnded": "Log-Stream beendet",
     "waiting": "Warte auf Logausgabe …",
-    "download": "Herunterladen"
+    "download": "Herunterladen",
+    "custom": "Benutzerdefiniert …"
   },
   "console": {
     "title": "Exec-Konsole",

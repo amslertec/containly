@@ -1,9 +1,14 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowDownToLine, Download, Eraser, WrapText } from 'lucide-react';
+import { ArrowDownToLine, Check, Download, Eraser, WrapText } from 'lucide-react';
 import type { ServerLogMessage } from '@containly/shared';
 import { wsUrl } from '../lib/api';
+import { Select } from './ui/Select';
+import { Input } from './ui/primitives';
 import { cn } from '../lib/utils';
+
+const TAIL_PRESETS = [100, 400, 1000, 2000, 5000];
+const TAIL_MAX = 1_000_000;
 
 interface LogLine {
   key: number;
@@ -28,6 +33,8 @@ export function LogViewer({ endpoint, id, name }: { endpoint: string; id: string
   useEffect(() => {
     setLines([]);
     setState('connecting');
+    // Anzeige-Puffer an die gewählte Zeilenzahl anpassen (+Reserve für Live-Zeilen).
+    const bufMax = Math.max(tail + 500, MAX_LINES);
     const ws = new WebSocket(wsUrl(`/api/containers/${encodeURIComponent(id)}/logs/stream?endpoint=${encodeURIComponent(endpoint)}&tail=${tail}`));
 
     ws.onmessage = (ev) => {
@@ -40,7 +47,7 @@ export function LogViewer({ endpoint, id, name }: { endpoint: string; id: string
       if (msg.type === 'ready') setState('open');
       else if (msg.type === 'log') {
         setLines((prev) => {
-          const next = prev.length >= MAX_LINES ? prev.slice(prev.length - MAX_LINES + 1) : prev;
+          const next = prev.length >= bufMax ? prev.slice(prev.length - bufMax + 1) : prev;
           return [...next, { key: keyRef.current++, stream: msg.stream, message: msg.message, timestamp: msg.timestamp }];
         });
       } else if (msg.type === 'end') setState('ended');
@@ -79,18 +86,10 @@ export function LogViewer({ endpoint, id, name }: { endpoint: string; id: string
     <div className="relative flex h-full flex-col overflow-hidden rounded-lg border border-border bg-bg-sunken">
       <div className="flex items-center gap-2 border-b border-border bg-surface px-3 py-2">
         <ConnBadge state={state} />
-        <label className="ml-3 flex items-center gap-1.5 text-[11px] text-muted">
-          <span className="hidden sm:inline">{t('logs.tail')}</span>
-          <select
-            value={tail}
-            onChange={(e) => setTail(Number(e.target.value))}
-            className="rounded-md border border-border bg-surface px-1.5 py-1 text-[12px] text-ink outline-none"
-          >
-            {[100, 400, 1000, 2000, 5000].map((n) => (
-              <option key={n} value={n}>{n}</option>
-            ))}
-          </select>
-        </label>
+        <div className="ml-3 flex items-center gap-1.5">
+          <span className="hidden text-[11px] text-muted sm:inline">{t('logs.tail')}</span>
+          <TailSelector tail={tail} onChange={setTail} />
+        </div>
         <div className="ml-auto flex items-center gap-1">
           <ToolBtn active={wrap} onClick={() => setWrap((w) => !w)} title={t('logs.wrap')}>
             <WrapText className="h-4 w-4" />
@@ -185,5 +184,67 @@ function ConnBadge({ state }: { state: ConnState }) {
       <span className="h-2 w-2 rounded-full" style={{ background: map.c }} />
       {map.label}
     </span>
+  );
+}
+
+/**
+ * Auswahl der Log-Zeilenzahl: App-eigenes Dropdown mit Presets + „Custom…", das ein
+ * Zahlenfeld einblendet (z. B. 100000). Kein natives <select>.
+ */
+function TailSelector({ tail, onChange }: { tail: number; onChange: (n: number) => void }) {
+  const { t } = useTranslation();
+  const isPreset = TAIL_PRESETS.includes(tail);
+  const [custom, setCustom] = useState(!isPreset);
+  const [value, setValue] = useState(String(tail));
+
+  const apply = (): void => {
+    const n = Math.max(1, Math.min(TAIL_MAX, Math.floor(Number(value) || 0)));
+    setValue(String(n));
+    onChange(n);
+  };
+
+  const options = [
+    ...TAIL_PRESETS.map((n) => ({ value: String(n), label: String(n) })),
+    { value: 'custom', label: t('logs.custom') },
+  ];
+
+  return (
+    <div className="flex items-center gap-1.5">
+      <Select
+        value={custom ? 'custom' : String(tail)}
+        onChange={(v) => {
+          if (v === 'custom') {
+            setCustom(true);
+            setValue(String(tail));
+          } else {
+            setCustom(false);
+            onChange(Number(v));
+          }
+        }}
+        options={options}
+        className="h-8 min-w-[90px] px-2 text-[12px]"
+      />
+      {custom && (
+        <span className="flex items-center gap-1">
+          <Input
+            type="number"
+            min={1}
+            max={TAIL_MAX}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && apply()}
+            placeholder="100000"
+            className="h-8 w-24 text-[12px]"
+          />
+          <button
+            onClick={apply}
+            title={t('common.save')}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-surface-2 hover:text-ink"
+          >
+            <Check className="h-4 w-4" />
+          </button>
+        </span>
+      )}
+    </div>
   );
 }

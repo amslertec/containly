@@ -48,7 +48,8 @@ export async function buildApp(): Promise<FastifyInstance> {
         // 'self' + Hash des Inline-Theme-Scripts in index.html (kein Theme-Flash, CSP-konform).
         scriptSrc: ["'self'", "'sha256-U/oJPd92kEwAhleUai0DpJ88ftPXjC6NPoYJ6fBySGY='"],
         styleSrc: ["'self'", "'unsafe-inline'"],
-        imgSrc: ["'self'", 'data:'],
+        // 'self' + data: + externe Bilder (App-Katalog-Logos liegen auf fremden CDNs).
+        imgSrc: ["'self'", 'data:', 'https:', 'http:'],
         fontSrc: ["'self'", 'data:'],
         connectSrc: ["'self'", 'ws:', 'wss:'],
         // PWA: Service-Worker (sw.js/workbox) + Web-App-Manifest (alle same-origin).

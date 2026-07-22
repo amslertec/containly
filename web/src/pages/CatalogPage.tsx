@@ -13,6 +13,8 @@ import { Select } from '../components/ui/Select';
 import { Checkbox } from '../components/ui/Checkbox';
 import { Dialog, DialogContent, DialogTitle } from '../components/ui/Dialog';
 import { LoadingState, ErrorState, EmptyState } from '../components/States';
+import { usePagination } from '../hooks/usePagination';
+import { Pagination } from '../components/ui/Pagination';
 import { toast } from '../components/Toaster';
 import { api, ApiError } from '../lib/api';
 
@@ -42,6 +44,8 @@ export function CatalogPage() {
     );
   }, [data, query]);
 
+  const pg = usePagination(filtered, 25);
+
   return (
     <Page>
       <PageHeader
@@ -69,11 +73,14 @@ export function CatalogPage() {
       ) : filtered.length === 0 ? (
         <EmptyState icon={<Boxes className="h-8 w-8" />} title={t('catalog.empty')} hint={t('catalog.emptyHint')} />
       ) : (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filtered.map((tpl) => (
-            <TemplateCard key={tpl.id} tpl={tpl} canDeploy={isAdmin} onDeploy={() => setDeployTpl(tpl)} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {pg.pageItems.map((tpl) => (
+              <TemplateCard key={tpl.id} tpl={tpl} canDeploy={isAdmin} onDeploy={() => setDeployTpl(tpl)} />
+            ))}
+          </div>
+          <Pagination pg={pg} />
+        </>
       )}
 
       {deployTpl && <DeployDialog template={deployTpl} onClose={() => setDeployTpl(null)} />}

@@ -7,7 +7,9 @@ import { getDocker, getEndpoint } from '../docker/endpoints.js';
 
 const QuerySchema = z.object({
   endpoint: EndpointIdSchema.default('local'),
-  tail: z.coerce.number().int().min(0).max(5000).default(200),
+  // Bis 1 Mio. Zeilen erlaubt (Custom-Eingabe); sehr hohe Werte können den Browser
+  // aber merklich verlangsamen.
+  tail: z.coerce.number().int().min(0).max(1_000_000).default(200),
 });
 const ParamsSchema = z.object({ id: DockerIdSchema });
 
