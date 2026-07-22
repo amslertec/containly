@@ -1,4 +1,3 @@
-import { execFile, spawn } from 'node:child_process';
 import {
   mkdirSync,
   readdirSync,
@@ -9,13 +8,11 @@ import {
 } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
 import { Writable } from 'node:stream';
-import { promisify } from 'node:util';
 import * as tar from 'tar-stream';
 import type Dockerode from 'dockerode';
-import { getDocker, getDockerEnv, getEndpoint } from '../docker/endpoints.js';
+import { getDocker, getEndpoint } from '../docker/endpoints.js';
 import { logger } from '../logger.js';
 
-const execFileAsync = promisify(execFile);
 const COMPOSE_FILES = ['docker-compose.yml', 'docker-compose.yaml', 'compose.yml', 'compose.yaml'];
 
 export interface FsEntry {
@@ -125,37 +122,19 @@ class LocalFs implements StackFs {
   async remove(path: string): Promise<void> {
     rmSync(path, { recursive: true, force: true });
   }
-  async compose(dir: string, project: string, composeFile: string, args: string[]): Promise<string> {
-    const { env, cleanup } = await getDockerEnv(this.endpoint);
-    try {
-      const { stdout, stderr } = await execFileAsync(
-        'docker',
-        ['compose', '-p', project, '-f', join(dir, composeFile), ...args],
-        { cwd: dir, env: { ...process.env, ...env }, timeout: 5 * 60_000, maxBuffer: 10 * 1024 * 1024 },
-      );
-      return stdout + stderr;
-    } finally {
-      cleanup();
-    }
+  // Compose läuft über den Helfer-Container (docker:cli) — so muss das Containly-
+  // Image selbst keinen Docker-Toolchain (CVE-Quelle) enthalten.
+  compose(dir: string, project: string, composeFile: string, args: string[]): Promise<string> {
+    return helperCompose(this.endpoint, dir, project, composeFile, args);
   }
-  async composeStream(
+  composeStream(
     dir: string,
     project: string,
     composeFile: string,
     args: string[],
     onData: (chunk: string) => void,
   ): Promise<number> {
-    const { env, cleanup } = await getDockerEnv(this.endpoint);
-    return new Promise<number>((resolve, reject) => {
-      const child = spawn('docker', ['compose', '-p', project, '-f', join(dir, composeFile), ...args], {
-        cwd: dir,
-        env: { ...process.env, ...env },
-      });
-      child.stdout.on('data', (d: Buffer) => onData(d.toString('utf8')));
-      child.stderr.on('data', (d: Buffer) => onData(d.toString('utf8')));
-      child.on('error', (e) => { cleanup(); reject(e); });
-      child.on('close', (code) => { cleanup(); resolve(code ?? 0); });
-    });
+    return helperComposeStream(this.endpoint, dir, project, composeFile, args, onData);
   }
 }
 
@@ -279,6 +258,72 @@ async function execInHelper(endpoint: string, cmd: string[], cwd?: string): Prom
   };
 }
 
+/** Wie execInHelper, aber streamt die Ausgabe live (onData) und liefert den Exit-Code. */
+async function execStreamInHelper(
+  endpoint: string,
+  cmd: string[],
+  cwd: string,
+  onData: (chunk: string) => void,
+): Promise<number> {
+  const docker = getDocker(endpoint);
+  let container: Dockerode.Container;
+  try {
+    container = await ensureHelper(endpoint);
+  } catch (err) {
+    invalidateHelper(endpoint);
+    throw err;
+  }
+  const exec = await container
+    .exec({ Cmd: cmd, AttachStdout: true, AttachStderr: true, WorkingDir: cwd })
+    .catch((err) => {
+      invalidateHelper(endpoint);
+      throw err;
+    });
+  const stream = await exec.start({ hijack: true, stdin: false });
+  await new Promise<void>((res, rej) => {
+    const w = new Writable({ write(c, _e, cb) { onData(Buffer.from(c).toString('utf8')); cb(); } });
+    docker.modem.demuxStream(stream, w, w);
+    stream.on('end', () => res());
+    stream.on('error', rej);
+  });
+  const info = await exec.inspect();
+  return info.ExitCode ?? 0;
+}
+
+/** `docker compose` im Helfer-Container ausführen — gepuffert (für Local + Remote). */
+async function helperCompose(
+  endpoint: string,
+  dir: string,
+  project: string,
+  composeFile: string,
+  args: string[],
+): Promise<string> {
+  const { stdout, stderr, exit } = await execInHelper(
+    endpoint,
+    ['docker', 'compose', '-p', project, '-f', join(dir, composeFile), ...args],
+    dir,
+  );
+  if (exit !== 0) throw new Error((stderr || stdout).trim() || 'compose fehlgeschlagen');
+  return stdout + stderr;
+}
+
+/** `docker compose` im Helfer-Container ausführen — gestreamt (für Local + Remote). */
+function helperComposeStream(
+  endpoint: string,
+  dir: string,
+  project: string,
+  composeFile: string,
+  args: string[],
+  onData: (chunk: string) => void,
+): Promise<number> {
+  return execStreamInHelper(
+    endpoint,
+    ['docker', 'compose', '-p', project, '-f', join(dir, composeFile), ...args],
+    dir,
+    onData,
+  );
+}
+
 /** Baut ein Tar mit genau einer Datei (für putArchive). */
 function singleFileTar(name: string, content: string): NodeJS.ReadableStream {
   const pack = tar.pack();
@@ -388,40 +433,17 @@ class RemoteFs implements StackFs {
     if (exit !== 0) throw new Error(stderr.trim() || 'Löschen fehlgeschlagen');
   }
 
-  async compose(dir: string, project: string, composeFile: string, args: string[]): Promise<string> {
-    const { stdout, stderr, exit } = await execInHelper(
-      this.endpoint,
-      ['docker', 'compose', '-p', project, '-f', join(dir, composeFile), ...args],
-      dir,
-    );
-    if (exit !== 0) throw new Error((stderr || stdout).trim() || 'compose fehlgeschlagen');
-    return stdout + stderr;
+  compose(dir: string, project: string, composeFile: string, args: string[]): Promise<string> {
+    return helperCompose(this.endpoint, dir, project, composeFile, args);
   }
-
-  async composeStream(
+  composeStream(
     dir: string,
     project: string,
     composeFile: string,
     args: string[],
     onData: (chunk: string) => void,
   ): Promise<number> {
-    const docker = getDocker(this.endpoint);
-    const container = await ensureHelper(this.endpoint);
-    const exec = await container.exec({
-      Cmd: ['docker', 'compose', '-p', project, '-f', join(dir, composeFile), ...args],
-      AttachStdout: true,
-      AttachStderr: true,
-      WorkingDir: dir,
-    });
-    const stream = await exec.start({ hijack: true, stdin: false });
-    await new Promise<void>((res, rej) => {
-      const w = new Writable({ write(c, _e, cb) { onData(Buffer.from(c).toString('utf8')); cb(); } });
-      docker.modem.demuxStream(stream, w, w);
-      stream.on('end', () => res());
-      stream.on('error', rej);
-    });
-    const info = await exec.inspect();
-    return info.ExitCode ?? 0;
+    return helperComposeStream(this.endpoint, dir, project, composeFile, args, onData);
   }
 }
 

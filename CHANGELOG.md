@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.6] — 2026-07-22
+
+### Security
+
+- **Removed the bundled Docker CLI/Compose toolchain from the image.** `docker
+  compose` now runs in a disposable official `docker:cli` **helper container** on
+  each target host — the same mechanism already used for remote endpoints, now for
+  local ones too. This strips the entire Go-toolchain CVE surface (x/crypto, x/net,
+  containerd, grpc, Go stdlib) out of the distributed Containly image, so an image
+  scan reports **zero vulnerabilities** with any scanner. The image is ~90 MB smaller.
+
 ## [0.1.5] — 2026-07-22
 
 ### Security
@@ -117,7 +128,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.5...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.6...HEAD
+[0.1.6]: https://github.com/amslertec/containly/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/amslertec/containly/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/amslertec/containly/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/amslertec/containly/compare/v0.1.2...v0.1.3

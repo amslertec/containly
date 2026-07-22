@@ -44,10 +44,11 @@ ENV NODE_ENV=production \
     CONTAINLY_STACKS_DIR=/stacks \
     PORT=8420
 
-# tini (PID 1 / signal handling) + Docker CLI & Compose plugin (for local stack
-# deploys). Remove the bundled global npm + corepack — not needed at runtime and
-# a CVE source (tar, sigstore, brace-expansion, …).
-RUN apk add --no-cache tini docker-cli docker-cli-compose \
+# tini (PID 1 / signal handling) only. The Docker CLI / Compose toolchain is NOT
+# bundled — `docker compose` runs in a disposable helper container (docker:cli) on
+# the target host, so the distributed Containly image carries no Go-toolchain CVEs.
+# Also remove the bundled global npm/corepack/yarn (unused at runtime, a CVE source).
+RUN apk add --no-cache tini \
   && rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack \
             /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack \
             /opt/yarn* /usr/local/bin/yarn /usr/local/bin/yarnpkg \
