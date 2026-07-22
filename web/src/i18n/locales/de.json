@@ -17,6 +17,23 @@
     "profile": "Profil",
     "updates": "Updates"
   },
+  "cmdk": {
+    "trigger": "Suchen …",
+    "placeholder": "Springe zu Seite, Container, Image, Host …",
+    "noResults": "Keine Treffer",
+    "pages": "Seiten",
+    "endpoints": "Hosts",
+    "containers": "Container",
+    "images": "Images",
+    "current": "aktuell"
+  },
+  "bulk": {
+    "selected": "{{count}} ausgewählt",
+    "selectAll": "Alle auf dieser Seite auswählen",
+    "removeConfirm": "{{count}} Container entfernen? Das kann nicht rückgängig gemacht werden.",
+    "done": "{{count}} Container bearbeitet",
+    "partial": "{{ok}} erledigt · {{failed}} fehlgeschlagen"
+  },
   "profile": {
     "title": "Profil",
     "subtitle": "Konto, Passwort und Sicherheit verwalten.",

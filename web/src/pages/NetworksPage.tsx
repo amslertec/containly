@@ -10,9 +10,11 @@ import { useScopedList, type ScopedItem } from '../hooks/useScopedList';
 import { useConfirm } from '../hooks/useConfirm';
 import { Page, PageHeader } from '../components/PageHeader';
 import { Button } from '../components/ui/Button';
+import { Checkbox } from '../components/ui/Checkbox';
 import { Badge, Input, Label } from '../components/ui/primitives';
 import { Select } from '../components/ui/Select';
-import { TableWrap, THead, Th, Tr, Td } from '../components/ui/Table';
+import { ResizableTable, Tr, Td, useColumnResize, type Column } from '../components/ui/Table';
+import { useTablePrefs } from '../hooks/useTablePrefs';
 import { Dialog, DialogContent, DialogTitle } from '../components/ui/Dialog';
 import { LoadingState, ErrorState, EmptyState } from '../components/States';
 import { usePagination } from '../hooks/usePagination';
@@ -23,6 +25,23 @@ import { api, ApiError } from '../lib/api';
 import { shortId } from '../lib/utils';
 
 type Row = NetworkSummary & ScopedItem;
+
+const NET_WIDTHS: Record<string, number> = {
+  name: 280,
+  driver: 130,
+  host: 130,
+  scope: 110,
+  subnet: 180,
+  containers: 130,
+  actions: 90,
+};
+const NET_SORT: Record<string, (r: Row) => string | number> = {
+  name: (r) => r.name.toLowerCase(),
+  driver: (r) => r.driver.toLowerCase(),
+  scope: (r) => r.scope.toLowerCase(),
+  subnet: (r) => r.subnet ?? '',
+  containers: (r) => r.containers,
+};
 
 export function NetworksPage() {
   const { t } = useTranslation();
@@ -39,10 +58,38 @@ export function NetworksPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const invalidate = (id: string) => void qc.invalidateQueries({ queryKey: ['networks', id] });
 
+  const { widths, setWidth, commitWidths, sort, toggleSort } = useTablePrefs('networks', NET_WIDTHS, {
+    col: 'name',
+    dir: 'asc',
+  });
+  const startResize = useColumnResize(widths, setWidth, commitWidths);
+  const columns = useMemo<Column[]>(() => {
+    const cols: Column[] = [
+      { key: 'name', label: t('networks.columns.name'), sortable: true, resizable: true, align: 'left' },
+      { key: 'driver', label: t('networks.columns.driver'), sortable: true, resizable: true, align: 'left' },
+    ];
+    if (isAll) cols.push({ key: 'host', label: t('common.host'), resizable: true, align: 'left' });
+    cols.push({ key: 'scope', label: t('networks.columns.scope'), sortable: true, resizable: true, align: 'left' });
+    cols.push({ key: 'subnet', label: t('networks.columns.subnet'), sortable: true, resizable: true, align: 'left' });
+    cols.push({ key: 'containers', label: t('networks.containers'), sortable: true, resizable: true, align: 'right' });
+    cols.push({ key: 'actions', label: t('common.actions'), align: 'right' });
+    return cols;
+  }, [t, isAll]);
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return q ? data.filter((n) => n.name.toLowerCase().includes(q)) : data;
-  }, [data, query]);
+    let list = q ? data.filter((n) => n.name.toLowerCase().includes(q)) : data;
+    const acc = NET_SORT[sort.col];
+    if (acc) {
+      const dir = sort.dir === 'asc' ? 1 : -1;
+      list = [...list].sort((a, b) => {
+        const av = acc(a);
+        const bv = acc(b);
+        return av < bv ? -dir : av > bv ? dir : 0;
+      });
+    }
+    return list;
+  }, [data, query, sort]);
 
   const pg = usePagination(filtered, 10);
 
@@ -111,16 +158,13 @@ export function NetworksPage() {
       ) : filtered.length === 0 ? (
         <EmptyState title={t('networks.noNetworks')} />
       ) : (
-        <TableWrap>
-          <THead>
-            <Th>{t('networks.columns.name')}</Th>
-            <Th>{t('networks.columns.driver')}</Th>
-            {isAll && <Th>{t('common.host')}</Th>}
-            <Th>{t('networks.columns.scope')}</Th>
-            <Th>{t('networks.columns.subnet')}</Th>
-            <Th className="text-right">{t('networks.containers')}</Th>
-            <Th className="text-right">{t('common.actions')}</Th>
-          </THead>
+        <ResizableTable
+          columns={columns}
+          widths={widths}
+          sort={sort}
+          onSort={toggleSort}
+          onResizeStart={startResize}
+        >
           <tbody>
             {pg.pageItems.map((net) => (
               <Tr key={net._endpointId + net.id}>
@@ -151,7 +195,7 @@ export function NetworksPage() {
               </Tr>
             ))}
           </tbody>
-        </TableWrap>
+        </ResizableTable>
       )}
 
       {!isLoading && !isError && filtered.length > 0 && <Pagination pg={pg} />}
@@ -210,10 +254,14 @@ function CreateNetworkDialog({
               ]}
             />
           </div>
-          <label className="flex items-center gap-2 text-sm text-muted">
-            <input type="checkbox" checked={internal} onChange={(e) => setInternal(e.target.checked)} />
+          <button
+            type="button"
+            onClick={() => setInternal((v) => !v)}
+            className="flex items-center gap-2 text-sm text-muted"
+          >
+            <Checkbox checked={internal} onChange={() => setInternal((v) => !v)} aria-label="internal" />
             internal
-          </label>
+          </button>
         </div>
         <div className="mt-6 flex justify-end gap-2">
           <Button variant="ghost" onClick={onClose}>{t('common.cancel')}</Button>

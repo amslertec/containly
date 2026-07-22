@@ -12,7 +12,8 @@ import { Page, PageHeader } from '../components/PageHeader';
 import { ImageSearchInput } from '../components/ImageSearchInput';
 import { Button } from '../components/ui/Button';
 import { Badge, Input, Label } from '../components/ui/primitives';
-import { TableWrap, THead, Th, Tr, Td } from '../components/ui/Table';
+import { ResizableTable, Tr, Td, useColumnResize, type Column } from '../components/ui/Table';
+import { useTablePrefs } from '../hooks/useTablePrefs';
 import { Dialog, DialogContent, DialogTitle } from '../components/ui/Dialog';
 import { LoadingState, ErrorState, EmptyState } from '../components/States';
 import { usePagination } from '../hooks/usePagination';
@@ -24,6 +25,22 @@ import { relativeTime } from '../lib/time';
 import { formatBytes, shortId } from '../lib/utils';
 
 type Row = ImageSummary & ScopedItem;
+
+const IMG_WIDTHS: Record<string, number> = {
+  tag: 320,
+  id: 130,
+  usedBy: 220,
+  host: 130,
+  size: 110,
+  created: 150,
+  actions: 110,
+};
+const IMG_SORT: Record<string, (r: Row) => string | number> = {
+  tag: (r) => (r.repoTags[0] ?? '').toLowerCase(),
+  usedBy: (r) => r.containers,
+  size: (r) => r.size,
+  created: (r) => r.created,
+};
 
 export function ImagesPage() {
   const { t } = useTranslation();
@@ -42,13 +59,42 @@ export function ImagesPage() {
   const invalidate = (endpointId: string) => void qc.invalidateQueries({ queryKey: ['images', endpointId] });
   const updates = useUpdateFlags();
 
+  const { widths, setWidth, commitWidths, sort, toggleSort } = useTablePrefs('images', IMG_WIDTHS, {
+    col: 'created',
+    dir: 'desc',
+  });
+  const startResize = useColumnResize(widths, setWidth, commitWidths);
+  const columns = useMemo<Column[]>(() => {
+    const cols: Column[] = [
+      { key: 'tag', label: t('images.columns.tag'), sortable: true, resizable: true, align: 'left' },
+      { key: 'id', label: t('images.columns.id'), resizable: true, align: 'left' },
+      { key: 'usedBy', label: t('images.columns.usedBy'), sortable: true, resizable: true, align: 'left' },
+    ];
+    if (isAll) cols.push({ key: 'host', label: t('common.host'), resizable: true, align: 'left' });
+    cols.push({ key: 'size', label: t('images.columns.size'), sortable: true, resizable: true, align: 'right' });
+    cols.push({ key: 'created', label: t('images.columns.created'), sortable: true, resizable: true, align: 'left' });
+    cols.push({ key: 'actions', label: t('common.actions'), align: 'right' });
+    return cols;
+  }, [t, isAll]);
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return data;
-    return data.filter(
-      (i) => i.repoTags.some((tg) => tg.toLowerCase().includes(q)) || i.id.toLowerCase().includes(q),
-    );
-  }, [data, query]);
+    let list = q
+      ? data.filter(
+          (i) => i.repoTags.some((tg) => tg.toLowerCase().includes(q)) || i.id.toLowerCase().includes(q),
+        )
+      : data;
+    const acc = IMG_SORT[sort.col];
+    if (acc) {
+      const dir = sort.dir === 'asc' ? 1 : -1;
+      list = [...list].sort((a, b) => {
+        const av = acc(a);
+        const bv = acc(b);
+        return av < bv ? -dir : av > bv ? dir : 0;
+      });
+    }
+    return list;
+  }, [data, query, sort]);
 
   const pg = usePagination(filtered, 10);
 
@@ -166,16 +212,13 @@ export function ImagesPage() {
       ) : filtered.length === 0 ? (
         <EmptyState title={t('images.noImages')} />
       ) : (
-        <TableWrap>
-          <THead>
-            <Th>{t('images.columns.tag')}</Th>
-            <Th>{t('images.columns.id')}</Th>
-            <Th>{t('images.columns.usedBy')}</Th>
-            {isAll && <Th>{t('common.host')}</Th>}
-            <Th className="text-right">{t('images.columns.size')}</Th>
-            <Th>{t('images.columns.created')}</Th>
-            <Th className="text-right">{t('common.actions')}</Th>
-          </THead>
+        <ResizableTable
+          columns={columns}
+          widths={widths}
+          sort={sort}
+          onSort={toggleSort}
+          onResizeStart={startResize}
+        >
           <tbody>
             {pg.pageItems.map((img) => (
               <Tr key={img.id}>
@@ -234,7 +277,7 @@ export function ImagesPage() {
               </Tr>
             ))}
           </tbody>
-        </TableWrap>
+        </ResizableTable>
       )}
 
       {!isLoading && !isError && filtered.length > 0 && <Pagination pg={pg} />}

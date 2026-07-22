@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, Outlet, useRouterState } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
@@ -10,6 +10,7 @@ import {
   LogOut,
   Menu,
   Network,
+  Search,
   Server,
   Settings,
   Ship,
@@ -19,6 +20,7 @@ import {
 } from 'lucide-react';
 import { Wordmark } from '../components/Logo';
 import { EndpointSwitcher } from '../components/EndpointSwitcher';
+import { CommandPalette } from '../components/CommandPalette';
 import { UpdateModal } from '../components/UpdateModal';
 import { LangToggle, ThemeToggle } from '../components/ThemeLangControls';
 import { useAuth } from './AuthContext';
@@ -48,7 +50,20 @@ export function AppShell() {
   const { t } = useTranslation();
   const { isAdmin } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [cmdkOpen, setCmdkOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  // Globaler Shortcut: Cmd/Ctrl+K öffnet/schließt die Befehlssuche.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent): void => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setCmdkOpen((o) => !o);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   const items = nav.filter((item) => !item.admin || isAdmin);
   const isActive = (item: NavItem): boolean =>
@@ -89,6 +104,17 @@ export function AppShell() {
           <EndpointSwitcher />
         </div>
 
+        <div className="px-3 pb-2">
+          <button
+            onClick={() => setCmdkOpen(true)}
+            className="flex w-full items-center gap-2 rounded-md border border-border bg-surface px-2.5 py-2 text-left text-[13px] text-faint transition-colors hover:border-border-strong hover:text-muted"
+          >
+            <Search className="h-4 w-4" />
+            <span className="flex-1">{t('cmdk.trigger')}</span>
+            <kbd className="rounded border border-border px-1 py-0.5 text-[10px] leading-none">⌘K</kbd>
+          </button>
+        </div>
+
         <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-2">
           {items.map((item) => (
             <Link
@@ -124,6 +150,7 @@ export function AppShell() {
         </main>
       </div>
       <UpdateModal />
+      {cmdkOpen && <CommandPalette onClose={() => setCmdkOpen(false)} />}
     </div>
   );
 }

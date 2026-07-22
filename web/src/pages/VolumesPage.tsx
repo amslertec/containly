@@ -11,7 +11,8 @@ import { useConfirm } from '../hooks/useConfirm';
 import { Page, PageHeader } from '../components/PageHeader';
 import { Button } from '../components/ui/Button';
 import { Badge, Input, Label } from '../components/ui/primitives';
-import { TableWrap, THead, Th, Tr, Td } from '../components/ui/Table';
+import { ResizableTable, Tr, Td, useColumnResize, type Column } from '../components/ui/Table';
+import { useTablePrefs } from '../hooks/useTablePrefs';
 import { Dialog, DialogContent, DialogTitle } from '../components/ui/Dialog';
 import { LoadingState, ErrorState, EmptyState } from '../components/States';
 import { usePagination } from '../hooks/usePagination';
@@ -21,6 +22,20 @@ import { toast } from '../components/Toaster';
 import { api, ApiError } from '../lib/api';
 
 type Row = VolumeSummary & ScopedItem;
+
+const VOL_WIDTHS: Record<string, number> = {
+  name: 280,
+  driver: 120,
+  host: 130,
+  mountpoint: 320,
+  status: 130,
+  actions: 90,
+};
+const VOL_SORT: Record<string, (r: Row) => string | number> = {
+  name: (r) => r.name.toLowerCase(),
+  driver: (r) => r.driver.toLowerCase(),
+  status: (r) => (r.inUse ? 1 : 0),
+};
 
 export function VolumesPage() {
   const { t } = useTranslation();
@@ -37,10 +52,37 @@ export function VolumesPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const invalidate = (id: string) => void qc.invalidateQueries({ queryKey: ['volumes', id] });
 
+  const { widths, setWidth, commitWidths, sort, toggleSort } = useTablePrefs('volumes', VOL_WIDTHS, {
+    col: 'name',
+    dir: 'asc',
+  });
+  const startResize = useColumnResize(widths, setWidth, commitWidths);
+  const columns = useMemo<Column[]>(() => {
+    const cols: Column[] = [
+      { key: 'name', label: t('volumes.columns.name'), sortable: true, resizable: true, align: 'left' },
+      { key: 'driver', label: t('volumes.columns.driver'), sortable: true, resizable: true, align: 'left' },
+    ];
+    if (isAll) cols.push({ key: 'host', label: t('common.host'), resizable: true, align: 'left' });
+    cols.push({ key: 'mountpoint', label: t('volumes.columns.mountpoint'), resizable: true, align: 'left' });
+    cols.push({ key: 'status', label: t('common.status'), sortable: true, resizable: true, align: 'left' });
+    cols.push({ key: 'actions', label: t('common.actions'), align: 'right' });
+    return cols;
+  }, [t, isAll]);
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return q ? data.filter((v) => v.name.toLowerCase().includes(q)) : data;
-  }, [data, query]);
+    let list = q ? data.filter((v) => v.name.toLowerCase().includes(q)) : data;
+    const acc = VOL_SORT[sort.col];
+    if (acc) {
+      const dir = sort.dir === 'asc' ? 1 : -1;
+      list = [...list].sort((a, b) => {
+        const av = acc(a);
+        const bv = acc(b);
+        return av < bv ? -dir : av > bv ? dir : 0;
+      });
+    }
+    return list;
+  }, [data, query, sort]);
 
   const pg = usePagination(filtered, 10);
 
@@ -110,15 +152,13 @@ export function VolumesPage() {
       ) : filtered.length === 0 ? (
         <EmptyState title={t('volumes.noVolumes')} />
       ) : (
-        <TableWrap>
-          <THead>
-            <Th>{t('volumes.columns.name')}</Th>
-            <Th>{t('volumes.columns.driver')}</Th>
-            {isAll && <Th>{t('common.host')}</Th>}
-            <Th>{t('volumes.columns.mountpoint')}</Th>
-            <Th>{t('common.status')}</Th>
-            <Th className="text-right">{t('common.actions')}</Th>
-          </THead>
+        <ResizableTable
+          columns={columns}
+          widths={widths}
+          sort={sort}
+          onSort={toggleSort}
+          onResizeStart={startResize}
+        >
           <tbody>
             {pg.pageItems.map((vol) => (
               <Tr key={vol._endpointId + vol.name}>
@@ -143,7 +183,7 @@ export function VolumesPage() {
               </Tr>
             ))}
           </tbody>
-        </TableWrap>
+        </ResizableTable>
       )}
 
       {!isLoading && !isError && filtered.length > 0 && <Pagination pg={pg} />}

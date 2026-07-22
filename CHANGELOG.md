@@ -7,7 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-## [0.1.13] — 2026-07-22
+## [0.1.14] — 2026-07-22
+
+### Added
+
+- **Command palette (⌘K / Ctrl+K)** — a global launcher to jump to any page, host,
+  container or image by typing; full keyboard navigation. Also reachable via a search
+  button in the sidebar.
+- **Bulk actions on the Containers page** — select multiple containers (app-styled
+  checkboxes) and start / stop / restart / remove them in one go, with a summary toast.
+- **Sortable, resizable and persisted table columns** across Containers, Images,
+  Volumes, Networks and Stacks. Click a header to sort (▲ a–z, ▼ z–a); drag a column's
+  right edge to resize. Sort order and column widths are remembered per table (in the
+  browser) and restored on the next visit. On Containers, sorting "Status" orders by
+  uptime.
+
+### Changed
+
+- Checkboxes are now rendered in the app's own style instead of the browser default.
 
 ### Fixed
 
@@ -250,7 +267,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.13...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.14...HEAD
+[0.1.14]: https://github.com/amslertec/containly/compare/v0.1.13...v0.1.14
 [0.1.13]: https://github.com/amslertec/containly/compare/v0.1.12...v0.1.13
 [0.1.12]: https://github.com/amslertec/containly/compare/v0.1.11...v0.1.12
 [0.1.11]: https://github.com/amslertec/containly/compare/v0.1.10...v0.1.11

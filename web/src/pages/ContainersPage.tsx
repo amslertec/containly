@@ -13,6 +13,7 @@ import {
   Search,
   Square,
   Trash2,
+  X,
   Zap,
 } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -24,10 +25,13 @@ import { useUpdateFlags } from '../hooks/updates';
 import { useConfirm } from '../hooks/useConfirm';
 import { Page, PageHeader } from '../components/PageHeader';
 import { Button } from '../components/ui/Button';
+import { Checkbox } from '../components/ui/Checkbox';
 import { Badge, Input } from '../components/ui/primitives';
 import { StatusDot, stateTone } from '../components/StatusDot';
 import { LoadingState, ErrorState, EmptyState } from '../components/States';
 import { usePagination } from '../hooks/usePagination';
+import { useTablePrefs } from '../hooks/useTablePrefs';
+import { ResizableTable, useColumnResize, type Column } from '../components/ui/Table';
 import { Pagination } from '../components/ui/Pagination';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { toast } from '../components/Toaster';
@@ -36,6 +40,23 @@ import { shortId, cn } from '../lib/utils';
 
 type Filter = 'all' | 'running' | 'stopped';
 type Row = ContainerSummary & ScopedItem;
+
+const DEFAULT_WIDTHS: Record<string, number> = {
+  select: 44,
+  name: 260,
+  image: 300,
+  host: 130,
+  status: 200,
+  ports: 180,
+  actions: 132,
+};
+
+// Sortierschlüssel je Spalte. „status" sortiert nach Erstellzeit (= wie lange up).
+const SORT: Record<string, (c: Row) => string | number> = {
+  name: (c) => (c.names[0] ?? '').toLowerCase(),
+  image: (c) => c.image.toLowerCase(),
+  status: (c) => c.createdAt,
+};
 
 export function ContainersPage() {
   const { t } = useTranslation();
@@ -52,6 +73,28 @@ export function ContainersPage() {
 
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
+  const [picked, setPicked] = useState<Set<string>>(new Set());
+  const rowKey = (c: Row): string => `${c._endpointId}:${c.id}`;
+
+  // Sortierung + Spaltenbreiten, in localStorage gemerkt (bleiben beim nächsten Öffnen).
+  const { widths, setWidth, commitWidths, sort, toggleSort } = useTablePrefs('containers', DEFAULT_WIDTHS, {
+    col: 'name',
+    dir: 'asc',
+  });
+
+  const columns = useMemo<Column[]>(() => {
+    const cols: Column[] = [];
+    if (isAdmin) cols.push({ key: 'select', label: '', sortable: false, resizable: false, align: 'left' });
+    cols.push({ key: 'name', label: t('containers.columns.name'), sortable: true, resizable: true, align: 'left' });
+    cols.push({ key: 'image', label: t('containers.columns.image'), sortable: true, resizable: true, align: 'left' });
+    if (isAll) cols.push({ key: 'host', label: t('common.host'), sortable: false, resizable: true, align: 'left' });
+    cols.push({ key: 'status', label: t('containers.columns.status'), sortable: true, resizable: true, align: 'left' });
+    cols.push({ key: 'ports', label: t('containers.columns.ports'), sortable: false, resizable: true, align: 'left' });
+    cols.push({ key: 'actions', label: t('common.actions'), sortable: false, resizable: false, align: 'right' });
+    return cols;
+  }, [isAdmin, isAll, t]);
+
+  const startResize = useColumnResize(widths, setWidth, commitWidths);
 
   const filtered = useMemo(() => {
     let list: Row[] = data;
@@ -66,12 +109,16 @@ export function ContainersPage() {
           c.id.toLowerCase().includes(q),
       );
     }
+    const acc = SORT[sort.col] ?? SORT.name!;
+    const dir = sort.dir === 'asc' ? 1 : -1;
     return [...list].sort((a, b) => {
-      if (a.state === 'running' && b.state !== 'running') return -1;
-      if (a.state !== 'running' && b.state === 'running') return 1;
-      return (a.names[0] ?? '').localeCompare(b.names[0] ?? '');
+      const av = acc(a);
+      const bv = acc(b);
+      if (av < bv) return -dir;
+      if (av > bv) return dir;
+      return 0;
     });
-  }, [data, filter, query]);
+  }, [data, filter, query, sort]);
 
   const pg = usePagination(filtered, 10);
 
@@ -119,6 +166,64 @@ export function ContainersPage() {
     return { total: data.length, running };
   }, [data]);
 
+  // ── Mehrfachauswahl / Bulk-Aktionen ──────────────────────────────────────
+  const pageKeys = pg.pageItems.map(rowKey);
+  const allOnPage = pageKeys.length > 0 && pageKeys.every((k) => picked.has(k));
+  const toggleRow = (c: Row): void =>
+    setPicked((s) => {
+      const n = new Set(s);
+      n.has(rowKey(c)) ? n.delete(rowKey(c)) : n.add(rowKey(c));
+      return n;
+    });
+  const togglePage = (): void =>
+    setPicked((s) => {
+      const n = new Set(s);
+      if (allOnPage) pageKeys.forEach((k) => n.delete(k));
+      else pageKeys.forEach((k) => n.add(k));
+      return n;
+    });
+  const clearPicked = (): void => setPicked(new Set());
+  const pickedRows = filtered.filter((c) => picked.has(rowKey(c)));
+
+  const runBulk = async (action: ContainerAction | 'remove'): Promise<void> => {
+    if (pickedRows.length === 0) return;
+    if (action === 'remove') {
+      const ok = await confirm({
+        title: t('containers.removeTitle'),
+        description: t('bulk.removeConfirm', { count: pickedRows.length }),
+        danger: true,
+        confirmLabel: t('common.remove'),
+      });
+      if (!ok) return;
+    }
+    setBusy(true);
+    const touched = new Set<string>();
+    let ok = 0;
+    const errors: string[] = [];
+    for (const c of pickedRows) {
+      try {
+        if (action === 'remove') {
+          await api.delete(
+            `/api/containers/${encodeURIComponent(c.id)}?endpoint=${encodeURIComponent(c._endpointId)}&force=${c.state === 'running'}&volumes=false`,
+          );
+        } else {
+          await api.post(
+            `/api/containers/${encodeURIComponent(c.id)}/${action}?endpoint=${encodeURIComponent(c._endpointId)}`,
+          );
+        }
+        ok++;
+      } catch (err) {
+        errors.push(err instanceof ApiError ? err.message : (c.names[0] ?? shortId(c.id)));
+      }
+      touched.add(c._endpointId);
+    }
+    touched.forEach((e) => void qc.invalidateQueries({ queryKey: ['containers', e] }));
+    setBusy(false);
+    clearPicked();
+    if (errors.length === 0) toast.success(t('bulk.done', { count: ok }));
+    else toast.error(t('bulk.partial', { ok, failed: errors.length }));
+  };
+
   return (
     <Page>
       <PageHeader
@@ -161,6 +266,34 @@ export function ContainersPage() {
         </div>
       </div>
 
+      {isAdmin && picked.size > 0 && (
+        <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-primary/40 bg-primary-soft px-3 py-2">
+          <span className="text-[13px] font-medium text-ink">
+            {t('bulk.selected', { count: picked.size })}
+          </span>
+          <div className="flex-1" />
+          <Button variant="secondary" size="sm" onClick={() => void runBulk('start')} disabled={busy}>
+            <Play className="h-4 w-4" /> {t('containers.start')}
+          </Button>
+          <Button variant="secondary" size="sm" onClick={() => void runBulk('stop')} disabled={busy}>
+            <Square className="h-4 w-4" /> {t('containers.stop')}
+          </Button>
+          <Button variant="secondary" size="sm" onClick={() => void runBulk('restart')} disabled={busy}>
+            <RotateCw className="h-4 w-4" /> {t('containers.restart')}
+          </Button>
+          <Button variant="danger" size="sm" onClick={() => void runBulk('remove')} disabled={busy}>
+            <Trash2 className="h-4 w-4" /> {t('common.remove')}
+          </Button>
+          <button
+            onClick={clearPicked}
+            title={t('common.close')}
+            className="ml-1 inline-flex h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-surface-2 hover:text-ink"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+
       {isLoading ? (
         <LoadingState />
       ) : isError ? (
@@ -168,19 +301,23 @@ export function ContainersPage() {
       ) : filtered.length === 0 ? (
         <EmptyState title={t('containers.noContainers')} hint={query ? t('states.emptyHint') : t('states.emptyHint')} />
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border bg-surface">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border text-left">
-                  <Th className="pl-4">{t('containers.columns.name')}</Th>
-                  <Th>{t('containers.columns.image')}</Th>
-                  {isAll && <Th>{t('common.host')}</Th>}
-                  <Th>{t('containers.columns.status')}</Th>
-                  <Th>{t('containers.columns.ports')}</Th>
-                  <Th className="pr-4 text-right">{t('common.actions')}</Th>
-                </tr>
-              </thead>
+        <ResizableTable
+          columns={columns}
+          widths={widths}
+          sort={sort}
+          onSort={toggleSort}
+          onResizeStart={startResize}
+          header={(col) =>
+            col.key === 'select' ? (
+              <Checkbox
+                checked={allOnPage}
+                indeterminate={!allOnPage && pageKeys.some((k) => picked.has(k))}
+                onChange={togglePage}
+                aria-label={t('bulk.selectAll')}
+              />
+            ) : undefined
+          }
+        >
               <tbody>
                 {pg.pageItems.map((c) => {
                   const name = c.names[0] ?? shortId(c.id);
@@ -189,9 +326,21 @@ export function ContainersPage() {
                   return (
                     <tr
                       key={c.id}
-                      className="group border-b border-border last:border-0 transition-colors hover:bg-surface-hover"
+                      className={cn(
+                        'group border-b border-border last:border-0 transition-colors hover:bg-surface-hover',
+                        picked.has(rowKey(c)) && 'bg-primary-soft/50',
+                      )}
                     >
-                      <td className="whitespace-nowrap py-2.5 pl-4">
+                      {isAdmin && (
+                        <td className="py-2.5 pl-4 pr-1 align-middle">
+                          <Checkbox
+                            checked={picked.has(rowKey(c))}
+                            onChange={() => toggleRow(c)}
+                            aria-label={name}
+                          />
+                        </td>
+                      )}
+                      <td className={cn('overflow-hidden py-2.5', isAdmin ? 'pl-2' : 'pl-4')}>
                         <Link
                           to="/containers/$id"
                           params={{ id: c.id }}
@@ -207,28 +356,30 @@ export function ContainersPage() {
                           </span>
                         </Link>
                       </td>
-                      <td className="whitespace-nowrap py-2.5 pr-3">
-                        <span className="font-mono text-[12px] text-muted">{c.image}</span>
-                        {c.composeProject && (
-                          <Badge tone="primary" className="ml-2 align-middle">
-                            {c.composeProject}
-                          </Badge>
-                        )}
-                        {updates.has(c._endpointId, c.image) && (
-                          <Badge tone="signal" className="ml-2 align-middle" title={t('updates.statusUpdate')}>
-                            <ArrowUpCircle className="h-3.5 w-3.5" /> {t('updates.statusUpdate')}
-                          </Badge>
-                        )}
+                      <td className="py-2.5 pl-2 pr-3">
+                        <div className="flex items-center gap-2 overflow-hidden">
+                          <span className="truncate font-mono text-[12px] text-muted">{c.image}</span>
+                          {c.composeProject && (
+                            <Badge tone="primary" className="shrink-0">
+                              {c.composeProject}
+                            </Badge>
+                          )}
+                          {updates.has(c._endpointId, c.image) && (
+                            <Badge tone="signal" className="shrink-0" title={t('updates.statusUpdate')}>
+                              <ArrowUpCircle className="h-3.5 w-3.5" /> {t('updates.statusUpdate')}
+                            </Badge>
+                          )}
+                        </div>
                       </td>
                       {isAll && (
-                        <td className="whitespace-nowrap py-2.5 pr-3">
+                        <td className="overflow-hidden py-2.5 pl-2 pr-3">
                           <Badge tone="neutral">{c._endpointName}</Badge>
                         </td>
                       )}
-                      <td className="whitespace-nowrap py-2.5 pr-3">
-                        <span className="text-[13px] text-muted tabular">{c.status}</span>
+                      <td className="overflow-hidden py-2.5 pl-2 pr-3">
+                        <span className="block truncate text-[13px] text-muted tabular">{c.status}</span>
                       </td>
-                      <td className="whitespace-nowrap py-2.5 pr-3">
+                      <td className="overflow-hidden py-2.5 pl-2 pr-3">
                         <PortList container={c} />
                       </td>
                       <td className="whitespace-nowrap py-2.5 pr-4">
@@ -282,9 +433,7 @@ export function ContainersPage() {
                   );
                 })}
               </tbody>
-            </table>
-          </div>
-        </div>
+        </ResizableTable>
       )}
 
       {!isLoading && !isError && filtered.length > 0 && <Pagination pg={pg} />}
@@ -292,10 +441,6 @@ export function ContainersPage() {
       <ConfirmDialog {...dialogProps} loading={busy} />
     </Page>
   );
-}
-
-function Th({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <th className={cn('eyebrow whitespace-nowrap py-2.5 pr-3 font-semibold', className)}>{children}</th>;
 }
 
 function RowAction({

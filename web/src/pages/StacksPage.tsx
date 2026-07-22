@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
@@ -34,7 +34,8 @@ import { useConfirm } from '../hooks/useConfirm';
 import { Page, PageHeader } from '../components/PageHeader';
 import { Button } from '../components/ui/Button';
 import { Badge, Card, Input, Label, Textarea } from '../components/ui/primitives';
-import { TableWrap, THead, Th, Tr, Td } from '../components/ui/Table';
+import { TableWrap, THead, Th, Tr, Td, ResizableTable, useColumnResize, type Column } from '../components/ui/Table';
+import { useTablePrefs } from '../hooks/useTablePrefs';
 import { Select } from '../components/ui/Select';
 import { StatusDot, stateTone } from '../components/StatusDot';
 import { LoadingState, ErrorState, EmptyState } from '../components/States';
@@ -64,6 +65,22 @@ const TEMPLATE = `services:
     restart: unless-stopped
 `;
 
+const STK_WIDTHS: Record<string, number> = {
+  name: 260,
+  host: 130,
+  status: 130,
+  services: 110,
+  path: 340,
+  created: 150,
+  actions: 120,
+};
+const STK_SORT: Record<string, (s: StackSummary) => string | number> = {
+  name: (s) => s.name.toLowerCase(),
+  status: (s) => s.status,
+  services: (s) => s.services,
+  created: (s) => s.updatedAt ?? '',
+};
+
 /* ── Liste ─────────────────────────────────────────────────────────────────── */
 export function StacksPage() {
   const { t } = useTranslation();
@@ -76,19 +93,45 @@ export function StacksPage() {
   const [creating, setCreating] = useState(false);
   const [query, setQuery] = useState('');
 
+  const { widths, setWidth, commitWidths, sort, toggleSort } = useTablePrefs('stacks', STK_WIDTHS, {
+    col: 'name',
+    dir: 'asc',
+  });
+  const startResize = useColumnResize(widths, setWidth, commitWidths);
+  const columns = useMemo<Column[]>(() => {
+    const cols: Column[] = [{ key: 'name', label: t('common.name'), sortable: true, resizable: true, align: 'left' }];
+    if (isAll) cols.push({ key: 'host', label: t('common.host'), resizable: true, align: 'left' });
+    cols.push({ key: 'status', label: t('stacks.status'), sortable: true, resizable: true, align: 'left' });
+    cols.push({ key: 'services', label: t('stacks.services'), sortable: true, resizable: true, align: 'right' });
+    cols.push({ key: 'path', label: t('stacks.path'), resizable: true, align: 'left' });
+    cols.push({ key: 'created', label: t('common.created'), sortable: true, resizable: true, align: 'right' });
+    if (isAdmin) cols.push({ key: 'actions', label: t('common.actions'), align: 'right' });
+    return cols;
+  }, [t, isAll, isAdmin]);
+
   // Nur den gewählten Endpoint zeigen; „Alle Hosts" kombiniert alle.
   const all = data ?? [];
   const scoped = isAll ? all : all.filter((s) => s.endpoint === selected);
   const q = query.trim().toLowerCase();
-  const stacks = q
-    ? scoped.filter(
-        (s) =>
-          s.name.toLowerCase().includes(q) ||
-          s.endpointName.toLowerCase().includes(q) ||
-          s.containerNames.some((n) => n.toLowerCase().includes(q)) ||
-          s.images.some((i) => i.toLowerCase().includes(q)),
-      )
-    : scoped;
+  const stacks = useMemo(() => {
+    const list = q
+      ? scoped.filter(
+          (s) =>
+            s.name.toLowerCase().includes(q) ||
+            s.endpointName.toLowerCase().includes(q) ||
+            s.containerNames.some((n) => n.toLowerCase().includes(q)) ||
+            s.images.some((i) => i.toLowerCase().includes(q)),
+        )
+      : scoped;
+    const acc = STK_SORT[sort.col];
+    if (!acc) return list;
+    const dir = sort.dir === 'asc' ? 1 : -1;
+    return [...list].sort((a, b) => {
+      const av = acc(a);
+      const bv = acc(b);
+      return av < bv ? -dir : av > bv ? dir : 0;
+    });
+  }, [scoped, q, sort]);
   const pg = usePagination(stacks, 10);
 
   const scopeEndpoints = isAll ? endpoints : endpoints.filter((e) => e.id === selected);
@@ -163,16 +206,13 @@ export function StacksPage() {
             <EmptyState icon={<Search className="h-8 w-8" />} title={t('stacks.noResults')} hint="" />
           ) : (
             <>
-          <TableWrap>
-            <THead>
-              <Th>{t('common.name')}</Th>
-              {isAll && <Th>{t('common.host')}</Th>}
-              <Th>{t('stacks.status')}</Th>
-              <Th className="text-right">{t('stacks.services')}</Th>
-              <Th>{t('stacks.path')}</Th>
-              <Th className="text-right">{t('common.created')}</Th>
-              {isAdmin && <Th className="text-right">{t('common.actions')}</Th>}
-            </THead>
+          <ResizableTable
+            columns={columns}
+            widths={widths}
+            sort={sort}
+            onSort={toggleSort}
+            onResizeStart={startResize}
+          >
             <tbody>
               {pg.pageItems.map((s: StackSummary) => (
                 <Tr key={s.id} className="cursor-pointer" onClick={() => open(s.id)}>
@@ -216,7 +256,7 @@ export function StacksPage() {
                 </Tr>
               ))}
             </tbody>
-          </TableWrap>
+          </ResizableTable>
           <Pagination pg={pg} />
             </>
           )}

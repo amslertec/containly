@@ -17,6 +17,23 @@
     "profile": "Profile",
     "updates": "Updates"
   },
+  "cmdk": {
+    "trigger": "Search …",
+    "placeholder": "Jump to page, container, image, host …",
+    "noResults": "No matches",
+    "pages": "Pages",
+    "endpoints": "Hosts",
+    "containers": "Containers",
+    "images": "Images",
+    "current": "current"
+  },
+  "bulk": {
+    "selected": "{{count}} selected",
+    "selectAll": "Select all on this page",
+    "removeConfirm": "Remove {{count}} containers? This cannot be undone.",
+    "done": "{{count}} containers processed",
+    "partial": "{{ok}} done · {{failed}} failed"
+  },
   "profile": {
     "title": "Profile",
     "subtitle": "Manage your account, password and security.",
