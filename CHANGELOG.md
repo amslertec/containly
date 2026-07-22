@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.13] — 2026-07-22
+
+### Fixed
+
+- **Updated containers now report the new image's version, not the old one.** When
+  recreating a container on update, Containly copied the old container's full
+  environment — including image-baked defaults such as `CONTAINLY_VERSION`. That froze
+  the old value onto the new container, so after a self-update Containly kept showing
+  the previous version even though it was already running the new image. Unchanged
+  image-default env vars from the old image are now dropped on recreate so the new
+  image's defaults apply; user/compose-set env vars are preserved.
+- **Recreate is now name-safe.** The recreate routine now operates on the resolved
+  container ID after inspect, so renaming the old container aside can never make a
+  later remove target the freshly created one.
+
 ## [0.1.12] — 2026-07-22
 
 ### Fixed
@@ -235,7 +250,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.12...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.13...HEAD
+[0.1.13]: https://github.com/amslertec/containly/compare/v0.1.12...v0.1.13
 [0.1.12]: https://github.com/amslertec/containly/compare/v0.1.11...v0.1.12
 [0.1.11]: https://github.com/amslertec/containly/compare/v0.1.10...v0.1.11
 [0.1.10]: https://github.com/amslertec/containly/compare/v0.1.9...v0.1.10
