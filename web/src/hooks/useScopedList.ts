@@ -11,6 +11,7 @@ export interface ScopedItem {
 export interface ScopedResult<T> {
   data: (T & ScopedItem)[];
   isLoading: boolean;
+  isFetching: boolean;
   isError: boolean;
   error: unknown;
   refetch: () => void;
@@ -47,6 +48,7 @@ export function useScopedList<T, R>(
   return {
     data: results.flatMap((r) => (r.data as (T & ScopedItem)[] | undefined) ?? []),
     isLoading: results.some((r) => r.isLoading),
+    isFetching: results.some((r) => r.isFetching),
     isError: results.some((r) => r.isError),
     error: results.find((r) => r.isError)?.error,
     refetch: () => results.forEach((r) => void r.refetch()),

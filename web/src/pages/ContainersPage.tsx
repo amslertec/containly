@@ -64,7 +64,7 @@ export function ContainersPage() {
   const { isAdmin } = useAuth();
   const qc = useQueryClient();
   const updates = useUpdateFlags();
-  const { data, isLoading, isError, error, refetch } = useScopedList<
+  const { data, isLoading, isFetching, isError, error, refetch } = useScopedList<
     ContainerSummary,
     { containers: ContainerSummary[] }
   >('containers', (d) => d.containers, 5000);
@@ -227,8 +227,8 @@ export function ContainersPage() {
           data ? `${counts.running} ${t('containers.filterRunning').toLowerCase()} · ${counts.total} ${t('containers.title').toLowerCase()}` : undefined
         }
         actions={
-          <Button variant="secondary" size="sm" onClick={() => void refetch()}>
-            <RefreshCw className="h-4 w-4" />
+          <Button variant="secondary" size="sm" onClick={() => void refetch()} disabled={isFetching}>
+            <RefreshCw className={cn('h-4 w-4', isFetching && 'animate-spin')} />
             {t('common.refresh')}
           </Button>
         }

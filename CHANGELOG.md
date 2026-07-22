@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.20] — 2026-07-22
+
+### Added
+
+- **Pull-to-refresh on touch devices** — pull down at the top of any page to reload.
+
+### Fixed
+
+- **Updates page on mobile**: the "check" and "update all" buttons are now icon-only on
+  narrow screens, so the header no longer overflows and scrolls sideways.
+- **Volume browser**: a long volume name (e.g. an anonymous-volume hash) is now
+  truncated in the dialog title instead of overflowing the modal.
+- **Containers "Refresh" button** now shows a spinning indicator while refetching, so
+  it's clear it did something (the list also auto-refreshes every few seconds).
+
 ## [0.1.19] — 2026-07-22
 
 ### Added
@@ -382,7 +397,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.19...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.20...HEAD
+[0.1.20]: https://github.com/amslertec/containly/compare/v0.1.19...v0.1.20
 [0.1.19]: https://github.com/amslertec/containly/compare/v0.1.18...v0.1.19
 [0.1.18]: https://github.com/amslertec/containly/compare/v0.1.17...v0.1.18
 [0.1.17]: https://github.com/amslertec/containly/compare/v0.1.16...v0.1.17

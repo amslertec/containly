@@ -22,6 +22,7 @@ import {
 import { Wordmark } from '../components/Logo';
 import { EndpointSwitcher } from '../components/EndpointSwitcher';
 import { CommandPalette } from '../components/CommandPalette';
+import { PullToRefresh } from '../components/PullToRefresh';
 import { UpdateModal } from '../components/UpdateModal';
 import { LangToggle, ThemeToggle } from '../components/ThemeLangControls';
 import { useAuth } from './AuthContext';
@@ -147,8 +148,10 @@ export function AppShell() {
           </button>
           <Wordmark />
         </header>
-        <main className="min-w-0 flex-1 overflow-y-auto">
-          <Outlet />
+        <main className="min-w-0 flex-1 overflow-hidden">
+          <PullToRefresh className="h-full overflow-y-auto">
+            <Outlet />
+          </PullToRefresh>
         </main>
       </div>
       <UpdateModal />

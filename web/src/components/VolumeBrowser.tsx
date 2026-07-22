@@ -103,9 +103,9 @@ export function VolumeBrowser({
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent onClose={onClose} className="max-w-3xl">
         <DialogTitle>
-          <span className="inline-flex items-center gap-2">
-            <HardDrive className="h-4 w-4 text-primary" />
-            <span className="font-mono text-[15px]">{volume}</span>
+          <span className="flex items-center gap-2">
+            <HardDrive className="h-4 w-4 shrink-0 text-primary" />
+            <span className="min-w-0 flex-1 truncate font-mono text-[15px]" title={volume}>{volume}</span>
           </span>
         </DialogTitle>
 

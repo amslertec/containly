@@ -109,8 +109,9 @@ export function UpdatesPage() {
                 </button>
               ))}
             </div>
-            <Button variant="secondary" size="md" onClick={() => void check()} loading={checking} disabled={bulk.running}>
-              <RefreshCw className={cn('h-4 w-4', checking && 'animate-spin')} /> {t('updates.check')}
+            <Button variant="secondary" size="md" onClick={() => void check()} loading={checking} disabled={bulk.running} title={t('updates.check')}>
+              <RefreshCw className={cn('h-4 w-4', checking && 'animate-spin')} />
+              <span className="hidden sm:inline">{t('updates.check')}</span>
             </Button>
             {isAdmin && (updateCount > 0 || bulk.running) && (
               <Button
@@ -119,11 +120,14 @@ export function UpdatesPage() {
                 onClick={() => void bulk.start(pendingEndpoints)}
                 loading={bulk.running}
                 disabled={bulk.running || updateCount === 0}
+                title={t('updates.updateAll', { count: updateCount })}
               >
                 <Download className="h-4 w-4" />
-                {bulk.running
-                  ? t('updates.bulkProgress', { done: bulk.done, total: bulk.total })
-                  : t('updates.updateAll', { count: updateCount })}
+                <span className="hidden sm:inline">
+                  {bulk.running
+                    ? t('updates.bulkProgress', { done: bulk.done, total: bulk.total })
+                    : t('updates.updateAll', { count: updateCount })}
+                </span>
               </Button>
             )}
           </div>
