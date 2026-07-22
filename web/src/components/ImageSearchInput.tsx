@@ -134,7 +134,7 @@ export function ImageSearchInput({ value, onChange, onEnter, placeholder, disabl
       />
 
       {open && (value.trim().length >= MIN_CHARS || repo) && (
-        <div className="absolute z-30 mt-1 max-h-80 w-full overflow-y-auto rounded-lg border border-border bg-surface-1 shadow-lg">
+        <div className="absolute z-50 mt-1 max-h-80 w-full overflow-y-auto rounded-lg border border-border bg-surface shadow-lg">
           {loading && (
             <div className="flex items-center gap-2 px-3 py-2 text-xs text-muted">
               <Loader2 className="h-3.5 w-3.5 animate-spin" /> {t('common.loading')}
@@ -200,7 +200,7 @@ export function ImageSearchInput({ value, onChange, onEnter, placeholder, disabl
 function Group({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="sticky top-0 bg-surface-1/95 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-faint backdrop-blur">
+      <div className="sticky top-0 bg-surface px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-faint">
         {label}
       </div>
       {children}

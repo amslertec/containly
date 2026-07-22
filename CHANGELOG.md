@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.12] — 2026-07-22
+
+### Fixed
+
+- **Image search dropdown**: gave it the solid `surface` background used by the other
+  dropdowns (it was semi-transparent, so the table showed through) and raised its
+  stacking order so it renders above the images table instead of behind it.
+
 ## [0.1.11] — 2026-07-22
 
 ### Fixed
@@ -227,7 +235,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.11...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.12...HEAD
+[0.1.12]: https://github.com/amslertec/containly/compare/v0.1.11...v0.1.12
 [0.1.11]: https://github.com/amslertec/containly/compare/v0.1.10...v0.1.11
 [0.1.10]: https://github.com/amslertec/containly/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/amslertec/containly/compare/v0.1.8...v0.1.9
