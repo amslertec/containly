@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.10] — 2026-07-22
+
+### Added
+
+- **Image search autocomplete on the Images page.** The pull field now suggests
+  images from Docker Hub as you type: the repositories of your connected Docker Hub
+  account first — **including private ones** (and organisations you belong to) — then
+  popular public matches (official images and star count first). Picking a repository
+  loads its available tags to choose from, so you end up with a ready `repo:tag`
+  reference. Built for speed: the login token, your repo list and public results are
+  cached server-side, and the frontend debounces and cancels in-flight requests.
+
 ## [0.1.9] — 2026-07-22
 
 ### Fixed
@@ -195,7 +207,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.9...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.10...HEAD
+[0.1.10]: https://github.com/amslertec/containly/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/amslertec/containly/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/amslertec/containly/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/amslertec/containly/compare/v0.1.6...v0.1.7

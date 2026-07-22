@@ -310,6 +310,13 @@
     "pull": "Pull image",
     "pullPlaceholder": "e.g. nginx:latest",
     "pulling": "Pulling …",
+    "search": {
+      "yourRepos": "Your repos",
+      "dockerHub": "Docker Hub",
+      "pickTag": "pick a tag",
+      "noResults": "No matches",
+      "noTags": "No tags found"
+    },
     "prune": "Remove unused",
     "pruneConfirm": "Remove ALL unused images (every image not used by a container – tagged ones too)? This cannot be undone.",
     "removeConfirm": "Remove image “{{name}}”?",

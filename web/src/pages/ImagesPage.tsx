@@ -9,6 +9,7 @@ import { useConfirm } from '../hooks/useConfirm';
 import { useScopedList, type ScopedItem } from '../hooks/useScopedList';
 import { useUpdateFlags } from '../hooks/updates';
 import { Page, PageHeader } from '../components/PageHeader';
+import { ImageSearchInput } from '../components/ImageSearchInput';
 import { Button } from '../components/ui/Button';
 import { Badge, Input, Label } from '../components/ui/primitives';
 import { TableWrap, THead, Th, Tr, Td } from '../components/ui/Table';
@@ -138,13 +139,12 @@ export function ImagesPage() {
           <div className="flex-1" style={{ minWidth: 240 }}>
             <Label htmlFor="pull">{t('images.pull')}</Label>
             <div className="flex gap-2">
-              <Input
-                id="pull"
+              <ImageSearchInput
                 value={pullValue}
-                onChange={(e) => setPullValue(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && void doPull()}
+                onChange={setPullValue}
+                onEnter={() => void doPull()}
                 placeholder={t('images.pullPlaceholder')}
-                className="font-mono"
+                disabled={pulling}
               />
               <Button variant="primary" size="md" onClick={() => void doPull()} loading={pulling} disabled={!pullValue.trim()}>
                 <Download className="h-4 w-4" /> {t('images.pull')}

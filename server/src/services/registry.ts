@@ -62,6 +62,13 @@ export function authConfigForImage(image: string): Docker.AuthConfig | undefined
   };
 }
 
+/** Docker-Hub-Anmeldedaten (username + entschlüsseltes Secret) oder undefined. */
+export function dockerHubCredentials(): { username: string; secret: string } | undefined {
+  const row = getRow(DOCKER_IO);
+  if (!row) return undefined;
+  return { username: row.username, secret: decryptSecret(row.secret_enc) };
+}
+
 /** base64-kodierter `X-Registry-Auth`-Header-Wert (für modem.dial / distribution). */
 export function registryAuthHeader(image: string): string | undefined {
   const cfg = authConfigForImage(image);

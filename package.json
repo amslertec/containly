@@ -1,6 +1,6 @@
 {
   "name": "containly",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "private": true,
   "description": "A modern, secure, self-hosted Docker management web UI with file-based Compose stacks.",
   "license": "AGPL-3.0-or-later",
