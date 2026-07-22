@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.21] — 2026-07-22
+
+### Fixed
+
+- **Backup & restore now include all the newer settings.** The encrypted backup covered
+  users, endpoints, registries and the audit log, but the tables added by recent
+  features were missing. It now also backs up and restores **SMTP configuration,
+  notification settings, scheduled jobs, catalog sources and Git-managed stacks**.
+  (User email addresses and language were already included via the full user rows.) The
+  Trivy scan cache is intentionally left out — it regenerates itself. Restore only
+  clears a table if the backup actually contains it, so restoring an older backup won't
+  wipe newer data.
+- **Audit log labels** for the newer actions (SMTP, notifications, schedule, catalog,
+  GitOps, volume upload/delete, image rescan, email changes) are now properly
+  translated (German/English) instead of falling back to a raw, English-only label.
+- **Audit log targets** that are long hash IDs (container/image IDs, `sha256:…`) are now
+  shortened to 12 characters for readability (full value on hover); readable targets
+  (names, tags, types) are shown unchanged.
+
 ## [0.1.20] — 2026-07-22
 
 ### Added
@@ -397,7 +416,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.20...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.21...HEAD
+[0.1.21]: https://github.com/amslertec/containly/compare/v0.1.20...v0.1.21
 [0.1.20]: https://github.com/amslertec/containly/compare/v0.1.19...v0.1.20
 [0.1.19]: https://github.com/amslertec/containly/compare/v0.1.18...v0.1.19
 [0.1.18]: https://github.com/amslertec/containly/compare/v0.1.17...v0.1.18

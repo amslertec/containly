@@ -7,8 +7,19 @@ import { logger } from '../logger.js';
 
 const APP = 'containly';
 const ENVELOPE_V = 1;
-// Datentabellen im Backup (Reihenfolge = Einfüge-Reihenfolge; Sessions bleiben aussen vor).
-const TABLES = ['users', 'endpoints', 'registry_credentials', 'audit_log'] as const;
+// Datentabellen im Backup (Reihenfolge = Einfüge-Reihenfolge; Sessions bleiben aussen
+// vor; image_vulns ist ein regenerierbarer Scan-Cache und wird bewusst nicht gesichert).
+const TABLES = [
+  'users',
+  'endpoints',
+  'registry_credentials',
+  'audit_log',
+  'smtp_config',
+  'notification_settings',
+  'scheduled_jobs',
+  'catalog_sources',
+  'git_stacks',
+] as const;
 const SCRYPT = { N: 2 ** 15, r: 8, p: 1 };
 
 function schemaVersion(): number {
@@ -92,10 +103,12 @@ export function restoreBackup(fileText: string, passphrase: string): RestoreResu
 
   const apply = db.transaction(() => {
     db.prepare('DELETE FROM sessions').run();
-    db.prepare('DELETE FROM audit_log').run();
-    db.prepare('DELETE FROM registry_credentials').run();
-    db.prepare('DELETE FROM endpoints').run();
-    db.prepare('DELETE FROM users').run();
+    // Nur Tabellen leeren, die im Backup enthalten sind (ältere Backups ohne eine neue
+    // Tabelle lassen deren aktuelle Daten unangetastet). Reverse-Reihenfolge wegen FKs.
+    for (const table of [...TABLES].reverse()) {
+      if (!(table in payload.tables)) continue;
+      db.prepare(`DELETE FROM ${table}`).run();
+    }
     for (const table of TABLES) {
       for (const row of payload.tables[table] ?? []) {
         const cols = Object.keys(row);

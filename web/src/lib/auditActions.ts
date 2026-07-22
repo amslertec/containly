@@ -64,6 +64,28 @@ const LABELS: Record<string, { de: string; en: string }> = {
   'user.create': { de: 'Benutzer erstellt', en: 'User created' },
   'user.update': { de: 'Benutzer geändert', en: 'User updated' },
   'user.delete': { de: 'Benutzer gelöscht', en: 'User deleted' },
+  'user.email': { de: 'Benutzer-E-Mail geändert', en: 'User email set' },
+  'email.change': { de: 'E-Mail-Adresse geändert', en: 'Email address changed' },
+
+  'image.rescan': { de: 'Sicherheits-Scan gestartet', en: 'Security scan triggered' },
+
+  'volume.upload': { de: 'Datei ins Volume hochgeladen', en: 'File uploaded to volume' },
+  'volume.delete': { de: 'Datei im Volume gelöscht', en: 'File deleted in volume' },
+
+  'smtp.update': { de: 'SMTP-Einstellungen geändert', en: 'SMTP settings updated' },
+  'notification.update': { de: 'Benachrichtigung geändert', en: 'Notification updated' },
+
+  'schedule.update': { de: 'Zeitplan geändert', en: 'Schedule updated' },
+  'schedule.run': { de: 'Wartungs-Job ausgeführt', en: 'Maintenance job run' },
+
+  'catalog.deploy': { de: 'App aus Katalog deployed', en: 'App deployed from catalog' },
+  'catalog.source.add': { de: 'Katalog-Quelle hinzugefügt', en: 'Catalog source added' },
+  'catalog.source.update': { de: 'Katalog-Quelle geändert', en: 'Catalog source updated' },
+  'catalog.source.delete': { de: 'Katalog-Quelle entfernt', en: 'Catalog source removed' },
+
+  'gitops.add': { de: 'Git-Stack hinzugefügt', en: 'Git stack added' },
+  'gitops.sync': { de: 'Git-Stack synchronisiert', en: 'Git stack synced' },
+  'gitops.remove': { de: 'Git-Stack entfernt', en: 'Git stack removed' },
 };
 
 /** Fallback: `foo.bar_baz` → „Foo bar baz" (falls kein Eintrag existiert). */
@@ -77,4 +99,15 @@ export function auditActionLabel(action: string): string {
   const entry = LABELS[action];
   if (entry) return de ? entry.de : entry.en;
   return prettify(action);
+}
+
+/**
+ * Lesbare Ziel-Darstellung: lange Hash-IDs (Container-/Image-ID, `sha256:…`) auf 12
+ * Zeichen kürzen, lesbare Ziele (Namen, Image-Tags, Typen) unverändert lassen.
+ */
+export function auditTargetLabel(target: string | null): string {
+  if (!target) return '—';
+  const bare = target.replace(/^sha256:/, '');
+  if (/^[0-9a-f]{20,}$/i.test(bare)) return bare.slice(0, 12);
+  return target;
 }

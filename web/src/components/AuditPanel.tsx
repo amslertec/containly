@@ -9,7 +9,7 @@ import { LoadingState, ErrorState, EmptyState } from './States';
 import { usePagination } from '../hooks/usePagination';
 import { Pagination } from './ui/Pagination';
 import { absoluteTimeLocalized } from '../lib/time';
-import { auditActionLabel } from '../lib/auditActions';
+import { auditActionLabel, auditTargetLabel } from '../lib/auditActions';
 
 const DANGEROUS = new Set(['exec', 'stack.deploy', 'stack.down']);
 
@@ -88,7 +88,9 @@ export function AuditPanel() {
                   </span>
                 </Td>
                 <Td>
-                  <span className="font-mono text-[11px] text-faint break-all">{e.target ?? '—'}</span>
+                  <span className="font-mono text-[11px] text-faint break-all" title={e.target ?? undefined}>
+                    {auditTargetLabel(e.target)}
+                  </span>
                 </Td>
                 <Td>
                   <Badge tone={e.outcome === 'ok' ? 'run' : e.outcome === 'denied' ? 'warn' : 'danger'}>
