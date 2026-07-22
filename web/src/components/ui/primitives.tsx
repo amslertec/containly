@@ -100,9 +100,11 @@ export function KeyValue({
   mono?: boolean;
 }) {
   return (
-    <div className="flex flex-col gap-1 py-2">
+    <div className="flex min-w-0 flex-col gap-1 py-2">
       <dt className="eyebrow">{label}</dt>
-      <dd className={cn('text-sm text-ink break-words', mono && 'font-mono text-[13px]')}>
+      {/* min-w-0 + break: Grid-Spalten haben min-width:auto → lange mono-Werte (Image-Refs,
+          sha256) würden die Zelle/Karte/Seite sonst verbreitern. break-all bricht überall. */}
+      <dd className={cn('min-w-0 text-sm text-ink', mono ? 'break-all font-mono text-[13px]' : 'break-words')}>
         {children}
       </dd>
     </div>

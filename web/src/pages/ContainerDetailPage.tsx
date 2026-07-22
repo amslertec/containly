@@ -188,9 +188,12 @@ function Overview({
   endpointHost: string | null;
 }) {
   const { t } = useTranslation();
+  // grid-cols-1 (nicht bloss `grid`): sonst ist die Mobile-Spalte `auto` und wächst mit
+  // dem breitesten Inhalt (Mounts-Pfade) → Seite scrollt seitlich. min-w-0 lässt die
+  // Karten schrumpfen, damit overflow-x-auto-Container intern scrollen.
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
-      <Card className="p-4">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <Card className="min-w-0 p-4">
         <span className="eyebrow">{t('containers.detail.overview')}</span>
         <dl className="mt-2 grid grid-cols-2 gap-x-4">
           <KeyValue label={t('containers.detail.image')} mono>{c.image}</KeyValue>
@@ -202,7 +205,7 @@ function Overview({
         </dl>
       </Card>
 
-      <Card className="p-4">
+      <Card className="min-w-0 p-4">
         <span className="eyebrow">{t('containers.detail.ports')} · {t('containers.detail.networks')}</span>
         <div className="mt-3 space-y-3">
           {c.ports.length > 0 ? (
@@ -244,7 +247,7 @@ function Overview({
       </Card>
 
       {c.mounts.length > 0 && (
-        <Card className="p-4 lg:col-span-2">
+        <Card className="min-w-0 p-4 lg:col-span-2">
           <span className="eyebrow">{t('containers.detail.mounts')}</span>
           <div className="mt-2 overflow-x-auto">
             <table className="w-full text-[13px]">
@@ -268,7 +271,7 @@ function Overview({
       )}
 
       {c.env.length > 0 && (
-        <Card className="p-4 lg:col-span-2">
+        <Card className="min-w-0 p-4 lg:col-span-2">
           <span className="eyebrow">{t('containers.detail.env')}</span>
           <div className="mt-2 max-h-64 overflow-auto rounded-md bg-bg-sunken p-3">
             {c.env.map((e, i) => {
@@ -276,7 +279,7 @@ function Overview({
               const k = eq > 0 ? e.slice(0, eq) : e;
               const v = eq > 0 ? e.slice(eq + 1) : '';
               return (
-                <div key={i} className="font-mono text-[12px]">
+                <div key={i} className="break-all font-mono text-[12px]">
                   <span className="text-primary">{k}</span>
                   <span className="text-faint">=</span>
                   <span className="text-muted">{v}</span>

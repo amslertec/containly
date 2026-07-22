@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.29] — 2026-07-22
+
+### Fixed
+
+- **Container overview overflowed horizontally on mobile.** The overview grid used a bare
+  `grid` container, which on narrow screens created an implicit `auto` column that grew
+  with its widest child (the mounts table with long paths), forcing the whole page to
+  scroll sideways. It now uses `grid-cols-1` (a shrinkable `minmax(0,1fr)` column) and the
+  cards are `min-w-0`, so the mounts table scrolls inside its own box instead of stretching
+  the page. Long values (image refs, environment variables) now wrap with `break-all`.
+
 ## [0.1.28] — 2026-07-22
 
 ### Fixed
