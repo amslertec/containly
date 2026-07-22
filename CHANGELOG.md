@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.19] — 2026-07-22
+
+### Added
+
+- **App catalog (Portainer-template style).** A new **App catalog** page lists apps
+  from one or more template sources in the Portainer `templates.json` format
+  (default: the aggregated Lissy93 catalog, ~400+ apps) — searchable, with a deploy
+  dialog (pick endpoint + stack path, name, edit environment variables) that writes a
+  `docker-compose.yml` and brings the stack up. **Multiple sources** can be added,
+  enabled/disabled or removed (your own JSON URLs too).
+- **Volume browser.** Browse the files inside a named volume (per-volume "Browse"
+  button): navigate folders, download and upload files, delete entries — all via a
+  disposable `alpine` container launched through the helper, so Containly's image
+  stays tooling-free.
+- **GitOps for stacks.** Add a stack from a Git repository (clone into a stack path);
+  a **Sync** button pulls updates and, on a new commit, redeploys; optional **auto-sync**
+  pulls every 5 minutes and redeploys on change. Git runs in a disposable `alpine/git`
+  container via the helper.
+- **Clickable published ports.** On the container detail page, published TCP ports are
+  now links to `http://<host>:<port>` (host resolved from the bind IP, the endpoint
+  host, or the address you reached Containly on).
+
 ## [0.1.18] — 2026-07-22
 
 ### Added
@@ -360,7 +382,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.18...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.19...HEAD
+[0.1.19]: https://github.com/amslertec/containly/compare/v0.1.18...v0.1.19
 [0.1.18]: https://github.com/amslertec/containly/compare/v0.1.17...v0.1.18
 [0.1.17]: https://github.com/amslertec/containly/compare/v0.1.16...v0.1.17
 [0.1.16]: https://github.com/amslertec/containly/compare/v0.1.15...v0.1.16

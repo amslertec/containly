@@ -15,7 +15,8 @@
     "audit": "Audit log",
     "settings": "Settings",
     "profile": "Profile",
-    "updates": "Updates"
+    "updates": "Updates",
+    "catalog": "App catalog"
   },
   "cmdk": {
     "trigger": "Search …",
@@ -405,7 +406,8 @@
       "destination": "Destination",
       "mode": "Mode",
       "readonly": "read-only",
-      "readwrite": "read/write"
+      "readwrite": "read/write",
+      "openPort": "Open: {{href}}"
     }
   },
   "logs": {
@@ -783,5 +785,49 @@
         "desc": "Automatically pull the new image for labeled containers."
       }
     }
+  },
+  "volbrowse": {
+    "browse": "Browse",
+    "upload": "Upload",
+    "uploaded": "File uploaded",
+    "download": "Download",
+    "deleteConfirm": "Delete \"{{name}}\" ({{kind}})?",
+    "folder": "folder",
+    "file": "file",
+    "empty": "Empty directory"
+  },
+  "gitops": {
+    "title": "Git stacks",
+    "addTitle": "Add from Git",
+    "addHint": "Clone a compose project from a Git repository.",
+    "repoUrl": "Repository URL",
+    "branch": "Branch",
+    "name": "Name",
+    "nameInvalid": "Only letters, digits, . _ -",
+    "autoSync": "Auto-sync",
+    "autoSyncHint": "Pull every 5 minutes and redeploy on change.",
+    "clone": "Clone",
+    "added": "Git stack added",
+    "sync": "Sync",
+    "synced": "Synced",
+    "lastSync": "Last: {{when}}",
+    "unlink": "Unlink"
+  },
+  "catalog": {
+    "title": "App catalog",
+    "count": "{{count}} templates",
+    "deploy": "Deploy",
+    "deployed": "Deploying \"{{name}}\"",
+    "deployTitle": "Deploy \"{{title}}\"",
+    "empty": "No templates",
+    "emptyHint": "Check your catalog sources.",
+    "envVars": "Environment variables",
+    "name": "Name",
+    "noStackPaths": "No endpoint has a stack path. Add one under Endpoints.",
+    "path": "Stack path",
+    "searchPlaceholder": "Search templates …",
+    "sources": "Sources",
+    "sourcesInfo": "Template lists in Portainer JSON format. Multiple sources supported.",
+    "sourcesTitle": "Catalog sources"
   }
 }

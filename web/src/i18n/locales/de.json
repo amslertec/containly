@@ -15,7 +15,8 @@
     "audit": "Audit-Log",
     "settings": "Einstellungen",
     "profile": "Profil",
-    "updates": "Updates"
+    "updates": "Updates",
+    "catalog": "App-Katalog"
   },
   "cmdk": {
     "trigger": "Suchen …",
@@ -405,7 +406,8 @@
       "destination": "Ziel",
       "mode": "Modus",
       "readonly": "nur lesen",
-      "readwrite": "lesen/schreiben"
+      "readwrite": "lesen/schreiben",
+      "openPort": "Öffnen: {{href}}"
     }
   },
   "logs": {
@@ -785,5 +787,49 @@
         "desc": "Markierte Container automatisch auf das neue Image bringen."
       }
     }
+  },
+  "volbrowse": {
+    "browse": "Durchsuchen",
+    "upload": "Hochladen",
+    "uploaded": "Datei hochgeladen",
+    "download": "Herunterladen",
+    "deleteConfirm": "„{{name}}\" ({{kind}}) wirklich löschen?",
+    "folder": "Ordner",
+    "file": "Datei",
+    "empty": "Leeres Verzeichnis"
+  },
+  "gitops": {
+    "title": "Git-Stacks",
+    "addTitle": "Aus Git hinzufügen",
+    "addHint": "Ein Compose-Projekt aus einem Git-Repository klonen.",
+    "repoUrl": "Repository-URL",
+    "branch": "Branch",
+    "name": "Name",
+    "nameInvalid": "Nur Buchstaben, Zahlen, . _ -",
+    "autoSync": "Auto-Sync",
+    "autoSyncHint": "Alle 5 Minuten pullen und bei Änderung neu deployen.",
+    "clone": "Klonen",
+    "added": "Git-Stack hinzugefügt",
+    "sync": "Sync",
+    "synced": "Synchronisiert",
+    "lastSync": "Zuletzt: {{when}}",
+    "unlink": "Entfernen"
+  },
+  "catalog": {
+    "title": "App-Katalog",
+    "count": "{{count}} Vorlagen",
+    "deploy": "Deployen",
+    "deployed": "„{{name}}\" wird deployt",
+    "deployTitle": "„{{title}}\" deployen",
+    "empty": "Keine Vorlagen",
+    "emptyHint": "Prüfe deine Katalog-Quellen.",
+    "envVars": "Umgebungsvariablen",
+    "name": "Name",
+    "noStackPaths": "Kein Endpoint hat einen Stack-Pfad. Lege unter Endpoints einen an.",
+    "path": "Stack-Pfad",
+    "searchPlaceholder": "Vorlagen durchsuchen …",
+    "sources": "Quellen",
+    "sourcesInfo": "Template-Listen im Portainer-JSON-Format. Mehrere Quellen möglich.",
+    "sourcesTitle": "Katalog-Quellen"
   }
 }

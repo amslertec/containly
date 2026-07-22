@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState } from 'react';
 import { useParams, useRouter, useSearch } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Play, RotateCw, Square } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Play, RotateCw, Square } from 'lucide-react';
 import type { ContainerAction } from '@containly/shared';
 import { useEndpoints } from '../app/EndpointContext';
 import { useAuth } from '../app/AuthContext';
@@ -32,7 +32,8 @@ export function ContainerDetailPage() {
   const { t } = useTranslation();
   const { id } = useParams({ from: '/containers/$id' });
   const search = useSearch({ from: '/containers/$id' });
-  const { selected } = useEndpoints();
+  const { selected, endpoints } = useEndpoints();
+  const endpointHost = endpoints.find((e) => e.id === selected)?.host ?? null;
   const { isAdmin } = useAuth();
   const { data: c, isLoading, isError, error, refetch } = useContainerInspect(selected, id);
   const actionMut = useContainerAction(selected);
@@ -120,7 +121,7 @@ export function ContainerDetailPage() {
       </div>
 
       <div className="min-h-0 flex-1">
-        {tab === 'overview' && <Overview c={c} />}
+        {tab === 'overview' && <Overview c={c} endpointHost={endpointHost} />}
         {tab === 'logs' && (
           <div className="h-[calc(100dvh-320px)] min-h-[360px]">
             <LogViewer endpoint={selected} id={id} name={c.name} />
@@ -167,7 +168,13 @@ function BackLink() {
   );
 }
 
-function Overview({ c }: { c: import('@containly/shared').ContainerInspect }) {
+function Overview({
+  c,
+  endpointHost,
+}: {
+  c: import('@containly/shared').ContainerInspect;
+  endpointHost: string | null;
+}) {
   const { t } = useTranslation();
   return (
     <div className="grid gap-4 lg:grid-cols-2">
@@ -188,12 +195,27 @@ function Overview({ c }: { c: import('@containly/shared').ContainerInspect }) {
         <div className="mt-3 space-y-3">
           {c.ports.length > 0 ? (
             <div className="flex flex-wrap gap-1.5">
-              {c.ports.map((p, i) => (
-                <span key={i} className="rounded bg-surface-2 px-2 py-1 font-mono text-[11px] text-muted">
-                  {p.publicPort ? `${p.ip ?? '0.0.0.0'}:${p.publicPort}→` : ''}
-                  {p.privatePort}/{p.type}
-                </span>
-              ))}
+              {c.ports.map((p, i) => {
+                const label = `${p.publicPort ? `${p.ip ?? '0.0.0.0'}:${p.publicPort}→` : ''}${p.privatePort}/${p.type}`;
+                const href = portHref(p, endpointHost);
+                return href ? (
+                  <a
+                    key={i}
+                    href={href}
+                    target="_blank"
+                    rel="noreferrer"
+                    title={t('containers.detail.openPort', { href })}
+                    className="inline-flex items-center gap-1 rounded bg-surface-2 px-2 py-1 font-mono text-[11px] text-primary transition-colors hover:bg-primary-soft"
+                  >
+                    {label}
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                ) : (
+                  <span key={i} className="rounded bg-surface-2 px-2 py-1 font-mono text-[11px] text-muted">
+                    {label}
+                  </span>
+                );
+              })}
             </div>
           ) : (
             <p className="text-sm text-faint">—</p>
@@ -254,4 +276,16 @@ function Overview({ c }: { c: import('@containly/shared').ContainerInspect }) {
       )}
     </div>
   );
+}
+
+/**
+ * Baut den anklickbaren Link zu einem veröffentlichten Port. Host = die spezifische
+ * Bind-IP (falls öffentlich), sonst der Endpoint-Host (Remote) bzw. der Host, über den
+ * der Browser Containly erreicht (lokal). Nur TCP + veröffentlichte Ports werden verlinkt.
+ */
+function portHref(p: { ip?: string; publicPort?: number; type: string }, endpointHost: string | null): string | null {
+  if (!p.publicPort || p.type !== 'tcp') return null;
+  const bind = p.ip && !['0.0.0.0', '::', '', '127.0.0.1', '::1'].includes(p.ip) ? p.ip : null;
+  const host = bind ?? endpointHost ?? (typeof window !== 'undefined' ? window.location.hostname : 'localhost');
+  return `http://${host}:${p.publicPort}`;
 }

@@ -191,6 +191,36 @@ const migrations: Migration[] = [
       );
     `,
   },
+  {
+    version: 11,
+    name: 'catalog_and_gitops',
+    up: `
+      -- App-Katalog: Template-Quellen (mehrere URLs im Portainer-JSON-Format).
+      CREATE TABLE catalog_sources (
+        id         INTEGER PRIMARY KEY AUTOINCREMENT,
+        name       TEXT NOT NULL,
+        url        TEXT NOT NULL,
+        enabled    INTEGER NOT NULL DEFAULT 1,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
+      -- GitOps: aus einem Git-Repo verwaltete Stacks.
+      CREATE TABLE git_stacks (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        endpoint    TEXT NOT NULL,
+        name        TEXT NOT NULL,          -- Stack-/Verzeichnisname im Stack-Pfad
+        base_path   TEXT NOT NULL,          -- Ziel-Stack-Pfad (aus endpoint.stackPaths)
+        repo_url    TEXT NOT NULL,
+        branch      TEXT NOT NULL DEFAULT 'main',
+        auto_sync   INTEGER NOT NULL DEFAULT 0,
+        last_sync   TEXT,
+        last_commit TEXT,
+        last_status TEXT,                   -- 'ok' | 'error'
+        last_detail TEXT,
+        created_at  TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+    `,
+  },
 ];
 
 export function runMigrations(db: Database): void {

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, Search, Trash2 } from 'lucide-react';
+import { FolderOpen, Plus, Search, Trash2 } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import type { VolumeSummary } from '@containly/shared';
 import { useEndpoints } from '../app/EndpointContext';
@@ -18,6 +18,7 @@ import { LoadingState, ErrorState, EmptyState } from '../components/States';
 import { usePagination } from '../hooks/usePagination';
 import { Pagination } from '../components/ui/Pagination';
 import { ConfirmDialog } from '../components/ConfirmDialog';
+import { VolumeBrowser } from '../components/VolumeBrowser';
 import { toast } from '../components/Toaster';
 import { api, ApiError } from '../lib/api';
 
@@ -49,6 +50,7 @@ export function VolumesPage() {
   const { confirm, dialogProps } = useConfirm();
   const [query, setQuery] = useState('');
   const [createOpen, setCreateOpen] = useState(false);
+  const [browse, setBrowse] = useState<Row | null>(null);
   const invalidate = (id: string) => void qc.invalidateQueries({ queryKey: ['volumes', id] });
 
   const { widths, setWidth, commitWidths, sort, toggleSort } = useTablePrefs('volumes', VOL_WIDTHS, {
@@ -161,15 +163,24 @@ export function VolumesPage() {
                   {vol.inUse ? <Badge tone="run">{t('volumes.inUse')}</Badge> : <Badge tone="warn">{t('volumes.orphan')}</Badge>}
                 </Td>
                 <Td className="text-right">
-                  {isAdmin && (
+                  <div className="flex items-center justify-end gap-1">
                     <button
-                      title={t('common.remove')}
-                      onClick={() => void doRemove(vol)}
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-danger-soft hover:text-danger"
+                      title={t('volbrowse.browse')}
+                      onClick={() => setBrowse(vol)}
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-surface-2 hover:text-ink"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <FolderOpen className="h-4 w-4" />
                     </button>
-                  )}
+                    {isAdmin && (
+                      <button
+                        title={t('common.remove')}
+                        onClick={() => void doRemove(vol)}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-danger-soft hover:text-danger"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
                 </Td>
               </Tr>
             ))}
@@ -193,6 +204,9 @@ export function VolumesPage() {
         }}
       />
       <ConfirmDialog {...dialogProps} />
+      {browse && (
+        <VolumeBrowser endpoint={browse._endpointId} volume={browse.name} onClose={() => setBrowse(null)} />
+      )}
     </Page>
   );
 }

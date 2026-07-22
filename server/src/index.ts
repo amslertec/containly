@@ -10,6 +10,7 @@ import { checkUpdates } from './docker/updates.js';
 import { runVulnScan } from './services/vuln-scanner.js';
 import { startMonitor, notifyImageUpdates, notifyContainlyUpdate } from './services/monitor.js';
 import { startScheduler } from './services/scheduler.js';
+import { startGitopsWatcher } from './services/gitops.js';
 import { fetchLatest } from './routes/version.js';
 import { VERSION } from './version.js';
 import { buildApp } from './app.js';
@@ -64,6 +65,8 @@ async function main(): Promise<void> {
   const monitorTimer = startMonitor();
   // Geplante Wartung (Prune/Update-Check/Vuln-Scan/Backup/Auto-Update).
   const schedulerTimer = startScheduler();
+  // GitOps: Auto-Sync markierter Git-Stacks (alle 5 min).
+  const gitopsTimer = startGitopsWatcher();
   healthTimer.unref();
   pruneTimer.unref();
   firstUpdate.unref();
@@ -80,6 +83,7 @@ async function main(): Promise<void> {
     clearInterval(pruneTimer);
     clearInterval(monitorTimer);
     clearInterval(schedulerTimer);
+    clearInterval(gitopsTimer);
     try {
       await app.close();
       closeDb();

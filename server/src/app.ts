@@ -22,6 +22,9 @@ import { backupRoutes } from './routes/backup.js';
 import { registryRoutes } from './routes/registries.js';
 import { notificationRoutes } from './routes/notifications.js';
 import { scheduleRoutes } from './routes/schedule.js';
+import { volumeBrowseRoutes } from './routes/volume-browse.js';
+import { gitopsRoutes } from './routes/gitops.js';
+import { catalogRoutes } from './routes/catalog.js';
 import { versionRoutes } from './routes/version.js';
 import { registerLogsWs } from './ws/logs.js';
 import { registerStatsWs } from './ws/stats.js';
@@ -34,7 +37,7 @@ export async function buildApp(): Promise<FastifyInstance> {
     // damit die Route-Registrar-Funktionen (FastifyInstance) kompatibel bleiben.
     loggerInstance: logger as FastifyBaseLogger,
     trustProxy: config.trustProxy,
-    bodyLimit: 5 * 1024 * 1024, // 5 MB (Compose-Dateien)
+    bodyLimit: 32 * 1024 * 1024, // 32 MB (Compose-Dateien + Volume-Datei-Uploads als base64)
   });
 
   // Sicherheits-Header. CSP passend zur SPA (self + inline-styles für Radix/xterm).
@@ -99,6 +102,9 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(registryRoutes);
   await app.register(notificationRoutes);
   await app.register(scheduleRoutes);
+  await app.register(volumeBrowseRoutes);
+  await app.register(gitopsRoutes);
+  await app.register(catalogRoutes);
   await app.register(versionRoutes);
 
   // WebSocket-Routen

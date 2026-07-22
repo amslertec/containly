@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
@@ -10,6 +10,7 @@ import {
   File,
   FileCode,
   Folder,
+  GitBranch,
   MoreVertical,
   Pause,
   Play,
@@ -25,7 +26,7 @@ import {
   X,
   Zap,
 } from 'lucide-react';
-import type { StackActionName, StackStatus, StackSummary } from '@containly/shared';
+import type { GitStack, StackActionName, StackStatus, StackSummary } from '@containly/shared';
 import { useAuth } from '../app/AuthContext';
 import { useEndpoints } from '../app/EndpointContext';
 import { useStack, useStackDir, useStackFile, useStackMutations, useStacks } from '../hooks/stacks';
@@ -44,8 +45,9 @@ import { Pagination } from '../components/ui/Pagination';
 import { Dialog, DialogContent, DialogTitle } from '../components/ui/Dialog';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { DeployOutputModal, type DeployLog } from '../components/DeployOutputModal';
+import { GitStackDialog } from '../components/GitStackDialog';
 import { toast } from '../components/Toaster';
-import { ApiError } from '../lib/api';
+import { api, ApiError } from '../lib/api';
 import { relativeTime } from '../lib/time';
 import { formatBytes, shortId, cn } from '../lib/utils';
 import { runToCompose } from '../lib/composerize';
@@ -91,6 +93,7 @@ export function StacksPage() {
   const mut = useStackMutations();
   const { confirm, dialogProps } = useConfirm();
   const [creating, setCreating] = useState(false);
+  const [gitOpen, setGitOpen] = useState(false);
   const [query, setQuery] = useState('');
 
   const { widths, setWidth, commitWidths, sort, toggleSort } = useTablePrefs('stacks', STK_WIDTHS, {
@@ -160,12 +163,19 @@ export function StacksPage() {
         actions={
           isAdmin &&
           hasPaths && (
-            <Button variant="primary" size="sm" onClick={() => setCreating(true)}>
-              <Plus className="h-4 w-4" /> {t('stacks.new')}
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button variant="secondary" size="sm" onClick={() => setGitOpen(true)}>
+                <GitBranch className="h-4 w-4" /> {t('gitops.addTitle')}
+              </Button>
+              <Button variant="primary" size="sm" onClick={() => setCreating(true)}>
+                <Plus className="h-4 w-4" /> {t('stacks.new')}
+              </Button>
+            </div>
           )
         }
       />
+
+      {isAdmin && <GitStacksSection />}
 
       {isLoading ? (
         <LoadingState />
@@ -258,6 +268,7 @@ export function StacksPage() {
       )}
 
       <NewStackDialog open={creating} onClose={() => setCreating(false)} onCreated={open} />
+      <GitStackDialog open={gitOpen} onClose={() => setGitOpen(false)} />
       <ConfirmDialog {...dialogProps} loading={mut.action.isPending} />
     </Page>
   );
@@ -732,6 +743,75 @@ function BackButton({ onClick }: { onClick: () => void }) {
 }
 
 /* ── Neuer Stack ───────────────────────────────────────────────────────────── */
+/** Übersicht der aus Git verwalteten Stacks mit Sync/Entfernen-Aktionen. */
+function GitStacksSection() {
+  const { t } = useTranslation();
+  const qc = useQueryClient();
+  const { data } = useQuery({
+    queryKey: ['gitops'],
+    queryFn: () => api.get<{ stacks: GitStack[] }>('/api/gitops'),
+    select: (d) => d.stacks,
+  });
+  const stacks = data ?? [];
+
+  const sync = useMutation({
+    mutationFn: (id: number) => api.post<{ stack: GitStack }>(`/api/gitops/${id}/sync`, {}),
+    onSuccess: (res) => {
+      if (res.stack.lastStatus === 'error') toast.error(res.stack.lastDetail ?? t('common.error'));
+      else toast.success(res.stack.lastDetail ?? t('gitops.synced'));
+      void qc.invalidateQueries({ queryKey: ['gitops'] });
+      void qc.invalidateQueries({ queryKey: ['stacks'] });
+    },
+    onError: (err) => toast.error(err instanceof ApiError ? err.message : t('common.error')),
+  });
+  const remove = useMutation({
+    mutationFn: (id: number) => api.delete(`/api/gitops/${id}`),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['gitops'] }),
+    onError: (err) => toast.error(err instanceof ApiError ? err.message : t('common.error')),
+  });
+
+  if (stacks.length === 0) return null;
+
+  return (
+    <Card className="mb-4 p-4">
+      <div className="mb-2 flex items-center gap-2">
+        <GitBranch className="h-4 w-4 text-primary" />
+        <h2 className="text-sm font-semibold text-ink">{t('gitops.title')}</h2>
+      </div>
+      <div className="divide-y divide-border">
+        {stacks.map((s) => (
+          <div key={s.id} className="flex flex-wrap items-center gap-3 py-2">
+            <div className="min-w-[160px] flex-1">
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-ink">{s.name}</span>
+                {s.autoSync && <Badge tone="primary">{t('gitops.autoSync')}</Badge>}
+                {s.lastCommit && <span className="font-mono text-[11px] text-faint">{s.lastCommit}</span>}
+              </div>
+              <div className="truncate font-mono text-[11px] text-muted">{s.repoUrl}</div>
+              {s.lastSync && (
+                <div className="text-[11px]">
+                  <span className="text-faint">{t('gitops.lastSync', { when: relativeTime(s.lastSync) })}</span>{' '}
+                  <span className={s.lastStatus === 'error' ? 'text-danger' : 'text-run'}>{s.lastDetail}</span>
+                </div>
+              )}
+            </div>
+            <Button variant="secondary" size="sm" onClick={() => sync.mutate(s.id)} loading={sync.isPending && sync.variables === s.id}>
+              <RotateCw className="h-3.5 w-3.5" /> {t('gitops.sync')}
+            </Button>
+            <button
+              title={t('gitops.unlink')}
+              onClick={() => remove.mutate(s.id)}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-danger-soft hover:text-danger"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
 function NewStackDialog({
   open,
   onClose,

@@ -12,6 +12,7 @@ import { ImagesPage } from '../pages/ImagesPage';
 import { VolumesPage } from '../pages/VolumesPage';
 import { NetworksPage } from '../pages/NetworksPage';
 import { StacksPage, StackDetailPage } from '../pages/StacksPage';
+import { CatalogPage } from '../pages/CatalogPage';
 import { UpdatesPage } from '../pages/UpdatesPage';
 import { EndpointsPage } from '../pages/EndpointsPage';
 import { EndpointOverviewPage } from '../pages/EndpointOverviewPage';
@@ -37,6 +38,7 @@ const routes = [
   createRoute({ getParentRoute: () => rootRoute, path: '/networks', component: NetworksPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/stacks', component: StacksPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/stacks/$id', component: StackDetailPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/catalog', component: CatalogPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/updates', component: UpdatesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/endpoints', component: EndpointsPage }),
   createRoute({
