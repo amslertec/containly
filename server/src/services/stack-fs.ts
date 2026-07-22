@@ -1,11 +1,3 @@
-import {
-  mkdirSync,
-  readdirSync,
-  readFileSync,
-  rmSync,
-  statSync,
-  writeFileSync,
-} from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
 import { Writable } from 'node:stream';
 import * as tar from 'tar-stream';
@@ -56,89 +48,7 @@ export interface StackFs {
   ): Promise<number>;
 }
 
-/* ── Lokal: direkter node:fs-Zugriff (socket-Endpoints / gemountete Pfade) ──── */
-class LocalFs implements StackFs {
-  readonly isRemote = false;
-  constructor(private readonly endpoint: string) {}
-
-  async scanProjects(base: string): Promise<ProjectEntry[]> {
-    let entries;
-    try {
-      entries = readdirSync(base, { withFileTypes: true });
-    } catch {
-      return [];
-    }
-    const out: ProjectEntry[] = [];
-    for (const e of entries) {
-      if (!e.isDirectory()) continue;
-      const dir = join(base, e.name);
-      for (const f of COMPOSE_FILES) {
-        try {
-          const s = statSync(join(dir, f));
-          if (s.isFile()) {
-            out.push({ name: e.name, composeFile: f, mtime: s.mtime.toISOString() });
-            break;
-          }
-        } catch {
-          /* Datei fehlt → nächster Kandidat */
-        }
-      }
-    }
-    return out;
-  }
-
-  async listDir(dir: string): Promise<FsEntry[]> {
-    return readdirSync(dir, { withFileTypes: true }).map((e) => {
-      const isDir = e.isDirectory();
-      let size = 0;
-      let mtime: string | null = null;
-      try {
-        const s = statSync(join(dir, e.name));
-        size = isDir ? 0 : s.size;
-        mtime = s.mtime.toISOString();
-      } catch {
-        /* ignore */
-      }
-      return { name: e.name, size, isDir, mtime };
-    });
-  }
-  async stat(path: string): Promise<FsStat | null> {
-    try {
-      const s = statSync(path);
-      return { isDir: s.isDirectory(), size: s.size, mtime: s.mtime.toISOString() };
-    } catch {
-      return null;
-    }
-  }
-  async readFile(path: string): Promise<string> {
-    return readFileSync(path, 'utf8');
-  }
-  async writeFile(path: string, content: string): Promise<void> {
-    writeFileSync(path, content, { mode: 0o640 });
-  }
-  async mkdirp(dir: string): Promise<void> {
-    mkdirSync(dir, { recursive: true });
-  }
-  async remove(path: string): Promise<void> {
-    rmSync(path, { recursive: true, force: true });
-  }
-  // Compose läuft über den Helfer-Container (docker:cli) — so muss das Containly-
-  // Image selbst keinen Docker-Toolchain (CVE-Quelle) enthalten.
-  compose(dir: string, project: string, composeFile: string, args: string[]): Promise<string> {
-    return helperCompose(this.endpoint, dir, project, composeFile, args);
-  }
-  composeStream(
-    dir: string,
-    project: string,
-    composeFile: string,
-    args: string[],
-    onData: (chunk: string) => void,
-  ): Promise<number> {
-    return helperComposeStream(this.endpoint, dir, project, composeFile, args, onData);
-  }
-}
-
-/* ── Remote: agent-loser Helfer-Container über die TCP/TLS-Docker-API ───────── */
+/* ── Helfer-Container-basierter Zugriff (lokal + remote) ────────────────────── */
 const HELPER_IMAGE = 'docker:cli';
 const HELPER_NAME = 'containly-helper';
 const HELPER_LABEL = 'ch.amslertec.containly.helper';
@@ -447,11 +357,14 @@ class RemoteFs implements StackFs {
   }
 }
 
-/** Liefert die passende Dateisystem-Abstraktion für einen Endpoint. */
+/**
+ * Liefert die Dateisystem-Abstraktion für einen Endpoint. Alle Endpoints (auch der
+ * lokale socket-Endpoint) lesen die konfigurierten Stack-Pfade über den Helfer-
+ * Container — dieser mountet die Pfade direkt vom Ziel-Host. So funktioniert der
+ * lokale Endpoint OHNE die Pfade zusätzlich in den Containly-Container zu mounten.
+ */
 export function getStackFs(endpoint: string): StackFs {
-  const ep = getEndpoint(endpoint);
-  // socket = Containly-eigenes Dateisystem; tcp/ssh = Remote via Helfer-Container.
-  return ep && ep.type !== 'socket' ? new RemoteFs(endpoint) : new LocalFs(endpoint);
+  return new RemoteFs(endpoint);
 }
 
 /** Entfernt den Helfer-Container eines Remote-Endpoints (z. B. beim Löschen). */

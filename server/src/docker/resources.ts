@@ -15,19 +15,26 @@ export async function listImages(endpoint: string): Promise<ImageSummary[]> {
     docker.listImages({ all: false, digests: true }),
     docker.listContainers({ all: true }),
   ]);
-  // Zähle Container je Image-ID (für „in Verwendung").
-  const usage = new Map<string, number>();
-  for (const c of containers) usage.set(c.ImageID, (usage.get(c.ImageID) ?? 0) + 1);
+  // Container-Namen je Image-ID (für „in Verwendung" + Anzeige).
+  const usage = new Map<string, string[]>();
+  for (const c of containers) {
+    const name = (c.Names?.[0] ?? '').replace(/^\//, '') || c.Id.slice(0, 12);
+    const list = usage.get(c.ImageID) ?? [];
+    list.push(name);
+    usage.set(c.ImageID, list);
+  }
 
   return images.map((img) => {
     const repoTags = (img.RepoTags ?? []).filter((t) => t && t !== '<none>:<none>');
+    const names = usage.get(img.Id) ?? [];
     return {
       id: img.Id,
       repoTags,
       repoDigests: img.RepoDigests ?? [],
       created: img.Created,
       size: img.Size,
-      containers: usage.get(img.Id) ?? 0,
+      containers: names.length,
+      containerNames: names,
       dangling: repoTags.length === 0,
     } satisfies ImageSummary;
   });

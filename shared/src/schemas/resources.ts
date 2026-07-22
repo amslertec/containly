@@ -9,6 +9,8 @@ export const ImageSummarySchema = z.object({
   created: z.number(),
   size: z.number(),
   containers: z.number(),
+  /** Namen der Container, die dieses Image nutzen. */
+  containerNames: z.array(z.string()),
   dangling: z.boolean(),
 });
 export type ImageSummary = z.infer<typeof ImageSummarySchema>;

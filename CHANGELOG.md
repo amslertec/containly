@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.8] — 2026-07-22
+
+### Fixed
+
+- **Stacks on the local endpoint are now found without extra mounts.** The local
+  (socket) endpoint now reads its configured stack paths through the helper
+  container — the same way remote endpoints do — so paths added under Endpoints are
+  read straight from the host. Previously the local endpoint read the Containly
+  container's own filesystem, so a stack path only worked if it was also bind-mounted
+  into the Containly container.
+
+### Added
+
+- The **Images page** now shows which container(s) use each image.
+- **Profile → change password** now has a confirm-password field and a show/hide
+  toggle (matching the first-time setup).
+
 ## [0.1.7] — 2026-07-22
 
 ### Fixed
@@ -154,7 +171,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.7...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.8...HEAD
+[0.1.8]: https://github.com/amslertec/containly/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/amslertec/containly/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/amslertec/containly/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/amslertec/containly/compare/v0.1.4...v0.1.5

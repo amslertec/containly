@@ -170,6 +170,7 @@ export function ImagesPage() {
           <THead>
             <Th>{t('images.columns.tag')}</Th>
             <Th>{t('images.columns.id')}</Th>
+            <Th>{t('images.columns.usedBy')}</Th>
             {isAll && <Th>{t('common.host')}</Th>}
             <Th className="text-right">{t('images.columns.size')}</Th>
             <Th>{t('images.columns.created')}</Th>
@@ -200,6 +201,13 @@ export function ImagesPage() {
                   </div>
                 </Td>
                 <Td><span className="font-mono text-[11px] text-faint">{shortId(img.id)}</span></Td>
+                <Td>
+                  {img.containerNames.length > 0 ? (
+                    <span className="text-[12px] text-muted">{img.containerNames.join(', ')}</span>
+                  ) : (
+                    <span className="text-faint">—</span>
+                  )}
+                </Td>
                 {isAll && <Td><Badge tone="neutral">{img._endpointName}</Badge></Td>}
                 <Td className="text-right"><span className="tabular text-muted">{formatBytes(img.size)}</span></Td>
                 <Td><span className="text-muted">{relativeTime(img.created)}</span></Td>

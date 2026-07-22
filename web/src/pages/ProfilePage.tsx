@@ -18,6 +18,7 @@ import { evaluatePassword } from '../lib/passwordStrength';
 import { Page, PageHeader } from '../components/PageHeader';
 import { Button } from '../components/ui/Button';
 import { Badge, Card, Input, Label } from '../components/ui/primitives';
+import { PasswordInput } from '../components/ui/PasswordInput';
 import { toast } from '../components/Toaster';
 import { api, ApiError } from '../lib/api';
 import { cn } from '../lib/utils';
@@ -100,15 +101,19 @@ function PasswordTab() {
   const change = useChangePassword();
   const [current, setCurrent] = useState('');
   const [next, setNext] = useState('');
+  const [confirm, setConfirm] = useState('');
   const strength = useMemo(() => evaluatePassword(next), [next]);
+  const mismatch = confirm.length > 0 && confirm !== next;
+  const canSubmit = strength.valid && !!current && confirm === next;
 
   const submit = async (): Promise<void> => {
-    if (!strength.valid || !current) return;
+    if (!canSubmit) return;
     try {
       await change.mutateAsync({ currentPassword: current, newPassword: next });
       toast.success(t('auth.passwordChanged'));
       setCurrent('');
       setNext('');
+      setConfirm('');
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : t('common.error'));
     }
@@ -122,17 +127,22 @@ function PasswordTab() {
       <div className="grid max-w-md gap-3">
         <div>
           <Label htmlFor="cur">{t('auth.currentPassword')}</Label>
-          <Input id="cur" type="password" value={current} onChange={(e) => setCurrent(e.target.value)} autoComplete="current-password" />
+          <PasswordInput id="cur" value={current} onChange={(e) => setCurrent(e.target.value)} autoComplete="current-password" />
         </div>
         <div>
           <Label htmlFor="new">{t('auth.newPassword')}</Label>
-          <Input id="new" type="password" value={next} onChange={(e) => setNext(e.target.value)} autoComplete="new-password" />
+          <PasswordInput id="new" value={next} onChange={(e) => setNext(e.target.value)} autoComplete="new-password" />
           {next && !strength.valid && (
             <p className="mt-1 text-xs text-warn">{t('setup.requirements.length')} · A-z 0-9 !@#</p>
           )}
         </div>
         <div>
-          <Button variant="primary" size="sm" onClick={() => void submit()} loading={change.isPending} disabled={!strength.valid || !current}>
+          <Label htmlFor="confirm">{t('auth.confirmPasswordLabel')}</Label>
+          <PasswordInput id="confirm" value={confirm} onChange={(e) => setConfirm(e.target.value)} autoComplete="new-password" />
+          {mismatch && <p className="mt-1 text-xs text-danger">{t('auth.passwordMismatch')}</p>}
+        </div>
+        <div>
+          <Button variant="primary" size="sm" onClick={() => void submit()} loading={change.isPending} disabled={!canSubmit}>
             <KeyRound className="h-4 w-4" /> {t('auth.changePassword')}
           </Button>
         </div>

@@ -321,7 +321,8 @@
       "tag": "Repository:Tag",
       "id": "Image-ID",
       "size": "Größe",
-      "created": "Erstellt"
+      "created": "Erstellt",
+      "usedBy": "Container"
     },
     "inUse": "In Verwendung",
     "dangling": "Verwaist",

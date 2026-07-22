@@ -321,7 +321,8 @@
       "tag": "Repository:tag",
       "id": "Image ID",
       "size": "Size",
-      "created": "Created"
+      "created": "Created",
+      "usedBy": "Containers"
     },
     "inUse": "In use",
     "dangling": "Dangling",
