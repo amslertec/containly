@@ -15,6 +15,12 @@ services:
     # build: .
     container_name: containly
     restart: unless-stopped
+    # Hardening: no privilege escalation, drop all Linux capabilities (Containly
+    # only needs the node process + the Docker socket).
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     # All app configuration comes from .env (copy .env.example → .env and edit it).
     env_file:
       - .env

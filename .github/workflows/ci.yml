@@ -39,15 +39,25 @@ jobs:
         run: npm run build
 
   docker:
-    name: Docker build (Smoke-Test)
+    name: Docker build + vulnerability scan
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
-      - name: Build image (no push)
+      - name: Build image
         uses: docker/build-push-action@v6
         with:
           context: .
           push: false
+          load: true
+          tags: containly:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      - name: Trivy vulnerability scan (fail on fixable CRITICAL/HIGH)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: containly:ci
+          scanners: vuln
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: '1'

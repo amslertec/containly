@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.5] — 2026-07-22
+
+### Security
+
+- **Hardened the container image**: switched the base to **Alpine** and removed the
+  bundled global npm/corepack (an unused CVE source). Trivy now reports **0 known
+  vulnerabilities** (down from 100+ OS/tooling CVEs), and the image is ~114 MB smaller.
+- The example `docker-compose.yml` now runs with `no-new-privileges` and drops all
+  Linux capabilities (`cap_drop: ALL`).
+- Added a **Trivy vulnerability scan** to CI that fails the build on fixable
+  CRITICAL/HIGH findings.
+
+### Changed
+
+- Updated all dependencies to their latest versions — including major bumps of
+  `better-sqlite3` (13) and `tar-stream` (3), plus `argon2` 0.45.1, `react`/`react-dom`
+  19.2.8, `@tanstack/react-query` 5.101.4 and others.
+
 ## [0.1.4] — 2026-07-21
 
 ### Added
@@ -99,7 +117,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.4...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.5...HEAD
+[0.1.5]: https://github.com/amslertec/containly/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/amslertec/containly/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/amslertec/containly/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/amslertec/containly/compare/v0.1.1...v0.1.2
