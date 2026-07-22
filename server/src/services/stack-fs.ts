@@ -131,7 +131,7 @@ interface ExecResult {
   exit: number;
 }
 
-async function execInHelper(endpoint: string, cmd: string[], cwd?: string): Promise<ExecResult> {
+export async function execInHelper(endpoint: string, cmd: string[], cwd?: string): Promise<ExecResult> {
   const docker = getDocker(endpoint);
   let container: Dockerode.Container;
   try {

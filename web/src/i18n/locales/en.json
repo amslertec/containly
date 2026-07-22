@@ -34,6 +34,33 @@
     "done": "{{count}} containers processed",
     "partial": "{{ok}} done · {{failed}} failed"
   },
+  "vulns": {
+    "notScanned": "Not scanned yet",
+    "scanning": "Scanning …",
+    "clean": "No findings",
+    "error": "Scan error",
+    "tooltip": "Vulnerabilities: Critical · High · Medium · Low",
+    "rescan": "Rescan",
+    "rescanStarted": "Security scan started — results appear as they come in.",
+    "scanProgress": "Scanning {{done}}/{{total}} …",
+    "sev": {
+      "critical": "Critical",
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low",
+      "unknown": "Unknown"
+    },
+    "modal": {
+      "subtitle": "Detected vulnerabilities (Trivy)",
+      "scanned": "scanned {{when}}",
+      "all": "All",
+      "cve": "CVE",
+      "severity": "Severity",
+      "package": "Package",
+      "fix": "Fixed in",
+      "noFix": "No fix"
+    }
+  },
   "profile": {
     "title": "Profile",
     "subtitle": "Manage your account, password and security.",
@@ -346,7 +373,8 @@
       "id": "Image ID",
       "size": "Size",
       "created": "Created",
-      "usedBy": "Containers"
+      "usedBy": "Containers",
+      "security": "Security"
     },
     "inUse": "In use",
     "dangling": "Dangling",

@@ -107,6 +107,32 @@ const migrations: Migration[] = [
       );
     `,
   },
+  {
+    version: 6,
+    name: 'image_vulns',
+    up: `
+      -- Gecachte Trivy-Scan-Ergebnisse je Image und Endpoint (Hintergrund-Scanner).
+      CREATE TABLE image_vulns (
+        endpoint   TEXT NOT NULL,
+        image_id   TEXT NOT NULL,              -- volle Image-ID (sha256:…)
+        critical   INTEGER NOT NULL DEFAULT 0,
+        high       INTEGER NOT NULL DEFAULT 0,
+        medium     INTEGER NOT NULL DEFAULT 0,
+        low        INTEGER NOT NULL DEFAULT 0,
+        status     TEXT NOT NULL DEFAULT 'ok', -- 'ok' | 'error'
+        scanned_at TEXT NOT NULL DEFAULT (datetime('now')),
+        PRIMARY KEY (endpoint, image_id)
+      );
+    `,
+  },
+  {
+    version: 7,
+    name: 'image_vulns_details',
+    up: `
+      -- Detaillierte CVE-Liste je Image (JSON-Array) für das Detail-Modal.
+      ALTER TABLE image_vulns ADD COLUMN details TEXT NOT NULL DEFAULT '[]';
+    `,
+  },
 ];
 
 export function runMigrations(db: Database): void {

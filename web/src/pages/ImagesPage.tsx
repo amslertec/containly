@@ -1,13 +1,17 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
-import { ArrowUpCircle, Download, Search, Tag as TagIcon, Trash2 } from 'lucide-react';
+import { ArrowUpCircle, Download, Search, ShieldHalf, Tag as TagIcon, Trash2 } from 'lucide-react';
 import type { ImageSummary, PruneResult } from '@containly/shared';
 import { useEndpoints } from '../app/EndpointContext';
 import { useAuth } from '../app/AuthContext';
 import { useConfirm } from '../hooks/useConfirm';
 import { useScopedList, type ScopedItem } from '../hooks/useScopedList';
 import { useUpdateFlags } from '../hooks/updates';
+import { useVulns } from '../hooks/vulns';
+import { VulnBadges } from '../components/VulnBadges';
+import { CveModal } from '../components/CveModal';
+import type { CveDetail } from '@containly/shared';
 import { Page, PageHeader } from '../components/PageHeader';
 import { ImageSearchInput } from '../components/ImageSearchInput';
 import { Button } from '../components/ui/Button';
@@ -27,13 +31,14 @@ import { formatBytes, shortId } from '../lib/utils';
 type Row = ImageSummary & ScopedItem;
 
 const IMG_WIDTHS: Record<string, number> = {
-  tag: 320,
-  id: 130,
-  usedBy: 220,
+  tag: 300,
+  id: 120,
+  usedBy: 180,
+  security: 180,
   host: 130,
-  size: 110,
-  created: 150,
-  actions: 110,
+  size: 100,
+  created: 140,
+  actions: 100,
 };
 const IMG_SORT: Record<string, (r: Row) => string | number> = {
   tag: (r) => (r.repoTags[0] ?? '').toLowerCase(),
@@ -57,6 +62,23 @@ export function ImagesPage() {
   const [tagImage, setTagImage] = useState<Row | null>(null);
   const invalidate = (endpointId: string) => void qc.invalidateQueries({ queryKey: ['images', endpointId] });
   const updates = useUpdateFlags();
+  const vulns = useVulns();
+  const [rescanning, setRescanning] = useState(false);
+  const [cveModal, setCveModal] = useState<{ img: Row; sev: CveDetail['severity'] | 'ALL' } | null>(null);
+
+  const doRescan = async (): Promise<void> => {
+    if (isAll) return;
+    setRescanning(true);
+    try {
+      await api.post(`/api/images/rescan?endpoint=${encodeURIComponent(selected)}`);
+      toast.success(t('vulns.rescanStarted'));
+      void qc.invalidateQueries({ queryKey: ['vulns', selected] });
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : t('common.error'));
+    } finally {
+      setRescanning(false);
+    }
+  };
 
   const { widths, setWidth, commitWidths, sort, toggleSort } = useTablePrefs('images', IMG_WIDTHS, {
     col: 'created',
@@ -68,6 +90,7 @@ export function ImagesPage() {
       { key: 'tag', label: t('images.columns.tag'), sortable: true, resizable: true, align: 'left' },
       { key: 'id', label: t('images.columns.id'), resizable: true, align: 'left' },
       { key: 'usedBy', label: t('images.columns.usedBy'), resizable: true, align: 'left' },
+      { key: 'security', label: t('images.columns.security'), resizable: true, align: 'left' },
     ];
     if (isAll) cols.push({ key: 'host', label: t('common.host'), resizable: true, align: 'left' });
     cols.push({ key: 'size', label: t('images.columns.size'), sortable: true, resizable: true, align: 'right' });
@@ -160,9 +183,19 @@ export function ImagesPage() {
         actions={
           isAdmin &&
           !isAll && (
-            <Button variant="subtle" size="sm" onClick={() => void doPrune()}>
-              <Trash2 className="h-4 w-4" /> {t('images.prune')}
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              {vulns.scanning && (
+                <span className="text-xs text-muted">
+                  {t('vulns.scanProgress', { done: vulns.done, total: vulns.total })}
+                </span>
+              )}
+              <Button variant="subtle" size="sm" onClick={() => void doRescan()} loading={rescanning} disabled={vulns.scanning}>
+                <ShieldHalf className="h-4 w-4" /> {t('vulns.rescan')}
+              </Button>
+              <Button variant="subtle" size="sm" onClick={() => void doPrune()}>
+                <Trash2 className="h-4 w-4" /> {t('images.prune')}
+              </Button>
+            </div>
           )
         }
       />
@@ -242,6 +275,12 @@ export function ImagesPage() {
                     <span className="text-faint">—</span>
                   )}
                 </Td>
+                <Td>
+                  <VulnBadges
+                    vuln={vulns.get(img._endpointId, img.id)}
+                    onOpen={(sev) => setCveModal({ img, sev })}
+                  />
+                </Td>
                 {isAll && <Td><Badge tone="neutral">{img._endpointName}</Badge></Td>}
                 <Td className="text-right"><span className="tabular text-muted">{formatBytes(img.size)}</span></Td>
                 <Td><span className="text-muted">{relativeTime(img.created)}</span></Td>
@@ -292,6 +331,15 @@ export function ImagesPage() {
           }
         }}
       />
+      {cveModal && (
+        <CveModal
+          endpointId={cveModal.img._endpointId}
+          imageId={cveModal.img.id}
+          imageName={cveModal.img.repoTags[0] ?? shortId(cveModal.img.id)}
+          initialSeverity={cveModal.sev}
+          onClose={() => setCveModal(null)}
+        />
+      )}
     </Page>
   );
 }

@@ -25,6 +25,7 @@ import {
   tagImage,
 } from '../docker/resources.js';
 import { getEndpoint } from '../docker/endpoints.js';
+import { getVulnState, getVulnDetails, rescanEndpoint } from '../services/vuln-scanner.js';
 import { currentUser, requireAdmin, requireAuth } from '../plugins/auth.js';
 import { audit } from '../services/audit.js';
 import { AppError, Errors, fromDockerError } from '../errors.js';
@@ -92,6 +93,32 @@ export async function resourceRoutes(app: FastifyInstance): Promise<void> {
     const result = await docker(() => pruneImages(endpoint));
     audit({ userId: ctx.userId, username: ctx.username, action: 'image.prune', endpointId: endpoint, detail: { count: result.deleted.length }, ip: req.ip });
     return { result };
+  });
+
+  // Gecachte Trivy-Vulnerability-Ergebnisse + Scan-Fortschritt für die Image-Liste.
+  app.get('/api/images/vulnerabilities', { preHandler: requireAuth }, async (req) => {
+    const { endpoint } = ListQuerySchema.parse(req.query);
+    assertEndpoint(endpoint);
+    return getVulnState(endpoint);
+  });
+
+  // Detaillierte CVE-Liste eines Images (für das Detail-Modal).
+  app.get('/api/images/vulnerabilities/details', { preHandler: requireAuth }, async (req) => {
+    const { endpoint, imageId } = z
+      .object({ endpoint: z.string().min(1).max(64), imageId: z.string().min(1).max(160) })
+      .parse(req.query);
+    assertEndpoint(endpoint);
+    return getVulnDetails(endpoint, imageId);
+  });
+
+  // Sofortigen Neu-Scan aller Images eines Endpoints auslösen (im Hintergrund).
+  app.post('/api/images/rescan', { preHandler: requireAdmin }, async (req) => {
+    const ctx = currentUser(req);
+    const { endpoint } = ListQuerySchema.parse(req.query);
+    assertEndpoint(endpoint);
+    void rescanEndpoint(endpoint);
+    audit({ userId: ctx.userId, username: ctx.username, action: 'image.rescan', endpointId: endpoint, ip: req.ip });
+    return { ok: true as const };
   });
 
   /* ── Volumes ──────────────────────────────────────────────────────────── */

@@ -34,6 +34,33 @@
     "done": "{{count}} Container bearbeitet",
     "partial": "{{ok}} erledigt · {{failed}} fehlgeschlagen"
   },
+  "vulns": {
+    "notScanned": "Noch nicht gescannt",
+    "scanning": "Wird gescannt …",
+    "clean": "Keine Funde",
+    "error": "Scan-Fehler",
+    "tooltip": "Schwachstellen: Kritisch · Hoch · Mittel · Niedrig",
+    "rescan": "Neu scannen",
+    "rescanStarted": "Sicherheits-Scan gestartet — Ergebnisse erscheinen nach und nach.",
+    "scanProgress": "Scanne {{done}}/{{total}} …",
+    "sev": {
+      "critical": "Kritisch",
+      "high": "Hoch",
+      "medium": "Mittel",
+      "low": "Niedrig",
+      "unknown": "Unbekannt"
+    },
+    "modal": {
+      "subtitle": "Gefundene Schwachstellen (Trivy)",
+      "scanned": "gescannt {{when}}",
+      "all": "Alle",
+      "cve": "CVE",
+      "severity": "Schweregrad",
+      "package": "Paket",
+      "fix": "Behoben in",
+      "noFix": "Kein Fix"
+    }
+  },
   "profile": {
     "title": "Profil",
     "subtitle": "Konto, Passwort und Sicherheit verwalten.",
@@ -346,7 +373,8 @@
       "id": "Image-ID",
       "size": "Größe",
       "created": "Erstellt",
-      "usedBy": "Container"
+      "usedBy": "Container",
+      "security": "Sicherheit"
     },
     "inUse": "In Verwendung",
     "dangling": "Verwaist",

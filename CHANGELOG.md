@@ -7,7 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-## [0.1.15] — 2026-07-22
+## [0.1.16] — 2026-07-22
+
+### Added
+
+- **Image vulnerability scanning (Trivy).** The Images page now shows a **Security**
+  column with per-image vulnerability counts by severity (Critical │ High │ Medium │
+  Low); a clean image shows a green check. Scanning runs automatically in the
+  background (90 s after start, then every 6 h) and results are cached; a **Rescan**
+  button with progress triggers an immediate re-scan. Re-scans happen automatically
+  after 24 h (1 h after a failed scan).
+  - Trivy does **not** run inside the Containly image — it runs as its own
+    `aquasec/trivy` container on the target host, launched through the existing helper
+    container, with the vulnerability DB kept in a persistent `containly-trivy-cache`
+    volume. Containly's image stays scanner-free. Works for local and remote endpoints
+    and for private/self-built images.
+  - **Clicking a severity badge opens a CVE detail modal** listing each finding — CVE
+    id (linking to the advisory), affected package and installed version, the fixing
+    version, and title — filterable by severity.
 
 ### Fixed
 
@@ -288,7 +305,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.15...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.16...HEAD
+[0.1.16]: https://github.com/amslertec/containly/compare/v0.1.15...v0.1.16
 [0.1.15]: https://github.com/amslertec/containly/compare/v0.1.14...v0.1.15
 [0.1.14]: https://github.com/amslertec/containly/compare/v0.1.13...v0.1.14
 [0.1.13]: https://github.com/amslertec/containly/compare/v0.1.12...v0.1.13

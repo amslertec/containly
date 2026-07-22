@@ -15,6 +15,46 @@ export const ImageSummarySchema = z.object({
 });
 export type ImageSummary = z.infer<typeof ImageSummarySchema>;
 
+/** Vulnerability-Zusammenfassung eines Images (Trivy-Scan). */
+export const ImageVulnSchema = z.object({
+  imageId: z.string(),
+  critical: z.number(),
+  high: z.number(),
+  medium: z.number(),
+  low: z.number(),
+  scannedAt: z.string(),
+  // 'ok' = gescannt; 'error' = Scan fehlgeschlagen; 'scanning' = läuft gerade.
+  status: z.enum(['ok', 'error', 'scanning']),
+});
+export type ImageVuln = z.infer<typeof ImageVulnSchema>;
+
+export const VulnScanStateSchema = z.object({
+  scanning: z.boolean(),
+  done: z.number(),
+  total: z.number(),
+  vulns: z.array(ImageVulnSchema),
+});
+export type VulnScanState = z.infer<typeof VulnScanStateSchema>;
+
+/** Ein einzelner CVE-Fund (für das Detail-Modal). */
+export const CveDetailSchema = z.object({
+  id: z.string(), // z. B. CVE-2023-1234
+  severity: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'UNKNOWN']),
+  pkg: z.string(), // betroffenes Paket
+  installed: z.string(), // installierte Version
+  fixed: z.string(), // fixende Version ('' = kein Fix)
+  title: z.string(),
+  url: z.string(),
+});
+export type CveDetail = z.infer<typeof CveDetailSchema>;
+
+export const VulnDetailsSchema = z.object({
+  imageId: z.string(),
+  scannedAt: z.string().nullable(),
+  cves: z.array(CveDetailSchema),
+});
+export type VulnDetails = z.infer<typeof VulnDetailsSchema>;
+
 // Image-Referenz: Repository[:tag][@digest]. Bewusst eng gehalten.
 export const ImageRefSchema = z
   .string()
