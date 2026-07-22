@@ -51,6 +51,9 @@ export const config = {
   secureCookies: bool(process.env.CONTAINLY_SECURE_COOKIES, false),
   trustProxy: bool(process.env.CONTAINLY_TRUST_PROXY, true),
   dockerSocket: process.env.DOCKER_SOCKET ?? '/var/run/docker.sock',
+  // Öffentliche Basis-URL (z. B. https://containly.example.com) für Links in
+  // Benachrichtigungs-E-Mails. Ohne Wert werden keine Buttons/Links eingefügt.
+  publicUrl: (process.env.CONTAINLY_PUBLIC_URL ?? '').replace(/\/+$/, ''),
   logLevel: process.env.LOG_LEVEL ?? 'info',
   isProd: process.env.NODE_ENV === 'production',
   /** Statisches Frontend (im Container-Build vorhanden), sonst deaktiviert. */

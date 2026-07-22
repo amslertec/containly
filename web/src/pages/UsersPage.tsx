@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ShieldAlert, Trash2, UserPlus } from 'lucide-react';
-import type { Role } from '@containly/shared';
+import { Check, Pencil, ShieldAlert, Trash2, UserPlus, X } from 'lucide-react';
+import type { Role, User } from '@containly/shared';
 import { useAuth } from '../app/AuthContext';
 import { useUserMutations, useUsers } from '../hooks/admin';
 import { useConfirm } from '../hooks/useConfirm';
@@ -69,6 +69,7 @@ export function UsersPage() {
       <TableWrap>
         <THead>
           <Th>{t('auth.usernameLabel')}</Th>
+          <Th>{t('settings.emailColumn')}</Th>
           <Th>{t('settings.role')}</Th>
           <Th>{t('common.created')}</Th>
           <Th className="text-right">{t('common.actions')}</Th>
@@ -83,6 +84,9 @@ export function UsersPage() {
                     {t('settings.you')}
                   </Badge>
                 )}
+              </Td>
+              <Td>
+                <EmailCell user={u} setEmail={mut.setEmail} />
               </Td>
               <Td>
                 <Badge tone={u.role === 'admin' ? 'primary' : 'neutral'}>
@@ -116,6 +120,82 @@ export function UsersPage() {
   );
 }
 
+function EmailCell({
+  user,
+  setEmail,
+}: {
+  user: User;
+  setEmail: ReturnType<typeof useUserMutations>['setEmail'];
+}) {
+  const { t } = useTranslation();
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState(user.email ?? '');
+
+  const start = (): void => {
+    setValue(user.email ?? '');
+    setEditing(true);
+  };
+
+  const save = async (): Promise<void> => {
+    try {
+      await setEmail.mutateAsync({ id: user.id, email: value.trim() });
+      toast.success(t('settings.emailSet'));
+      setEditing(false);
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : t('common.error'));
+    }
+  };
+
+  if (editing) {
+    return (
+      <div className="flex items-center gap-1.5">
+        <Input
+          type="email"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') void save();
+            if (e.key === 'Escape') setEditing(false);
+          }}
+          placeholder={t('settings.emailPlaceholder')}
+          className="h-8 max-w-[220px] text-sm"
+          autoFocus
+        />
+        <button
+          title={t('common.save')}
+          onClick={() => void save()}
+          disabled={setEmail.isPending}
+          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-primary-soft hover:text-primary disabled:opacity-50"
+        >
+          <Check className="h-4 w-4" />
+        </button>
+        <button
+          title={t('common.cancel')}
+          onClick={() => setEditing(false)}
+          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-surface-2 hover:text-ink"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <button
+      onClick={start}
+      title={t('common.edit')}
+      className="group inline-flex items-center gap-1.5 rounded-md text-left"
+    >
+      {user.email ? (
+        <span className="text-muted">{user.email}</span>
+      ) : (
+        <span className="text-faint">{t('settings.noEmail')}</span>
+      )}
+      <Pencil className="h-3 w-3 text-faint opacity-0 transition-opacity group-hover:opacity-100" />
+    </button>
+  );
+}
+
 function AddUserDialog({
   open,
   onClose,
@@ -127,16 +207,18 @@ function AddUserDialog({
 }) {
   const { t } = useTranslation();
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<Role>('viewer');
   const strength = useMemo(() => evaluatePassword(password), [password]);
 
   const submit = async (): Promise<void> => {
     try {
-      await onCreate.mutateAsync({ username, password, role });
+      await onCreate.mutateAsync({ username, password, role, email: email.trim() || undefined });
       toast.success(t('common.create'));
       onClose();
       setUsername('');
+      setEmail('');
       setPassword('');
       setRole('viewer');
     } catch (err) {
@@ -152,6 +234,16 @@ function AddUserDialog({
           <div>
             <Label>{t('auth.usernameLabel')}</Label>
             <Input value={username} onChange={(e) => setUsername(e.target.value)} autoFocus />
+          </div>
+          <div>
+            <Label>{t('settings.emailColumn')}</Label>
+            <Input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder={t('settings.emailPlaceholder')}
+              autoComplete="off"
+            />
           </div>
           <div>
             <Label>{t('auth.passwordLabel')}</Label>

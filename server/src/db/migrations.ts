@@ -133,6 +133,45 @@ const migrations: Migration[] = [
       ALTER TABLE image_vulns ADD COLUMN details TEXT NOT NULL DEFAULT '[]';
     `,
   },
+  {
+    version: 8,
+    name: 'notifications',
+    up: `
+      -- E-Mail-Adresse je Benutzer (für Benachrichtigungen; optional).
+      ALTER TABLE users ADD COLUMN email TEXT;
+
+      -- Globale SMTP-Konfiguration (einzeilig, id=1).
+      CREATE TABLE smtp_config (
+        id           INTEGER PRIMARY KEY CHECK (id = 1),
+        host         TEXT NOT NULL DEFAULT '',
+        port         INTEGER NOT NULL DEFAULT 587,
+        secure       INTEGER NOT NULL DEFAULT 0,   -- 1 = TLS (Port 465)
+        username     TEXT NOT NULL DEFAULT '',
+        password_enc TEXT NOT NULL DEFAULT '',     -- AES-256-GCM
+        from_addr    TEXT NOT NULL DEFAULT '',
+        from_name    TEXT NOT NULL DEFAULT 'Containly',
+        enabled      INTEGER NOT NULL DEFAULT 0,
+        updated_at   TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
+      -- Konfiguration je Benachrichtigungstyp: aktiv, Schwellwert, Empfänger.
+      CREATE TABLE notification_settings (
+        type       TEXT PRIMARY KEY,              -- z. B. 'endpoint.offline'
+        enabled    INTEGER NOT NULL DEFAULT 1,
+        threshold  REAL,                          -- nur bei Schwellwert-Typen
+        all_admins INTEGER NOT NULL DEFAULT 1,    -- an alle Admins mit E-Mail
+        recipients TEXT NOT NULL DEFAULT '[]'     -- zusätzliche User-IDs (JSON)
+      );
+    `,
+  },
+  {
+    version: 9,
+    name: 'user_language',
+    up: `
+      -- Bevorzugte Sprache je Benutzer (für E-Mails); NULL = Fallback (en).
+      ALTER TABLE users ADD COLUMN language TEXT;
+    `,
+  },
 ];
 
 export function runMigrations(db: Database): void {

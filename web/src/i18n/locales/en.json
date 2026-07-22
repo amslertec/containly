@@ -61,6 +61,92 @@
       "noFix": "No fix"
     }
   },
+  "notifications": {
+    "smtp": {
+      "title": "SMTP server",
+      "info": "Your own SMTP server for sending notification emails.",
+      "enabled": "Email sending enabled",
+      "host": "Host",
+      "port": "Port",
+      "username": "Username",
+      "password": "Password",
+      "passwordSet": "•••••••• (saved)",
+      "fromAddr": "From address",
+      "fromName": "From name",
+      "saved": "SMTP settings saved",
+      "test": "Test",
+      "testTo": "Test email to",
+      "testSent": "Handed to {{to}} — accepted by the server. Check your inbox/spam (do not send to a noreply mailbox)."
+    },
+    "catalog": {
+      "title": "Notifications",
+      "info": "For each notification set whether it is active, its threshold, and who receives it.",
+      "noRecipients": "No user has an email address yet. Add email addresses under Users so notifications can be delivered."
+    },
+    "category": {
+      "endpoint": "Endpoint / host",
+      "container": "Container",
+      "update": "Updates",
+      "security": "Security",
+      "performance": "Performance"
+    },
+    "recipients": {
+      "allAdmins": "All admins",
+      "adminsPlus": "Admins + {{count}}",
+      "count": "{{count}} users",
+      "none": "Nobody"
+    },
+    "types": {
+      "endpoint_offline": {
+        "label": "Endpoint offline",
+        "desc": "A Docker host is no longer reachable."
+      },
+      "endpoint_online": {
+        "label": "Endpoint back online",
+        "desc": "A host is responding again."
+      },
+      "container_exited": {
+        "label": "Container stopped",
+        "desc": "A container exited unexpectedly (exit ≠ 0)."
+      },
+      "container_unhealthy": {
+        "label": "Container unhealthy",
+        "desc": "A container's health check is failing."
+      },
+      "container_oom": {
+        "label": "Container OOM",
+        "desc": "A container was killed for running out of memory."
+      },
+      "container_restart_loop": {
+        "label": "Restart loop",
+        "desc": "A container keeps restarting."
+      },
+      "image_update": {
+        "label": "Update available",
+        "desc": "A newer version exists for an image."
+      },
+      "containly_update": {
+        "label": "New Containly version",
+        "desc": "A new Containly version is available."
+      },
+      "vuln_critical": {
+        "label": "New critical vulnerabilities",
+        "desc": "A Trivy scan found new critical/high CVEs."
+      },
+      "perf_cpu": {
+        "label": "High CPU load",
+        "desc": "Container CPU above the threshold."
+      },
+      "perf_memory": {
+        "label": "High memory usage",
+        "desc": "Container memory above the threshold."
+      },
+      "host_disk": {
+        "label": "Low disk space",
+        "desc": "Free space on the host below the threshold."
+      }
+    }
+  },
   "profile": {
     "title": "Profile",
     "subtitle": "Manage your account, password and security.",
@@ -68,6 +154,11 @@
       "account": "Account",
       "password": "Password",
       "security": "Security"
+    },
+    "email": {
+      "title": "Email address",
+      "info": "Used for signing in (as an alternative to your username) and for notifications.",
+      "saved": "Email address saved"
     }
   },
   "common": {
@@ -104,7 +195,8 @@
     "of": "of",
     "on": "on",
     "off": "off",
-    "host": "Host"
+    "host": "Host",
+    "edit": "Edit"
   },
   "states": {
     "loading": "Loading",
@@ -142,7 +234,8 @@
     "showPassword": "Show password",
     "hidePassword": "Hide password",
     "confirmPasswordLabel": "Confirm password",
-    "passwordMismatch": "Passwords do not match"
+    "passwordMismatch": "Passwords do not match",
+    "loginIdentifier": "Username or email"
   },
   "setup": {
     "title": "Set up Containly",
@@ -170,7 +263,9 @@
       "special": "Special character"
     },
     "invalidToken": "Invalid setup token",
-    "securityNote": "The Docker socket equals root on the host. Choose a strong password."
+    "securityNote": "The Docker socket equals root on the host. Choose a strong password.",
+    "emailOptional": "optional",
+    "emailHint": "Used for signing in (as an alternative to your username) and for notifications."
   },
   "endpoint": {
     "title": "Endpoints",
@@ -512,8 +607,13 @@
       "audit": "Audit log",
       "backup": "Backup & restore",
       "registries": "Registries",
-      "version": "Version"
-    }
+      "version": "Version",
+      "notifications": "Notifications"
+    },
+    "emailColumn": "Email",
+    "emailPlaceholder": "name@example.com",
+    "emailSet": "Email saved",
+    "noEmail": "—"
   },
   "roles": {
     "viewerNotice": "Read-only account: changes are disabled.",

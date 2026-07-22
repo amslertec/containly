@@ -3,6 +3,7 @@ import { db } from '../db/index.js';
 import { listImages } from '../docker/resources.js';
 import { listEndpoints } from '../docker/endpoints.js';
 import { scanImage } from './trivy.js';
+import { notifyNewVulns } from './monitor.js';
 import { logger } from '../logger.js';
 
 /**
@@ -93,7 +94,7 @@ function needsScan(existing: VulnRow | undefined): boolean {
   return existing.status === 'error' ? age > 60 * 60 * 1000 : age > RESCAN_TTL_MS;
 }
 
-async function scanEndpoint(endpoint: string): Promise<void> {
+async function scanEndpoint(endpoint: string, endpointName = endpoint): Promise<void> {
   let images;
   try {
     images = await listImages(endpoint);
@@ -129,7 +130,18 @@ async function scanEndpoint(endpoint: string): Promise<void> {
     scanningIds.add(`${endpoint}:${img.id}`);
     try {
       const { cves, ...counts } = await scanImage(endpoint, ref);
+      const before = existing.get(img.id);
       upsert.run({ endpoint, image_id: img.id, ...counts, status: 'ok', details: JSON.stringify(cves) });
+      // Bei Anstieg kritischer/hoher Funde benachrichtigen (Baseline = voriger Scan).
+      await notifyNewVulns(
+        endpoint,
+        endpointName,
+        ref,
+        counts.critical,
+        counts.high,
+        before?.critical ?? 0,
+        before?.high ?? 0,
+      );
     } catch (err) {
       logger.debug({ err, ref }, 'Vuln-Scan eines Images fehlgeschlagen');
       upsert.run({ endpoint, image_id: img.id, critical: 0, high: 0, medium: 0, low: 0, status: 'error', details: '[]' });
@@ -153,7 +165,7 @@ export async function runVulnScan(): Promise<void> {
   try {
     for (const ep of listEndpoints()) {
       if (ep.status !== 'online') continue;
-      await scanEndpoint(ep.id).catch((err) =>
+      await scanEndpoint(ep.id, ep.name).catch((err) =>
         logger.debug({ err, endpoint: ep.id }, 'Vuln-Scan-Endpoint fehlgeschlagen'),
       );
     }

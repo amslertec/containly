@@ -1,6 +1,14 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { User } from '@containly/shared';
 import { api, setCsrfToken, setUnauthorizedHandler } from '../lib/api';
+import i18n from '../i18n';
+
+/** Wendet die serverseitig gespeicherte Sprache eines Benutzers an (falls gesetzt). */
+function applyUserLanguage(user: User | null): void {
+  if (user?.language && user.language !== i18n.resolvedLanguage?.slice(0, 2)) {
+    void i18n.changeLanguage(user.language);
+  }
+}
 
 interface MeResponse {
   setupComplete: boolean;
@@ -30,6 +38,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const me = await api.get<MeResponse>('/api/auth/me');
       setSetupComplete(me.setupComplete);
       setUser(me.user);
+      applyUserLanguage(me.user);
       setCsrfToken(me.csrfToken);
     } catch {
       setUser(null);
@@ -55,6 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const applyAuth = useCallback((u: User, csrf: string) => {
     setUser(u);
     setSetupComplete(true);
+    applyUserLanguage(u);
     setCsrfToken(csrf);
   }, []);
 

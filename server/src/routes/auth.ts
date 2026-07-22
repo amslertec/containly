@@ -7,17 +7,22 @@ import {
   LoginTwoFactorSchema,
   TwoFactorDisableSchema,
   TwoFactorEnableSchema,
+  UpdateLanguageSchema,
+  UpdateUserEmailSchema,
 } from '@containly/shared';
 import {
   disableTotp,
   enableTotp,
   getUserById,
   getUserRowById,
+  getUserRowByLogin,
   getUserRowByUsername,
   getUserTotp,
   rehashPassword,
   setRecoveryHashes,
   setTotpPending,
+  setUserEmail,
+  setUserLanguage,
   setupComplete,
   updatePassword,
 } from '../services/users.js';
@@ -97,7 +102,8 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     { config: { rateLimit: { max: 8, timeWindow: '1 minute' } } },
     async (req, reply) => {
       const body = LoginRequestSchema.parse(req.body);
-      const row = getUserRowByUsername(body.username);
+      // Anmeldung per Benutzername ODER E-Mail-Adresse.
+      const row = getUserRowByLogin(body.username);
 
       // Konstante Kosten: auch bei unbekanntem User Hash prüfen (Timing-Angleichung).
       const dummyHash =
@@ -166,6 +172,23 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
       user: getUserById(req.user.userId) ?? null,
       csrfToken: req.user.csrfToken,
     };
+  });
+
+  // Eigene E-Mail-Adresse setzen/entfernen (für Login + Benachrichtigungen).
+  app.put('/api/auth/email', { preHandler: requireAuth }, async (req) => {
+    const ctx = currentUser(req);
+    const { email } = UpdateUserEmailSchema.parse(req.body);
+    setUserEmail(ctx.userId, email);
+    audit({ userId: ctx.userId, username: ctx.username, action: 'email.change', ip: req.ip });
+    return { user: getUserById(ctx.userId) };
+  });
+
+  // Eigene Sprache persistieren (damit E-Mails in der Sprache des Nutzers kommen).
+  app.put('/api/auth/language', { preHandler: requireAuth }, async (req) => {
+    const ctx = currentUser(req);
+    const { language } = UpdateLanguageSchema.parse(req.body);
+    setUserLanguage(ctx.userId, language);
+    return { user: getUserById(ctx.userId) };
   });
 
   app.post('/api/auth/password', { preHandler: requireAuth }, async (req) => {

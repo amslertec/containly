@@ -27,7 +27,7 @@ function parseVer(v: string): number[] {
   const core = v.replace(/^v/i, '').split('+')[0]!.split('-')[0]!;
   return core.split('.').map((p) => Number.parseInt(p, 10) || 0);
 }
-function isNewer(latest: string, current: string): boolean {
+export function isNewer(latest: string, current: string): boolean {
   const a = parseVer(latest);
   const b = parseVer(current);
   for (let i = 0; i < Math.max(a.length, b.length); i++) {
@@ -38,7 +38,7 @@ function isNewer(latest: string, current: string): boolean {
   return false;
 }
 
-async function fetchLatest(force: boolean): Promise<CachedRelease | null> {
+export async function fetchLatest(force: boolean): Promise<CachedRelease | null> {
   if (!force && checkedAt !== null && Date.now() - checkedAt < CACHE_TTL_MS) return cached;
   try {
     const ctrl = new AbortController();

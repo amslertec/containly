@@ -61,6 +61,92 @@
       "noFix": "Kein Fix"
     }
   },
+  "notifications": {
+    "smtp": {
+      "title": "SMTP-Server",
+      "info": "Eigener SMTP-Server für den Versand der Benachrichtigungs-E-Mails.",
+      "enabled": "E-Mail-Versand aktiviert",
+      "host": "Host",
+      "port": "Port",
+      "username": "Benutzername",
+      "password": "Passwort",
+      "passwordSet": "•••••••• (gespeichert)",
+      "fromAddr": "Absender-Adresse",
+      "fromName": "Absender-Name",
+      "saved": "SMTP-Einstellungen gespeichert",
+      "test": "Testen",
+      "testTo": "Test-E-Mail an",
+      "testSent": "An {{to}} übergeben — vom Server angenommen. Prüfe Posteingang/Spam (nicht an ein noreply-Postfach senden)."
+    },
+    "catalog": {
+      "title": "Benachrichtigungen",
+      "info": "Lege je Benachrichtigung fest, ob sie aktiv ist, ab welchem Schwellwert sie auslöst und wer sie erhält.",
+      "noRecipients": "Noch kein Benutzer hat eine E-Mail-Adresse. Hinterlege E-Mail-Adressen unter Benutzer, damit Benachrichtigungen zugestellt werden."
+    },
+    "category": {
+      "endpoint": "Endpoint / Host",
+      "container": "Container",
+      "update": "Updates",
+      "security": "Sicherheit",
+      "performance": "Performance"
+    },
+    "recipients": {
+      "allAdmins": "Alle Admins",
+      "adminsPlus": "Admins + {{count}}",
+      "count": "{{count}} Benutzer",
+      "none": "Niemand"
+    },
+    "types": {
+      "endpoint_offline": {
+        "label": "Endpoint offline",
+        "desc": "Ein Docker-Host ist nicht mehr erreichbar."
+      },
+      "endpoint_online": {
+        "label": "Endpoint wieder online",
+        "desc": "Ein Host antwortet wieder."
+      },
+      "container_exited": {
+        "label": "Container gestoppt",
+        "desc": "Ein Container wurde unerwartet beendet (Exit ≠ 0)."
+      },
+      "container_unhealthy": {
+        "label": "Container unhealthy",
+        "desc": "Der Healthcheck eines Containers schlägt fehl."
+      },
+      "container_oom": {
+        "label": "Container OOM",
+        "desc": "Ein Container wurde wegen Speichermangel beendet."
+      },
+      "container_restart_loop": {
+        "label": "Neustart-Schleife",
+        "desc": "Ein Container startet wiederholt neu."
+      },
+      "image_update": {
+        "label": "Update verfügbar",
+        "desc": "Für ein Image gibt es eine neuere Version."
+      },
+      "containly_update": {
+        "label": "Neue Containly-Version",
+        "desc": "Eine neue Containly-Version steht bereit."
+      },
+      "vuln_critical": {
+        "label": "Neue kritische Schwachstellen",
+        "desc": "Ein Trivy-Scan fand neue kritische/hohe CVEs."
+      },
+      "perf_cpu": {
+        "label": "Hohe CPU-Last",
+        "desc": "Container-CPU über dem Schwellwert."
+      },
+      "perf_memory": {
+        "label": "Hohe RAM-Nutzung",
+        "desc": "Container-RAM über dem Schwellwert."
+      },
+      "host_disk": {
+        "label": "Wenig Speicherplatz",
+        "desc": "Freier Speicher auf dem Host unter dem Schwellwert."
+      }
+    }
+  },
   "profile": {
     "title": "Profil",
     "subtitle": "Konto, Passwort und Sicherheit verwalten.",
@@ -68,6 +154,11 @@
       "account": "Konto",
       "password": "Passwort",
       "security": "Sicherheit"
+    },
+    "email": {
+      "title": "E-Mail-Adresse",
+      "info": "Wird für die Anmeldung (alternativ zum Benutzernamen) und für Benachrichtigungen verwendet.",
+      "saved": "E-Mail-Adresse gespeichert"
     }
   },
   "common": {
@@ -104,7 +195,8 @@
     "of": "von",
     "on": "an",
     "off": "aus",
-    "host": "Host"
+    "host": "Host",
+    "edit": "Bearbeiten"
   },
   "states": {
     "loading": "Wird geladen",
@@ -142,7 +234,8 @@
     "showPassword": "Passwort anzeigen",
     "hidePassword": "Passwort verbergen",
     "confirmPasswordLabel": "Passwort bestätigen",
-    "passwordMismatch": "Passwörter stimmen nicht überein"
+    "passwordMismatch": "Passwörter stimmen nicht überein",
+    "loginIdentifier": "Benutzername oder E-Mail"
   },
   "setup": {
     "title": "Containly einrichten",
@@ -170,7 +263,9 @@
       "special": "Sonderzeichen"
     },
     "invalidToken": "Ungültiger Setup-Token",
-    "securityNote": "Der Docker-Socket entspricht Root-Rechten auf dem Host. Vergib ein starkes Passwort."
+    "securityNote": "Der Docker-Socket entspricht Root-Rechten auf dem Host. Vergib ein starkes Passwort.",
+    "emailOptional": "optional",
+    "emailHint": "Wird für die Anmeldung (alternativ zum Benutzernamen) und für Benachrichtigungen verwendet."
   },
   "endpoint": {
     "title": "Endpoints",
@@ -512,8 +607,13 @@
       "audit": "Audit-Log",
       "backup": "Backup & Restore",
       "registries": "Registries",
-      "version": "Version"
-    }
+      "version": "Version",
+      "notifications": "Benachrichtigungen"
+    },
+    "emailColumn": "E-Mail",
+    "emailPlaceholder": "name@example.com",
+    "emailSet": "E-Mail gespeichert",
+    "noEmail": "—"
   },
   "roles": {
     "viewerNotice": "Nur-Lesen-Konto: Änderungen sind deaktiviert.",

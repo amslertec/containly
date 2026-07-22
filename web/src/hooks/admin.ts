@@ -30,6 +30,11 @@ export function useUserMutations() {
       mutationFn: (id: number) => api.delete(`/api/users/${id}`),
       onSuccess: invalidate,
     }),
+    setEmail: useMutation({
+      mutationFn: ({ id, email }: { id: number; email: string }) =>
+        api.put<{ user: User }>(`/api/users/${id}/email`, { email }),
+      onSuccess: invalidate,
+    }),
   };
 }
 

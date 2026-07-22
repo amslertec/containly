@@ -8,6 +8,9 @@ import { ensureLocalEndpoint, checkAllHealth, listEndpoints } from './docker/end
 import { pruneSessions } from './services/sessions.js';
 import { checkUpdates } from './docker/updates.js';
 import { runVulnScan } from './services/vuln-scanner.js';
+import { startMonitor, notifyImageUpdates, notifyContainlyUpdate } from './services/monitor.js';
+import { fetchLatest } from './routes/version.js';
+import { VERSION } from './version.js';
 import { buildApp } from './app.js';
 
 /** Hintergrund-Update-Prüfung: wärmt den Cache je Endpoint (schonend, alle 6 h). */
@@ -15,10 +18,19 @@ async function backgroundUpdateCheck(): Promise<void> {
   for (const ep of listEndpoints()) {
     if (ep.status !== 'online') continue;
     try {
-      await checkUpdates(ep.id, true);
+      const res = await checkUpdates(ep.id, true);
+      // Neu verfügbare Image-Updates per E-Mail melden (einmalig je Update).
+      await notifyImageUpdates(ep.id, ep.name, res.items);
     } catch {
       /* Registry-Fehler ignorieren; UI zeigt „unbekannt" */
     }
+  }
+  // Neue Containly-Version prüfen und ggf. melden.
+  try {
+    const rel = await fetchLatest(true);
+    if (rel?.tag) await notifyContainlyUpdate(VERSION, rel.tag.replace(/^v/i, ''));
+  } catch {
+    /* GitHub-Fehler ignorieren */
   }
 }
 
@@ -47,6 +59,8 @@ async function main(): Promise<void> {
   // Vulnerability-Scan (Trivy via Helfer) im Hintergrund: nach 90 s + alle 6 h.
   const firstVulnScan = setTimeout(() => void runVulnScan(), 90_000);
   const vulnTimer = setInterval(() => void runVulnScan(), 6 * 60 * 60_000);
+  // Ereignis-Monitor (Endpoint/Container/Performance → E-Mail-Benachrichtigungen).
+  const monitorTimer = startMonitor();
   healthTimer.unref();
   pruneTimer.unref();
   firstUpdate.unref();
@@ -61,6 +75,7 @@ async function main(): Promise<void> {
     logger.info({ signal }, 'Fahre herunter…');
     clearInterval(healthTimer);
     clearInterval(pruneTimer);
+    clearInterval(monitorTimer);
     try {
       await app.close();
       closeDb();

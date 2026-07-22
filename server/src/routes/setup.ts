@@ -28,7 +28,7 @@ export async function setupRoutes(app: FastifyInstance): Promise<void> {
       throw Errors.forbidden('Ungültiger Setup-Token');
     }
 
-    const user = await createUser(body.username, body.password, 'admin');
+    const user = await createUser(body.username, body.password, 'admin', body.email);
     consumeSetupToken();
 
     const { token, csrfToken } = createSession(user.id, {

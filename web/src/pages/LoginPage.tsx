@@ -115,7 +115,7 @@ export function LoginPage() {
 
       <form onSubmit={submit} className="space-y-4" noValidate>
         <div>
-          <Label htmlFor="username">{t('auth.usernameLabel')}</Label>
+          <Label htmlFor="username">{t('auth.loginIdentifier')}</Label>
           <Input
             id="username"
             autoComplete="username"

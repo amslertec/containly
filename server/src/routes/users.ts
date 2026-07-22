@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { CreateUserSchema } from '@containly/shared';
+import { CreateUserSchema, UpdateUserEmailSchema } from '@containly/shared';
 import {
   adminCount,
   createUser,
@@ -8,6 +8,7 @@ import {
   getUserById,
   getUserRowByUsername,
   listUsers,
+  setUserEmail,
 } from '../services/users.js';
 import { destroyAllUserSessions } from '../services/sessions.js';
 import { currentUser, requireAdmin } from '../plugins/auth.js';
@@ -23,9 +24,21 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
     const ctx = currentUser(req);
     const body = CreateUserSchema.parse(req.body);
     if (getUserRowByUsername(body.username)) throw Errors.conflict('Benutzername bereits vergeben');
-    const user = await createUser(body.username, body.password, body.role);
+    const user = await createUser(body.username, body.password, body.role, body.email);
     audit({ userId: ctx.userId, username: ctx.username, action: 'user.create', target: user.username, detail: { role: user.role }, ip: req.ip });
     return { user };
+  });
+
+  // E-Mail-Adresse eines Benutzers setzen/entfernen (für Benachrichtigungen).
+  app.put('/api/users/:id/email', { preHandler: requireAdmin }, async (req) => {
+    const ctx = currentUser(req);
+    const { id } = IdParams.parse(req.params);
+    const { email } = UpdateUserEmailSchema.parse(req.body);
+    const target = getUserById(id);
+    if (!target) throw Errors.notFound('Benutzer nicht gefunden');
+    setUserEmail(id, email);
+    audit({ userId: ctx.userId, username: ctx.username, action: 'user.email', target: target.username, ip: req.ip });
+    return { user: getUserById(id) };
   });
 
   app.delete('/api/users/:id', { preHandler: requireAdmin }, async (req) => {

@@ -6,6 +6,7 @@ import {
   Download,
   KeyRound,
   LogOut,
+  Mail,
   ShieldCheck,
   ShieldOff,
   Smartphone,
@@ -66,31 +67,84 @@ function AccountTab({ onLogout }: { onLogout: () => void }) {
   const { t } = useTranslation();
   const { user } = useAuth();
   return (
-    <Card className="flex flex-wrap items-center gap-4 p-5">
-      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-soft text-primary">
-        <UserRound className="h-6 w-6" />
-      </span>
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-lg font-semibold text-ink" style={{ fontFamily: 'var(--font-display)' }}>
-            {user?.username}
-          </span>
-          <Badge tone="primary">{user?.role === 'admin' ? t('settings.roleAdmin') : t('settings.roleViewer')}</Badge>
-          {user?.totpEnabled ? (
-            <Badge tone="run">
-              <ShieldCheck className="h-3.5 w-3.5" /> {t('twofa.badgeOn')}
-            </Badge>
-          ) : (
-            <Badge tone="warn">
-              <ShieldOff className="h-3.5 w-3.5" /> {t('twofa.badgeOff')}
-            </Badge>
-          )}
+    <div className="grid gap-5">
+      <Card className="flex flex-wrap items-center gap-4 p-5">
+        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-soft text-primary">
+          <UserRound className="h-6 w-6" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-lg font-semibold text-ink" style={{ fontFamily: 'var(--font-display)' }}>
+              {user?.username}
+            </span>
+            <Badge tone="primary">{user?.role === 'admin' ? t('settings.roleAdmin') : t('settings.roleViewer')}</Badge>
+            {user?.totpEnabled ? (
+              <Badge tone="run">
+                <ShieldCheck className="h-3.5 w-3.5" /> {t('twofa.badgeOn')}
+              </Badge>
+            ) : (
+              <Badge tone="warn">
+                <ShieldOff className="h-3.5 w-3.5" /> {t('twofa.badgeOff')}
+              </Badge>
+            )}
+          </div>
+          <p className="mt-0.5 text-sm text-muted">{t('settings.account')}</p>
         </div>
-        <p className="mt-0.5 text-sm text-muted">{t('settings.account')}</p>
+        <Button variant="ghost" size="sm" onClick={onLogout}>
+          <LogOut className="h-4 w-4" /> {t('auth.logout')}
+        </Button>
+      </Card>
+      <EmailCard />
+    </div>
+  );
+}
+
+/** Self-Service: eigene E-Mail-Adresse für Login + Benachrichtigungen setzen. */
+function EmailCard() {
+  const { t } = useTranslation();
+  const { user, refresh } = useAuth();
+  const [email, setEmail] = useState(user?.email ?? '');
+  const [saving, setSaving] = useState(false);
+  const dirty = email.trim() !== (user?.email ?? '');
+
+  const save = async (): Promise<void> => {
+    setSaving(true);
+    try {
+      await api.put('/api/auth/email', { email: email.trim() });
+      await refresh();
+      toast.success(t('profile.email.saved'));
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : t('common.error'));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Card className="p-5">
+      <div className="mb-1 flex items-center gap-2">
+        <Mail className="h-5 w-5 text-primary" />
+        <h2 className="text-base font-semibold text-ink" style={{ fontFamily: 'var(--font-display)' }}>
+          {t('profile.email.title')}
+        </h2>
       </div>
-      <Button variant="ghost" size="sm" onClick={onLogout}>
-        <LogOut className="h-4 w-4" /> {t('auth.logout')}
-      </Button>
+      <p className="mb-4 text-sm text-muted">{t('profile.email.info')}</p>
+      <div className="flex max-w-md flex-wrap items-end gap-2">
+        <div className="flex-1" style={{ minWidth: 220 }}>
+          <Label htmlFor="profile-email">{t('settings.emailColumn')}</Label>
+          <Input
+            id="profile-email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder={t('settings.emailPlaceholder')}
+            className="font-mono"
+          />
+        </div>
+        <Button variant="primary" size="sm" onClick={() => void save()} loading={saving} disabled={!dirty}>
+          {t('common.save')}
+        </Button>
+      </div>
     </Card>
   );
 }

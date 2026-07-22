@@ -23,6 +23,7 @@ export function SetupPage() {
   const { applyAuth } = useAuth();
   const [setupToken, setSetupToken] = useState('');
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -47,6 +48,7 @@ export function SetupPage() {
         username,
         password,
         setupToken,
+        email: email.trim() || undefined,
       });
       applyAuth(res.user, res.csrfToken);
     } catch (err) {
@@ -99,6 +101,21 @@ export function SetupPage() {
             autoComplete="username"
             required
           />
+        </div>
+
+        <div>
+          <Label htmlFor="su-email">
+            {t('settings.emailColumn')} <span className="font-normal text-faint">({t('setup.emailOptional')})</span>
+          </Label>
+          <Input
+            id="su-email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
+            placeholder={t('settings.emailPlaceholder')}
+          />
+          <p className="mt-1 text-xs text-faint">{t('setup.emailHint')}</p>
         </div>
 
         <div>

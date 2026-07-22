@@ -4,16 +4,19 @@ import { Page, PageHeader } from '../components/PageHeader';
 import { AuditPanel } from '../components/AuditPanel';
 import { BackupPanel } from '../components/BackupPanel';
 import { RegistriesPanel } from '../components/RegistriesPanel';
+import { NotificationsPanel } from '../components/NotificationsPanel';
 import { VersionPanel } from '../components/VersionPanel';
 import { useAuth } from '../app/AuthContext';
 import { cn } from '../lib/utils';
 
-type Tab = 'version' | 'audit' | 'registries' | 'backup';
+type Tab = 'version' | 'notifications' | 'audit' | 'registries' | 'backup';
 
 export function SettingsPage() {
   const { t } = useTranslation();
   const { isAdmin } = useAuth();
-  const tabs: Tab[] = isAdmin ? ['version', 'audit', 'registries', 'backup'] : ['version'];
+  const tabs: Tab[] = isAdmin
+    ? ['version', 'notifications', 'registries', 'audit', 'backup']
+    : ['version'];
   const [tab, setTab] = useState<Tab>('version');
 
   return (
@@ -37,6 +40,7 @@ export function SettingsPage() {
       </div>
 
       {tab === 'version' && <VersionPanel />}
+      {tab === 'notifications' && isAdmin && <NotificationsPanel />}
       {tab === 'audit' && isAdmin && <AuditPanel />}
       {tab === 'registries' && isAdmin && <RegistriesPanel />}
       {tab === 'backup' && isAdmin && <BackupPanel />}

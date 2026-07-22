@@ -2,6 +2,8 @@ import { useTranslation } from 'react-i18next';
 import { Monitor, Moon, Sun } from 'lucide-react';
 import { useTheme, type ThemeMode } from '../lib/theme';
 import { SUPPORTED_LANGUAGES } from '../i18n';
+import { useAuth } from '../app/AuthContext';
+import { api } from '../lib/api';
 import { cn } from '../lib/utils';
 
 const icons: Record<ThemeMode, React.ReactNode> = {
@@ -32,14 +34,24 @@ export function ThemeToggle({ className }: { className?: string }) {
 
 export function LangToggle({ className }: { className?: string }) {
   const { i18n } = useTranslation();
+  const { user } = useAuth();
   const current = (i18n.resolvedLanguage ?? 'en').slice(0, 2);
+
+  const change = (lng: string): void => {
+    void i18n.changeLanguage(lng);
+    // Angemeldet: Wahl serverseitig am Benutzer speichern (für E-Mail-Sprache).
+    if (user && (lng === 'de' || lng === 'en')) {
+      void api.put('/api/auth/language', { language: lng }).catch(() => undefined);
+    }
+  };
+
   return (
     <div className={cn('inline-flex items-center rounded-md border border-border p-0.5', className)}>
       {SUPPORTED_LANGUAGES.map((lng) => (
         <button
           key={lng}
           type="button"
-          onClick={() => void i18n.changeLanguage(lng)}
+          onClick={() => change(lng)}
           className={cn(
             'rounded px-2 py-1 text-xs font-medium uppercase tracking-wide transition-colors',
             current === lng ? 'bg-primary text-primary-ink' : 'text-muted hover:text-ink',

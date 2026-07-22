@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.17] — 2026-07-22
+
+### Added
+
+- **Email notifications.** A new **Settings → Notifications** tab configures your own
+  **SMTP server** (host, port, TLS, credentials, from address — password stored
+  encrypted) with a **test-email** button, and a catalog of notifications where each
+  type has an on/off switch, a threshold (where applicable) and recipients (**all
+  admins** or a specific selection of users). A background monitor watches **all
+  endpoints** and sends email on:
+  - endpoint offline / back online,
+  - container stopped unexpectedly / unhealthy / OOM-killed / restart loop,
+  - image update available / new Containly version,
+  - new critical vulnerabilities found (from the Trivy scan),
+  - high CPU / high memory (per container) / low host disk space — with thresholds.
+
+  Emails are nicely designed HTML with the Containly logo embedded (renders in all
+  clients), a severity-coloured header, a details table and an optional deep link
+  (set `CONTAINLY_PUBLIC_URL`). A 30-minute cooldown prevents duplicate alerts, and
+  existing conditions at startup do not trigger a flood.
+- **Per-user email addresses.** Set your own under **Profile → Account**; admins can
+  set them for others on the **Users** page (and optionally during first-time setup).
+- **Per-recipient language.** Each user's language preference is now stored on the
+  server, and every notification is sent to each recipient **in their own language**
+  (German or English) — recipients are grouped by language and each group gets its
+  localised email.
+- **Sign in with username _or_ email.** Login now accepts either identifier.
+
+### Changed
+
+- The test-email now reports the SMTP server's actual response and fails clearly if
+  the server **rejects** the recipient, instead of always reporting success.
+
 ## [0.1.16] — 2026-07-22
 
 ### Added
@@ -305,7 +338,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.16...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.17...HEAD
+[0.1.17]: https://github.com/amslertec/containly/compare/v0.1.16...v0.1.17
 [0.1.16]: https://github.com/amslertec/containly/compare/v0.1.15...v0.1.16
 [0.1.15]: https://github.com/amslertec/containly/compare/v0.1.14...v0.1.15
 [0.1.14]: https://github.com/amslertec/containly/compare/v0.1.13...v0.1.14

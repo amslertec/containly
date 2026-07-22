@@ -29,24 +29,47 @@ export const SetupRequestSchema = z.object({
   username: UsernameSchema,
   password: PasswordSchema,
   setupToken: z.string().min(1, 'Setup-Token erforderlich').max(200),
+  // Optionale E-Mail für Login (alternativ zum Benutzernamen) + Benachrichtigungen.
+  email: z
+    .string()
+    .max(255)
+    .refine((v) => v === '' || /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v), 'Ungültige E-Mail-Adresse')
+    .optional(),
 });
 export type SetupRequest = z.infer<typeof SetupRequestSchema>;
 
 export const LoginRequestSchema = z.object({
-  username: z.string().min(1).max(64),
+  // Benutzername ODER E-Mail-Adresse.
+  username: z.string().min(1).max(255),
   password: z.string().min(1).max(200),
 });
 export type LoginRequest = z.infer<typeof LoginRequestSchema>;
 
 /** Öffentliche Nutzer-Repräsentation — niemals Hash o. Ä. nach außen. */
+/** Unterstützte Oberflächen-/E-Mail-Sprachen. */
+export const LocaleSchema = z.enum(['de', 'en']);
+export type Locale = z.infer<typeof LocaleSchema>;
+
 export const UserSchema = z.object({
   id: z.number().int().positive(),
   username: z.string(),
   role: RoleSchema,
   createdAt: z.string(),
   totpEnabled: z.boolean(),
+  email: z.string().nullable(),
+  language: LocaleSchema.nullable(),
 });
 export type User = z.infer<typeof UserSchema>;
+
+/** Sprachwahl eines Benutzers (persistiert serverseitig für E-Mails). */
+export const UpdateLanguageSchema = z.object({ language: LocaleSchema });
+export type UpdateLanguage = z.infer<typeof UpdateLanguageSchema>;
+
+/** Optionale E-Mail-Adresse (leer erlaubt = keine Adresse). */
+export const EmailSchema = z
+  .string()
+  .max(255)
+  .refine((v) => v === '' || /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v), 'Ungültige E-Mail-Adresse');
 
 /* ── Zwei-Faktor-Authentifizierung (TOTP) ─────────────────────────────────── */
 
@@ -95,8 +118,13 @@ export const CreateUserSchema = z.object({
   username: UsernameSchema,
   password: PasswordSchema,
   role: RoleSchema,
+  email: EmailSchema.optional(),
 });
 export type CreateUser = z.infer<typeof CreateUserSchema>;
+
+/** Aktualisierung der E-Mail-Adresse eines Benutzers (Admin). */
+export const UpdateUserEmailSchema = z.object({ email: EmailSchema });
+export type UpdateUserEmail = z.infer<typeof UpdateUserEmailSchema>;
 
 export const ChangePasswordSchema = z.object({
   currentPassword: z.string().min(1).max(200),
