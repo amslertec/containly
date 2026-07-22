@@ -25,10 +25,11 @@ services:
     env_file:
       - .env
     volumes:
-      # DB, session secret, master key (0600).
-      - ./data:/data
-      # Compose stacks created by Containly.
-      - ./stacks:/stacks
+      # Docker-managed named volumes (persist across updates/recreates).
+      # DB, session secret, master key (0600):
+      - containly-data:/data
+      # Compose stacks created by Containly:
+      - containly-stacks:/stacks
       # Stack scanning: mount the host directory that holds your docker-compose
       # projects at the SAME path (path inside the container = path on the host)
       # so the per-endpoint stack paths resolve correctly. Adjust this!
@@ -77,3 +78,7 @@ services:
 networks:
   containly-internal:
     driver: bridge
+
+volumes:
+  containly-data:
+  containly-stacks:

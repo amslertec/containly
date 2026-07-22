@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.7] — 2026-07-22
+
+### Fixed
+
+- **Data is no longer lost on container update/recreate.** If a relative
+  `CONTAINLY_DATA_DIR`/`CONTAINLY_STACKS_DIR` (e.g. a `./data` left over in a copied
+  `.env`) was passed to the container, Containly wrote its database to the ephemeral
+  container filesystem and reverted to setup mode after every recreate. In the
+  production image a relative path is now ignored in favour of the mounted `/data`
+  and `/stacks`, so users, endpoints and settings persist. Custom **absolute** paths
+  are still honoured.
+
+### Changed
+
+- The example `docker-compose.yml` now uses **Docker named volumes**
+  (`containly-data`, `containly-stacks`) for `/data` and `/stacks` instead of
+  host-path bind mounts.
+
 ## [0.1.6] — 2026-07-22
 
 ### Added
@@ -136,7 +154,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.6...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.7...HEAD
+[0.1.7]: https://github.com/amslertec/containly/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/amslertec/containly/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/amslertec/containly/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/amslertec/containly/compare/v0.1.3...v0.1.4

@@ -78,9 +78,9 @@ and prints a one-time **setup token** to the logs, inside a boxed banner:
 
 ```bash
 docker compose logs containly
-# or read it directly:
-cat data/setup.token
 ```
+
+(The token is also stored in the `containly-data` volume at `/data/setup.token`.)
 
 Then:
 
