@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.28] — 2026-07-22
+
+### Fixed
+
+- **Container detail tabs overflowed on mobile.** The tab bar now scrolls horizontally on
+  narrow screens instead of widening the whole page (same pattern as the settings page).
+  A stray 1px vertical scroll caused by the active-tab underline is gone, and long image
+  references in the header no longer stretch the layout sideways.
+
 ## [0.1.27] — 2026-07-22
 
 ### Added

@@ -82,7 +82,7 @@ export function ContainerDetailPage() {
               <Badge tone={c.state.health === 'healthy' ? 'run' : 'warn'}>{c.state.health}</Badge>
             )}
           </div>
-          <p className="mt-1 font-mono text-[12px] text-faint">
+          <p className="mt-1 break-all font-mono text-[12px] text-faint">
             {shortId(c.id)} · {c.image}
           </p>
         </div>
@@ -105,21 +105,25 @@ export function ContainerDetailPage() {
         )}
       </div>
 
-      {/* Tabs */}
-      <div className="mb-4 flex gap-1 border-b border-border">
-        {TABS.map((tb) => (
-          <button
-            key={tb}
-            onClick={() => setTab(tb)}
-            className={cn(
-              'relative px-3 py-2 text-sm font-medium transition-colors',
-              tab === tb ? 'text-primary' : 'text-muted hover:text-ink',
-            )}
-          >
-            {t(`containers.detail.${tb}`)}
-            {tab === tb && <span className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-primary" />}
-          </button>
-        ))}
+      {/* Tab-Leiste: nur horizontal scrollbar (overflow-y-hidden verhindert den 1px-
+          Vertikal-Overflow der Aktiv-Linie); Linie bei bottom-0 statt -bottom-px.
+          Gleiches Muster wie SettingsPage. */}
+      <div className="mb-4 -mx-4 border-b border-border px-4 sm:mx-0 sm:px-0">
+        <div className="flex gap-1 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {TABS.map((tb) => (
+            <button
+              key={tb}
+              onClick={() => setTab(tb)}
+              className={cn(
+                'relative shrink-0 whitespace-nowrap px-3.5 py-2 text-sm font-medium transition-colors',
+                tab === tb ? 'text-primary' : 'text-muted hover:text-ink',
+              )}
+            >
+              {t(`containers.detail.${tb}`)}
+              {tab === tb && <span className="absolute inset-x-0 bottom-0 h-0.5 rounded-full bg-primary" />}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="min-h-0 flex-1">
