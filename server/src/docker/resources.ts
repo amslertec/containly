@@ -8,30 +8,36 @@ import type {
   VolumeSummary,
 } from '@containly/shared';
 import { getDocker } from './endpoints.js';
-import { safeRecreateContainer } from './recreate.js';
+import { isOwnContainer, safeRecreateContainer } from './recreate.js';
 import { authConfigForImage } from '../services/registry.js';
 import { logger } from '../logger.js';
 
-/** Ermittelt die eigene Container-ID (cgroup/mountinfo, sonst Hostname = Kurz-ID). */
+/**
+ * Ermittelt die eigene Container-ID als schnelle Vorprüfung. WICHTIG: gezielt nach der
+ * Container-ID suchen (cgroup-Pfad `…/docker-<id>` bzw. mountinfo `/containers/<id>/`),
+ * NICHT die erste beliebige 64-hex nehmen — overlay2-Layer-Hashes sind ebenfalls 64-hex
+ * und lieferten auf manchen Hosts eine falsche ID (Ursache des 0.1.9-Selbstmord-Bugs).
+ * Verlässlich abgesichert wird die Erkennung ohnehin über den Hostnamen (siehe
+ * `isOwnContainer` in recreate.ts). Bei Nichtauffinden: Hostname (= Kurz-ID by default).
+ */
 function readSelfContainerId(): string {
-  for (const f of ['/proc/self/cgroup', '/proc/self/mountinfo']) {
-    try {
-      const m = readFileSync(f, 'utf8').match(/\b[0-9a-f]{64}\b/);
-      if (m) return m[0];
-    } catch {
-      /* nicht vorhanden */
-    }
+  try {
+    const m = readFileSync('/proc/self/mountinfo', 'utf8').match(/\/containers\/([0-9a-f]{64})/);
+    if (m) return m[1]!;
+  } catch {
+    /* nicht vorhanden */
+  }
+  try {
+    const m = readFileSync('/proc/self/cgroup', 'utf8').match(/[0-9a-f]{64}/);
+    if (m) return m[0];
+  } catch {
+    /* nicht vorhanden */
   }
   return os.hostname();
 }
 const SELF_ID = readSelfContainerId();
 
-/**
- * Ist das der Container, in dem Containly SELBST läuft? (darf sich nicht selbst
- * recreaten). `docker` liefert volle 64-Zeichen-IDs; SELF_ID ist entweder die volle
- * ID (cgroup/mountinfo) oder die Kurz-ID (Hostname) — beides matcht nur den eigenen
- * Container per Präfix. Andere Container werden NIE fälschlich als „self" erkannt.
- */
+/** Schnelle ID-basierte Vorprüfung (verlässlich bestätigt via Hostname in applyImageUpdate). */
 function isSelfContainer(containerId: string): boolean {
   return !!SELF_ID && (containerId === SELF_ID || containerId.startsWith(SELF_ID));
 }
@@ -122,11 +128,14 @@ export async function applyImageUpdate(
   await pullImage(endpoint, image);
 
   const recreated: string[] = [];
-  let selfUpdate = false;
+  let selfContainerId: string | null = null;
   for (const c of affected) {
-    // Der eigene Container wird über den Deputy ersetzt, nicht hier (Selbstmord-Schutz).
-    if (isSelfContainer(c.Id)) {
-      selfUpdate = true;
+    // Jeden Kandidaten inspizieren und den EIGENEN Container verlässlich über den
+    // Hostnamen erkennen (ID-Vorprüfung als billiger Schnellpfad). Der eigene Container
+    // wird NICHT hier ersetzt, sondern über den Deputy — sonst Selbstmord des Prozesses.
+    const info = await docker.getContainer(c.Id).inspect().catch(() => null);
+    if (info && (isOwnContainer(info) || isSelfContainer(c.Id))) {
+      selfContainerId = c.Id; // die ECHTE ID (nicht die evtl. falsche SELF_ID)
       continue;
     }
     try {
@@ -136,9 +145,10 @@ export async function applyImageUpdate(
     }
   }
 
-  if (selfUpdate) await spawnSelfUpdateDeputy(docker, SELF_ID, image);
+  // Deputy mit der real ermittelten Container-ID starten (robust gegen falsche SELF_ID).
+  if (selfContainerId) await spawnSelfUpdateDeputy(docker, selfContainerId, image);
 
-  return { recreated, selfUpdate };
+  return { recreated, selfUpdate: !!selfContainerId };
 }
 
 export async function removeImage(endpoint: string, id: string, force: boolean): Promise<void> {

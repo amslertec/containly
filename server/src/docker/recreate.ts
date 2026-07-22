@@ -1,6 +1,18 @@
+import os from 'node:os';
 import type Docker from 'dockerode';
 
 type ContainerInspect = Awaited<ReturnType<Docker.Container['inspect']>>;
+
+/**
+ * Verlässlichstes „bin ich das selbst?"-Signal: der Kernel meldet für diesen Prozess
+ * den Container-Hostnamen, der (per Default die Kurz-ID, sonst der gesetzte
+ * `hostname:`) exakt `Config.Hostname` des eigenen Containers entspricht — unabhängig
+ * von Storage-Driver, cgroup-Version oder mountinfo-Aufbau.
+ */
+export function isOwnContainer(info: ContainerInspect): boolean {
+  const host = os.hostname();
+  return !!host && info.Config?.Hostname === host;
+}
 type CreateOpts = Parameters<Docker['createContainer']>[0];
 type NetworkMap = NonNullable<ContainerInspect['NetworkSettings']>['Networks'];
 type NetworkEndpoint = NetworkMap[string];
@@ -82,6 +94,14 @@ export async function safeRecreateContainer(
 ): Promise<string> {
   const container = docker.getContainer(id);
   const info = await container.inspect();
+  // SICHERHEITSNETZ (letzte Verteidigungslinie): den Container, in dem DIESER Prozess
+  // läuft, niemals in-process ersetzen — stop()/remove() würde den Node-Prozess mitten
+  // im Vorgang töten (der 0.1.9/0.1.10-Ausfall). Self-Update MUSS über den Deputy laufen.
+  if (isOwnContainer(info)) {
+    throw new Error(
+      'refuse to recreate the container this process runs in — self-update must be delegated to the deputy container',
+    );
+  }
   const { opts, name, netNames, nets, fullId, shortId } = buildCreateOpts(info, newImage);
   const wasRunning = !!info.State?.Running;
   const backupName = `${name}-containly-old`;

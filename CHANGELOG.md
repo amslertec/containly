@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.11] — 2026-07-22
+
+### Fixed
+
+- **Self-update can no longer take Containly offline.** The 0.1.9/0.1.10 self-update
+  decided "is this my own container?" by reading the *first* 64-character hex string
+  from `/proc/self/cgroup` or `/proc/self/mountinfo`. On some hosts that string is an
+  overlay2 **layer hash** (or a custom `hostname:` was set), not the container ID — so
+  the check failed, the deputy container was never started, and Containly ran the
+  normal recreate **on itself**, stopping its own process mid-way and leaving the
+  container down. Now fixed with defense in depth:
+  - **Reliable self-detection** via the container hostname (`os.hostname()` ===
+    `Config.Hostname`), which is independent of storage driver and cgroup layout; the
+    ID lookup is only a fast pre-check and now matches the container ID specifically.
+  - The deputy is launched with the **actually resolved** container ID, not a guessed
+    one.
+  - **Hard safety net:** the recreate routine now *refuses* to recreate the container
+    the process is running in. Even if detection ever fails again, an update can no
+    longer stop Containly — at worst it reports a failed update while staying up.
+
 ## [0.1.10] — 2026-07-22
 
 ### Added
@@ -207,7 +227,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.10...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.11...HEAD
+[0.1.11]: https://github.com/amslertec/containly/compare/v0.1.10...v0.1.11
 [0.1.10]: https://github.com/amslertec/containly/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/amslertec/containly/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/amslertec/containly/compare/v0.1.7...v0.1.8
