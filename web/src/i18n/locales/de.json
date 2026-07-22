@@ -459,7 +459,7 @@
       "noTags": "Keine Tags gefunden"
     },
     "prune": "Ungenutzte entfernen",
-    "pruneConfirm": "ALLE ungenutzten Images entfernen (alle, die von keinem Container verwendet werden – auch getaggte)? Kann nicht rückgängig gemacht werden.",
+    "pruneConfirm": "ALLE ungenutzten Images entfernen – auch getaggte, die von keinem Container verwendet werden. Das kann nicht rückgängig gemacht werden.",
     "removeConfirm": "Image „{{name}}“ entfernen?",
     "tag": "Taggen",
     "tagTitle": "Neuen Tag vergeben",

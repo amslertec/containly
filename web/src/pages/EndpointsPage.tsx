@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
-import { Pencil, Plus, RefreshCw, Server, ShieldAlert, Trash2 } from 'lucide-react';
+import { Pencil, Plus, RefreshCw, ShieldAlert, Trash2 } from 'lucide-react';
 import type { Endpoint } from '@containly/shared';
 import { useAuth } from '../app/AuthContext';
 import { useEndpoints } from '../app/EndpointContext';
@@ -56,17 +56,17 @@ export function EndpointsPage() {
       <PageHeader
         eyebrow={t('app.name')}
         title={t('endpoint.title')}
+        subtitle={
+          endpoints.length > 0
+            ? `${endpoints.filter((e) => e.status === 'online').length} ${t('endpoint.online').toLowerCase()} · ${endpoints.filter((e) => e.status !== 'online').length} ${t('endpoint.offline').toLowerCase()} · ${endpoints.length} ${t('nav.endpoints').toLowerCase()}`
+            : undefined
+        }
         actions={
           <Button variant="primary" size="sm" onClick={() => setDialogFor(null)}>
             <Plus className="h-4 w-4" /> {t('endpoint.add')}
           </Button>
         }
       />
-
-      <p className="mb-4 flex items-start gap-2 text-xs text-muted">
-        <Server className="mt-0.5 h-3.5 w-3.5 shrink-0 text-signal" />
-        {t('endpoint.tlsRequired')}
-      </p>
 
       <div className="space-y-2">
         {endpoints.map((e) => (

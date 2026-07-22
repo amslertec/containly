@@ -459,7 +459,7 @@
       "noTags": "No tags found"
     },
     "prune": "Remove unused",
-    "pruneConfirm": "Remove ALL unused images (every image not used by a container – tagged ones too)? This cannot be undone.",
+    "pruneConfirm": "Remove ALL unused images – including tagged ones not used by any container. This cannot be undone.",
     "removeConfirm": "Remove image “{{name}}”?",
     "tag": "Tag",
     "tagTitle": "Add a new tag",

@@ -24,9 +24,10 @@ export function SettingsPage() {
     <Page>
       <PageHeader eyebrow={t('app.name')} title={t('settings.title')} />
 
-      {/* Tab-Leiste: horizontal scrollbar auf Mobile (kein Umbruch, kein Abschneiden). */}
+      {/* Tab-Leiste: nur horizontal scrollbar (overflow-y-hidden verhindert den 1px-
+          Vertikal-Overflow der Aktiv-Linie); Linie bei bottom-0 statt -bottom-px. */}
       <div className="mb-5 -mx-4 border-b border-border px-4 sm:mx-0 sm:px-0">
-        <div className="flex gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex gap-1 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {tabs.map((tb) => (
             <button
               key={tb}
@@ -37,7 +38,7 @@ export function SettingsPage() {
               )}
             >
               {t(`settings.tabs.${tb}`)}
-              {tab === tb && <span className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-primary" />}
+              {tab === tb && <span className="absolute inset-x-0 bottom-0 h-0.5 rounded-full bg-primary" />}
             </button>
           ))}
         </div>

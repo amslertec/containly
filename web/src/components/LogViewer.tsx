@@ -21,13 +21,14 @@ export function LogViewer({ endpoint, id, name }: { endpoint: string; id: string
   const [state, setState] = useState<ConnState>('connecting');
   const [follow, setFollow] = useState(true);
   const [wrap, setWrap] = useState(true);
+  const [tail, setTail] = useState(400);
   const scrollRef = useRef<HTMLDivElement>(null);
   const keyRef = useRef(0);
 
   useEffect(() => {
     setLines([]);
     setState('connecting');
-    const ws = new WebSocket(wsUrl(`/api/containers/${encodeURIComponent(id)}/logs/stream?endpoint=${encodeURIComponent(endpoint)}&tail=400`));
+    const ws = new WebSocket(wsUrl(`/api/containers/${encodeURIComponent(id)}/logs/stream?endpoint=${encodeURIComponent(endpoint)}&tail=${tail}`));
 
     ws.onmessage = (ev) => {
       let msg: ServerLogMessage;
@@ -49,7 +50,7 @@ export function LogViewer({ endpoint, id, name }: { endpoint: string; id: string
     ws.onclose = () => setState((s) => (s === 'open' || s === 'connecting' ? 'ended' : s));
 
     return () => ws.close();
-  }, [endpoint, id]);
+  }, [endpoint, id, tail]);
 
   useLayoutEffect(() => {
     if (follow && scrollRef.current) {
@@ -78,6 +79,18 @@ export function LogViewer({ endpoint, id, name }: { endpoint: string; id: string
     <div className="relative flex h-full flex-col overflow-hidden rounded-lg border border-border bg-bg-sunken">
       <div className="flex items-center gap-2 border-b border-border bg-surface px-3 py-2">
         <ConnBadge state={state} />
+        <label className="ml-3 flex items-center gap-1.5 text-[11px] text-muted">
+          <span className="hidden sm:inline">{t('logs.tail')}</span>
+          <select
+            value={tail}
+            onChange={(e) => setTail(Number(e.target.value))}
+            className="rounded-md border border-border bg-surface px-1.5 py-1 text-[12px] text-ink outline-none"
+          >
+            {[100, 400, 1000, 2000, 5000].map((n) => (
+              <option key={n} value={n}>{n}</option>
+            ))}
+          </select>
+        </label>
         <div className="ml-auto flex items-center gap-1">
           <ToolBtn active={wrap} onClick={() => setWrap((w) => !w)} title={t('logs.wrap')}>
             <WrapText className="h-4 w-4" />

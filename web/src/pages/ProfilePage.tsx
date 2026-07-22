@@ -34,7 +34,7 @@ export function ProfilePage() {
 
   return (
     <Page>
-      <PageHeader eyebrow={t('app.name')} title={t('profile.title')} subtitle={t('profile.subtitle')} />
+      <PageHeader eyebrow={t('app.name')} title={t('profile.title')} />
 
       <div className="mb-5 flex gap-1 border-b border-border">
         {TABS.map((tb) => (

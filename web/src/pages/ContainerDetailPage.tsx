@@ -23,7 +23,7 @@ const ExecConsole = lazy(() =>
 );
 import { ApiError } from '../lib/api';
 import { absoluteTime, relativeTime } from '../lib/time';
-import { shortId, cn } from '../lib/utils';
+import { shortId, cn, portHref } from '../lib/utils';
 
 type Tab = 'overview' | 'logs' | 'stats' | 'console' | 'inspect';
 const TABS: Tab[] = ['overview', 'logs', 'stats', 'console', 'inspect'];
@@ -276,16 +276,4 @@ function Overview({
       )}
     </div>
   );
-}
-
-/**
- * Baut den anklickbaren Link zu einem veröffentlichten Port. Host = die spezifische
- * Bind-IP (falls öffentlich), sonst der Endpoint-Host (Remote) bzw. der Host, über den
- * der Browser Containly erreicht (lokal). Nur TCP + veröffentlichte Ports werden verlinkt.
- */
-function portHref(p: { ip?: string; publicPort?: number; type: string }, endpointHost: string | null): string | null {
-  if (!p.publicPort || p.type !== 'tcp') return null;
-  const bind = p.ip && !['0.0.0.0', '::', '', '127.0.0.1', '::1'].includes(p.ip) ? p.ip : null;
-  const host = bind ?? endpointHost ?? (typeof window !== 'undefined' ? window.location.hostname : 'localhost');
-  return `http://${host}:${p.publicPort}`;
 }

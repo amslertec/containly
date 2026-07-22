@@ -159,7 +159,11 @@ export function StacksPage() {
       <PageHeader
         eyebrow={t('app.name')}
         title={t('stacks.title')}
-        subtitle={t('stacks.subtitle')}
+        subtitle={
+          scoped.length > 0
+            ? `${scoped.length} ${t('stacks.title').toLowerCase()} · ${scoped.reduce((n, s) => n + s.containerNames.length, 0)} ${t('nav.containers').toLowerCase()}`
+            : undefined
+        }
         actions={
           isAdmin &&
           hasPaths && (

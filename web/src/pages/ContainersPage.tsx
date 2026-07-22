@@ -36,7 +36,7 @@ import { Pagination } from '../components/ui/Pagination';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { toast } from '../components/Toaster';
 import { api, ApiError } from '../lib/api';
-import { shortId, cn } from '../lib/utils';
+import { shortId, cn, portHref } from '../lib/utils';
 
 type Filter = 'all' | 'running' | 'stopped';
 type Row = ContainerSummary & ScopedItem;
@@ -60,11 +60,12 @@ const SORT: Record<string, (c: Row) => string | number> = {
 
 export function ContainersPage() {
   const { t } = useTranslation();
-  const { isAll, setSelected } = useEndpoints();
+  const { isAll, setSelected, endpoints } = useEndpoints();
+  const hostById = useMemo(() => new Map(endpoints.map((e) => [e.id, e.host ?? null])), [endpoints]);
   const { isAdmin } = useAuth();
   const qc = useQueryClient();
   const updates = useUpdateFlags();
-  const { data, isLoading, isFetching, isError, error, refetch } = useScopedList<
+  const { data, isLoading, isError, error, refetch } = useScopedList<
     ContainerSummary,
     { containers: ContainerSummary[] }
   >('containers', (d) => d.containers, 5000);
@@ -74,6 +75,7 @@ export function ContainersPage() {
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
   const [picked, setPicked] = useState<Set<string>>(new Set());
+  const [spin, setSpin] = useState(false);
   const rowKey = (c: Row): string => `${c._endpointId}:${c.id}`;
 
   // Sortierung + Spaltenbreiten, in localStorage gemerkt (bleiben beim nächsten Öffnen).
@@ -227,8 +229,16 @@ export function ContainersPage() {
           data ? `${counts.running} ${t('containers.filterRunning').toLowerCase()} · ${counts.total} ${t('containers.title').toLowerCase()}` : undefined
         }
         actions={
-          <Button variant="secondary" size="sm" onClick={() => void refetch()} disabled={isFetching}>
-            <RefreshCw className={cn('h-4 w-4', isFetching && 'animate-spin')} />
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => {
+              setSpin(true);
+              void refetch();
+              window.setTimeout(() => setSpin(false), 600);
+            }}
+          >
+            <RefreshCw className={cn('h-4 w-4', spin && 'animate-spin')} />
             {t('common.refresh')}
           </Button>
         }
@@ -374,7 +384,7 @@ export function ContainersPage() {
                         <span className="block truncate text-[13px] text-muted tabular">{c.status}</span>
                       </td>
                       <td className="overflow-hidden py-2.5 pl-2 pr-3">
-                        <PortList container={c} />
+                        <PortList container={c} endpointHost={hostById.get(c._endpointId) ?? null} />
                       </td>
                       <td className="whitespace-nowrap py-2.5 pr-4">
                         <div className="flex items-center justify-end gap-1">
@@ -538,17 +548,38 @@ function MenuItem({
   );
 }
 
-function PortList({ container }: { container: ContainerSummary }) {
+function PortList({ container, endpointHost }: { container: ContainerSummary; endpointHost: string | null }) {
   const published = container.ports.filter((p) => p.publicPort);
   if (published.length === 0) return <span className="text-faint">—</span>;
-  const unique = Array.from(new Set(published.map((p) => `${p.publicPort}:${p.privatePort}`)));
+  // Nach publicPort deduplizieren, aber das Port-Objekt (ip/type) für den Link behalten.
+  const seen = new Set<number>();
+  const unique = published.filter((p) => {
+    if (seen.has(p.publicPort!)) return false;
+    seen.add(p.publicPort!);
+    return true;
+  });
   return (
-    <div className="flex flex-wrap gap-1">
-      {unique.slice(0, 3).map((p) => (
-        <span key={p} className="rounded bg-surface-2 px-1.5 py-0.5 font-mono text-[11px] text-muted">
-          {p}
-        </span>
-      ))}
+    <div className="flex flex-wrap gap-1" onClick={(e) => e.stopPropagation()}>
+      {unique.slice(0, 3).map((p) => {
+        const label = `${p.publicPort}:${p.privatePort}`;
+        const href = portHref(p, endpointHost);
+        return href ? (
+          <a
+            key={p.publicPort}
+            href={href}
+            target="_blank"
+            rel="noreferrer"
+            title={href}
+            className="rounded bg-surface-2 px-1.5 py-0.5 font-mono text-[11px] text-primary hover:bg-primary-soft"
+          >
+            {label}
+          </a>
+        ) : (
+          <span key={p.publicPort} className="rounded bg-surface-2 px-1.5 py-0.5 font-mono text-[11px] text-muted">
+            {label}
+          </span>
+        );
+      })}
       {unique.length > 3 && <span className="text-[11px] text-faint">+{unique.length - 3}</span>}
     </div>
   );

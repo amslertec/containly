@@ -116,6 +116,11 @@ export function VolumesPage() {
       <PageHeader
         eyebrow={t('app.name')}
         title={t('volumes.title')}
+        subtitle={
+          data.length > 0
+            ? `${data.filter((v) => v.inUse).length} ${t('volumes.inUse').toLowerCase()} · ${data.filter((v) => !v.inUse).length} ${t('volumes.orphan').toLowerCase()} · ${data.length} ${t('volumes.title').toLowerCase()}`
+            : undefined
+        }
         actions={
           isAdmin &&
           !isAll && (

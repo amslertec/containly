@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.22] — 2026-07-22
+
+### Added
+
+- **Published ports are clickable on the Containers list too** (not just the detail
+  page) — they open `http://<host>:<port>` in a new tab.
+- **Log line count is now selectable** in a container's Logs tab (100 / 400 / 1000 /
+  2000 / 5000), Portainer-style.
+- **Count summaries** under the page title on **Volumes** (in-use · orphaned · total),
+  **Stacks** (stacks · containers) and **Endpoints** (online · offline · total), like
+  the Containers page already had.
+
+### Changed
+
+- Removed the now-redundant descriptive blurbs under the title on the **Stacks**,
+  **Endpoints** and **Profile** pages (replaced by the count summaries where relevant).
+- Reworded the image-prune confirmation so it no longer reads as a question mid-sentence.
+
+### Fixed
+
+- **Settings tab bar** no longer scrolls a couple of pixels vertically (the active
+  underline caused a tiny overflow); it's horizontal-only now.
+- **Containers "Refresh" button** no longer flickers every few seconds — the spinner
+  now only runs on a manual click, not on the automatic background refresh.
+
 ## [0.1.21] — 2026-07-22
 
 ### Fixed
@@ -416,7 +441,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.21...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.22...HEAD
+[0.1.22]: https://github.com/amslertec/containly/compare/v0.1.21...v0.1.22
 [0.1.21]: https://github.com/amslertec/containly/compare/v0.1.20...v0.1.21
 [0.1.20]: https://github.com/amslertec/containly/compare/v0.1.19...v0.1.20
 [0.1.19]: https://github.com/amslertec/containly/compare/v0.1.18...v0.1.19

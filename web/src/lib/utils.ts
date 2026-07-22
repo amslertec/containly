@@ -18,6 +18,21 @@ export function shortId(id: string): string {
   return id.replace(/^sha256:/, '').slice(0, 12);
 }
 
+/**
+ * Anklickbarer Link zu einem veröffentlichten Port. Host = spezifische Bind-IP (falls
+ * öffentlich), sonst der Endpoint-Host (Remote) bzw. der Host, über den der Browser
+ * Containly erreicht (lokal). Nur TCP + veröffentlichte Ports werden verlinkt.
+ */
+export function portHref(
+  p: { ip?: string; publicPort?: number; type: string },
+  endpointHost: string | null,
+): string | null {
+  if (!p.publicPort || p.type !== 'tcp') return null;
+  const bind = p.ip && !['0.0.0.0', '::', '', '127.0.0.1', '::1'].includes(p.ip) ? p.ip : null;
+  const host = bind ?? endpointHost ?? (typeof window !== 'undefined' ? window.location.hostname : 'localhost');
+  return `http://${host}:${p.publicPort}`;
+}
+
 export function formatPercent(value: number, digits = 1): string {
   return `${value.toFixed(digits)} %`;
 }
