@@ -22,6 +22,7 @@ import {
 import { Wordmark } from '../components/Logo';
 import { EndpointSwitcher } from '../components/EndpointSwitcher';
 import { CommandPalette } from '../components/CommandPalette';
+import { NotificationBell } from '../components/NotificationBell';
 import { PullToRefresh } from '../components/PullToRefresh';
 import { UpdateModal } from '../components/UpdateModal';
 import { LangToggle, ThemeToggle } from '../components/ThemeLangControls';
@@ -94,13 +95,16 @@ export function AppShell() {
       >
         <div className="flex items-center justify-between px-4 py-4">
           <Wordmark subtitle={t('app.tagline')} />
-          <button
-            className="text-muted hover:text-ink lg:hidden"
-            onClick={() => setMobileOpen(false)}
-            aria-label={t('common.close')}
-          >
-            <X className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-1">
+            <NotificationBell />
+            <button
+              className="text-muted hover:text-ink lg:hidden"
+              onClick={() => setMobileOpen(false)}
+              aria-label={t('common.close')}
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
         <div className="px-3 pb-2">
@@ -147,6 +151,9 @@ export function AppShell() {
             <Menu className="h-5 w-5 text-muted" />
           </button>
           <Wordmark />
+          <div className="ml-auto">
+            <NotificationBell />
+          </div>
         </header>
         <main className="min-w-0 flex-1 overflow-hidden">
           <PullToRefresh className="h-full overflow-y-auto">

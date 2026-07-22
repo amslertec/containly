@@ -27,18 +27,32 @@ export function EndpointSwitcher() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { endpoints, selected, isAll, setSelected, current } = useEndpoints();
-  // Nur auf der Endpoint-Übersicht (/endpoints/:id) wird beim Wechsel navigiert;
-  // sonst bleibt man auf der aktuellen Seite und nur der Inhalt wechselt.
-  const onOverview = useRouterState({ select: (s) => s.location.pathname.startsWith('/endpoints/') });
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const onOverview = pathname.startsWith('/endpoints/');
+
+  // Detailseiten (/containers/:id, /stacks/:id) gehören zu EINEM Host. Wechselt man den
+  // Endpoint, existiert das Objekt dort nicht → zurück zur jeweiligen Liste.
+  const detailListRoute = (): string | null => {
+    if (/^\/containers\/[^/]+$/.test(pathname)) return '/containers';
+    if (/^\/stacks\/[^/]+$/.test(pathname)) return '/stacks';
+    return null;
+  };
+
+  const afterSwitch = (): void => {
+    const list = detailListRoute();
+    if (list) void navigate({ to: list });
+  };
 
   const openEndpoint = (id: string): void => {
     setSelected(id);
     if (onOverview) void navigate({ to: '/endpoints/$id', params: { id } });
+    else afterSwitch();
   };
 
   const openAll = (): void => {
     setSelected(ALL_HOSTS);
     if (onOverview) void navigate({ to: '/' });
+    else afterSwitch();
   };
 
   return (

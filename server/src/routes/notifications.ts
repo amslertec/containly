@@ -10,12 +10,25 @@ import {
   listNotificationSettings,
   updateNotificationSetting,
 } from '../services/notifications.js';
-import { currentUser, requireAdmin } from '../plugins/auth.js';
+import { getFeed, markFeedRead } from '../services/inapp.js';
+import { currentUser, requireAdmin, requireAuth } from '../plugins/auth.js';
 import { getUserById } from '../services/users.js';
 import { audit } from '../services/audit.js';
 import { Errors } from '../errors.js';
 
 export async function notificationRoutes(app: FastifyInstance): Promise<void> {
+  // In-App-Feed (alle angemeldeten Benutzer): letzte Ereignisse + Ungelesen-Zähler.
+  app.get('/api/notifications/feed', { preHandler: requireAuth }, async (req) => {
+    const { items, unread } = getFeed(currentUser(req).userId);
+    return { items, unread };
+  });
+
+  // Feed als gelesen markieren.
+  app.post('/api/notifications/feed/read', { preHandler: requireAuth }, async (req) => {
+    markFeedRead(currentUser(req).userId);
+    return { ok: true as const };
+  });
+
   // SMTP-Konfiguration (ohne Passwort) lesen.
   app.get('/api/notifications/smtp', { preHandler: requireAdmin }, async () => getSmtpConfig());
 

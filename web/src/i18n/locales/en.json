@@ -479,7 +479,10 @@
     "noImages": "No images present",
     "reclaimable": "Reclaimable",
     "totalSize": "Total size",
-    "unused": "Unused"
+    "unused": "Unused",
+    "untag": "Remove tag",
+    "untagConfirm": "Remove tag \"{{name}}\"? (The image stays if it has other tags/containers.)",
+    "untagged": "Tag removed: {{name}}"
   },
   "volumes": {
     "title": "Volumes",
@@ -848,5 +851,10 @@
     "command": "Command",
     "size": "Size",
     "oldest": "Oldest layer: {{when}}"
+  },
+  "feed": {
+    "title": "Notifications",
+    "markRead": "Mark all read",
+    "empty": "No notifications"
   }
 }

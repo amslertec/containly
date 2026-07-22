@@ -234,6 +234,28 @@ const migrations: Migration[] = [
       );
     `,
   },
+  {
+    version: 13,
+    name: 'inapp_notifications',
+    up: `
+      -- In-App-Benachrichtigungs-Feed (globale Ereignisse; Lese-Status pro Benutzer).
+      CREATE TABLE notifications_feed (
+        id         INTEGER PRIMARY KEY AUTOINCREMENT,
+        type       TEXT NOT NULL,          -- Benachrichtigungstyp (z. B. 'endpoint.offline')
+        severity   TEXT NOT NULL,          -- 'info' | 'warning' | 'critical'
+        target     TEXT NOT NULL DEFAULT '', -- betroffener Name (Container/Endpoint/Image)
+        detail     TEXT NOT NULL DEFAULT '',
+        link       TEXT NOT NULL DEFAULT '', -- interne Ziel-Route (z. B. '/containers')
+        created_at INTEGER NOT NULL          -- epoch ms
+      );
+      CREATE INDEX idx_feed_created ON notifications_feed(created_at);
+      -- Lese-Status je Benutzer (Zeitpunkt, bis zu dem alles gelesen ist).
+      CREATE TABLE notification_reads (
+        user_id      INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+        last_read_at INTEGER NOT NULL DEFAULT 0
+      );
+    `,
+  },
 ];
 
 export function runMigrations(db: Database): void {

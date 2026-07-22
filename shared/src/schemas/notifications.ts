@@ -95,3 +95,21 @@ export const NotificationSettingInputSchema = z.object({
   recipients: z.array(z.number().int()),
 });
 export type NotificationSettingInput = z.infer<typeof NotificationSettingInputSchema>;
+
+/* ── In-App-Benachrichtigungs-Feed ───────────────────────────────────────── */
+export const FeedItemSchema = z.object({
+  id: z.number(),
+  type: z.enum(NOTIFICATION_TYPES),
+  severity: z.enum(['info', 'warning', 'critical']),
+  target: z.string(),
+  detail: z.string(),
+  link: z.string(),
+  createdAt: z.number(), // epoch ms
+});
+export type FeedItem = z.infer<typeof FeedItemSchema>;
+
+export const FeedResponseSchema = z.object({
+  items: z.array(FeedItemSchema),
+  unread: z.number(),
+});
+export type FeedResponse = z.infer<typeof FeedResponseSchema>;

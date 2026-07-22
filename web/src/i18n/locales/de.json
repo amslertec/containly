@@ -479,7 +479,10 @@
     "noImages": "Keine Images vorhanden",
     "reclaimable": "Freigebbar",
     "totalSize": "Gesamtgröße",
-    "unused": "Ungenutzt"
+    "unused": "Ungenutzt",
+    "untag": "Tag entfernen",
+    "untagConfirm": "Tag „{{name}}\" entfernen? (Das Image bleibt, wenn es weitere Tags/Container hat.)",
+    "untagged": "Tag entfernt: {{name}}"
   },
   "volumes": {
     "title": "Volumes",
@@ -850,5 +853,10 @@
     "command": "Befehl",
     "size": "Größe",
     "oldest": "Ältester Layer: {{when}}"
+  },
+  "feed": {
+    "title": "Benachrichtigungen",
+    "markRead": "Alle gelesen",
+    "empty": "Keine Benachrichtigungen"
   }
 }

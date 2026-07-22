@@ -9,8 +9,25 @@ import {
 import { db } from '../db/index.js';
 import { usersWithEmail } from './users.js';
 import { sendNotificationEmail } from './mailer.js';
+import { addFeedItem } from './inapp.js';
 import type { EmailContent } from './email-template.js';
 import { logger } from '../logger.js';
+
+// Interne Ziel-Route je Typ (für den Klick in der In-App-Benachrichtigung).
+const LINK: Record<NotificationType, string> = {
+  'endpoint.offline': '/endpoints',
+  'endpoint.online': '/endpoints',
+  'container.exited': '/containers',
+  'container.unhealthy': '/containers',
+  'container.oom': '/containers',
+  'container.restart_loop': '/containers',
+  'image.update': '/updates',
+  'containly.update': '/settings',
+  'vuln.critical': '/images',
+  'perf.cpu': '/containers',
+  'perf.memory': '/containers',
+  'host.disk': '/endpoints',
+};
 
 /**
  * Verwaltet die Benachrichtigungs-Einstellungen je Typ (aktiv, Schwellwert, Empfänger)
@@ -120,22 +137,30 @@ export async function notify(type: NotificationType, payload: NotifyPayload): Pr
   const now = Date.now();
   const prev = lastSent.get(cooldownKey);
   if (prev && now - prev < COOLDOWN_MS) return;
+  lastSent.set(cooldownKey, now);
 
+  // 1) In-App-Feed IMMER schreiben (auch ohne SMTP/Empfänger). Ziel/Detail aus der
+  //    Render-Ausgabe ableiten (Werte sind Namen/Zahlen → weitgehend sprachneutral).
+  try {
+    const { content } = payload.render('en');
+    const target = content.rows[0]?.value ?? '';
+    const detail = content.rows.slice(1).map((r) => r.value).join(' · ');
+    addFeedItem({ type, severity: content.severity, target, detail, link: LINK[type] ?? '' });
+  } catch (err) {
+    logger.debug({ err, type }, 'In-App-Benachrichtigung konnte nicht geschrieben werden');
+  }
+
+  // 2) E-Mail an die aufgelösten Empfänger je Sprache (falls konfiguriert).
   const byLang = resolveRecipientsByLang(setting);
-  if (byLang.size === 0) return;
-
-  let anySent = false;
   for (const [lang, emails] of byLang) {
     if (emails.length === 0) continue;
     const { subject, content } = payload.render(lang);
     try {
       await sendNotificationEmail(emails, subject, content);
-      anySent = true;
     } catch (err) {
       logger.warn({ err, type, lang }, 'Benachrichtigung konnte nicht gesendet werden');
     }
   }
-  if (anySent) lastSent.set(cooldownKey, now);
 }
 
 /** Cooldown für einen Schlüssel zurücksetzen (z. B. wenn ein Problem behoben ist). */

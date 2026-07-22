@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.26] — 2026-07-22
+
+### Added
+
+- **In-app notification centre.** A bell icon in the header shows recent events
+  (endpoint offline, container down/unhealthy/OOM, updates available, new critical
+  CVEs, high CPU/RAM, low disk …) with an unread badge and a dropdown, so you see
+  warnings **without** needing SMTP configured. The background monitor now writes every
+  event to this feed in addition to sending email. Read state is per user.
+- **Remove individual image tags.** Each tag on the Images page now has an ✕ to untag
+  it (the image stays if it still has other tags/containers), in addition to removing
+  the whole image.
+
+### Fixed
+
+- **Switching endpoint while viewing a container/stack detail no longer errors.** The
+  detail belongs to one host, so on switching you now land back on the list instead of
+  seeing "No such container" for an object that doesn't exist on the other host.
+
 ## [0.1.25] — 2026-07-22
 
 ### Fixed
@@ -484,7 +503,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.25...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.26...HEAD
+[0.1.26]: https://github.com/amslertec/containly/compare/v0.1.25...v0.1.26
 [0.1.25]: https://github.com/amslertec/containly/compare/v0.1.24...v0.1.25
 [0.1.24]: https://github.com/amslertec/containly/compare/v0.1.23...v0.1.24
 [0.1.23]: https://github.com/amslertec/containly/compare/v0.1.22...v0.1.23

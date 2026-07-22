@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
-import { ArrowUpCircle, Download, Layers as LayersIcon, Search, ShieldHalf, Tag as TagIcon, Trash2 } from 'lucide-react';
+import { ArrowUpCircle, Download, Layers as LayersIcon, Search, ShieldHalf, Tag as TagIcon, Trash2, X } from 'lucide-react';
 import type { ImageSummary, PruneResult } from '@containly/shared';
 import { useEndpoints } from '../app/EndpointContext';
 import { useAuth } from '../app/AuthContext';
@@ -156,6 +156,28 @@ export function ImagesPage() {
     }
   };
 
+  // Einen einzelnen Tag entfernen (untag). Nur wenn es der letzte Tag ist + in Verwendung
+  // ist `force` nötig — sonst reicht das reine Ent-Taggen.
+  const doRemoveTag = async (img: Row, tag: string): Promise<void> => {
+    const ok = await confirm({
+      title: t('images.untag'),
+      description: t('images.untagConfirm', { name: tag }),
+      danger: true,
+      confirmLabel: t('images.untag'),
+    });
+    if (!ok) return;
+    const force = img.repoTags.length <= 1 && img.containers > 0;
+    try {
+      await api.delete(
+        `/api/images?endpoint=${encodeURIComponent(img._endpointId)}&ref=${encodeURIComponent(tag)}&force=${force}`,
+      );
+      invalidate(img._endpointId);
+      toast.success(t('images.untagged', { name: tag }));
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : t('common.error'));
+    }
+  };
+
   const doPrune = async (): Promise<void> => {
     if (isAll) return;
     const ok = await confirm({
@@ -252,7 +274,21 @@ export function ImagesPage() {
                   <div className="flex flex-wrap items-center gap-1.5">
                     {img.repoTags.length > 0 ? (
                       img.repoTags.map((tg) => (
-                        <span key={tg} className="font-mono text-[12.5px] text-ink">{tg}</span>
+                        <span
+                          key={tg}
+                          className="group/tag inline-flex items-center gap-1 rounded bg-surface-2 px-1.5 py-0.5 font-mono text-[12.5px] text-ink"
+                        >
+                          {tg}
+                          {isAdmin && (
+                            <button
+                              title={t('images.untag')}
+                              onClick={() => void doRemoveTag(img, tg)}
+                              className="text-faint opacity-0 transition-opacity hover:text-danger group-hover/tag:opacity-100"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          )}
+                        </span>
                       ))
                     ) : (
                       <Badge tone="warn">{t('images.dangling')}</Badge>
