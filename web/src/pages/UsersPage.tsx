@@ -18,6 +18,7 @@ import { usePagination } from '../hooks/usePagination';
 import { Pagination } from '../components/ui/Pagination';
 import { toast } from '../components/Toaster';
 import { ApiError } from '../lib/api';
+import { copyText } from '../lib/utils';
 import { relativeTime } from '../lib/time';
 
 export function UsersPage() {
@@ -304,7 +305,9 @@ function AddUserDialog({
 
   const copyLink = (): void => {
     if (!inviteLink) return;
-    void navigator.clipboard.writeText(inviteLink.url).then(() => toast.success(t('invites.copied')));
+    void copyText(inviteLink.url).then((ok) =>
+      ok ? toast.success(t('invites.copied')) : toast.error(t('common.error')),
+    );
   };
 
   return (

@@ -36,3 +36,34 @@ export function portHref(
 export function formatPercent(value: number, digits = 1): string {
   return `${value.toFixed(digits)} %`;
 }
+
+/**
+ * Kopiert Text in die Zwischenablage — robust auch außerhalb sicherer Kontexte.
+ * `navigator.clipboard` gibt es nur unter HTTPS/localhost; über http://<LAN-IP> ist es
+ * `undefined`. Fällt dann auf das (deprecated, aber überall unterstützte) execCommand
+ * mit temporärem Textarea zurück. Liefert true bei Erfolg.
+ */
+export async function copyText(text: string): Promise<boolean> {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch {
+    /* fällt auf execCommand zurück */
+  }
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    return ok;
+  } catch {
+    return false;
+  }
+}

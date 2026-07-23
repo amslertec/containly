@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.31] — 2026-07-23
+
+### Fixed
+
+- **Copy-to-clipboard buttons did nothing over plain HTTP.** The browser's Clipboard API is
+  only available in secure contexts (HTTPS or localhost), so copying the invite link or 2FA
+  recovery codes silently failed when accessing Containly via `http://<LAN-IP>`. Copying now
+  falls back to a `execCommand`-based method and reports success/failure via a toast.
+
 ## [0.1.30] — 2026-07-23
 
 ### Added

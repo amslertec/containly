@@ -26,7 +26,7 @@ import { LoadingState } from '../components/States';
 import { toast } from '../components/Toaster';
 import { api, ApiError } from '../lib/api';
 import { relativeTime } from '../lib/time';
-import { cn } from '../lib/utils';
+import { cn, copyText } from '../lib/utils';
 
 type Tab = 'account' | 'password' | 'security';
 const TABS: Tab[] = ['account', 'password', 'security'];
@@ -375,8 +375,10 @@ function RecoveryCodes({ codes, onDone }: { codes: string[]; onDone: () => void 
   const text = codes.join('\n');
 
   const copy = (): void => {
-    void navigator.clipboard.writeText(text);
-    toast.success(t('common.copied'));
+    void copyText(text).then((ok) => {
+      if (ok) toast.success(t('common.copied'));
+      else toast.error(t('common.error'));
+    });
   };
   const download = (): void => {
     const blob = new Blob([`Containly 2FA Recovery Codes\n\n${text}\n`], { type: 'text/plain' });
