@@ -37,6 +37,11 @@ export function setUserEmail(id: number, email: string): void {
   db.prepare('UPDATE users SET email = ? WHERE id = ?').run(email.trim() || null, id);
 }
 
+/** Setzt die Rolle eines Benutzers. */
+export function setUserRole(id: number, role: Role): void {
+  db.prepare('UPDATE users SET role = ? WHERE id = ?').run(role, id);
+}
+
 /** Alle Benutzer mit einer E-Mail-Adresse (für die Empfänger-Auflösung, inkl. Sprache). */
 export function usersWithEmail(): { id: number; email: string; role: Role; language: Locale }[] {
   return (

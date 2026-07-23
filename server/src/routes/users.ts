@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { CreateUserSchema, UpdateUserEmailSchema } from '@containly/shared';
+import { CreateUserSchema, UpdateUserEmailSchema, UpdateUserRoleSchema } from '@containly/shared';
 import {
   adminCount,
   createUser,
@@ -9,6 +9,7 @@ import {
   getUserRowByUsername,
   listUsers,
   setUserEmail,
+  setUserRole,
 } from '../services/users.js';
 import { destroyAllUserSessions } from '../services/sessions.js';
 import { currentUser, requireAdmin } from '../plugins/auth.js';
@@ -38,6 +39,23 @@ export async function userRoutes(app: FastifyInstance): Promise<void> {
     if (!target) throw Errors.notFound('Benutzer nicht gefunden');
     setUserEmail(id, email);
     audit({ userId: ctx.userId, username: ctx.username, action: 'user.email', target: target.username, ip: req.ip });
+    return { user: getUserById(id) };
+  });
+
+  // Rolle eines Benutzers ändern (Admin ↔ Viewer).
+  app.put('/api/users/:id/role', { preHandler: requireAdmin }, async (req) => {
+    const ctx = currentUser(req);
+    const { id } = IdParams.parse(req.params);
+    const { role } = UpdateUserRoleSchema.parse(req.body);
+    const target = getUserById(id);
+    if (!target) throw Errors.notFound('Benutzer nicht gefunden');
+    // Eigene Rolle kann NIE geändert werden (verhindert Selbst-Degradierung/Aussperrung).
+    if (id === ctx.userId) throw Errors.badRequest('Die eigene Rolle kann nicht geändert werden');
+    // Letzten Admin nicht degradieren — sonst gibt es keinen Administrator mehr.
+    if (target.role === 'admin' && role !== 'admin' && adminCount() <= 1)
+      throw Errors.badRequest('Der letzte Administrator kann nicht herabgestuft werden');
+    setUserRole(id, role);
+    audit({ userId: ctx.userId, username: ctx.username, action: 'user.role', target: target.username, detail: { role }, ip: req.ip });
     return { user: getUserById(id) };
   });
 

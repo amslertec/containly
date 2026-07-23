@@ -62,6 +62,11 @@ export function useUserMutations() {
         api.put<{ user: User }>(`/api/users/${id}/email`, { email }),
       onSuccess: invalidate,
     }),
+    setRole: useMutation({
+      mutationFn: ({ id, role }: { id: number; role: Role }) =>
+        api.put<{ user: User }>(`/api/users/${id}/role`, { role }),
+      onSuccess: invalidate,
+    }),
   };
 }
 

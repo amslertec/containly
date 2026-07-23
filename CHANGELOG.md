@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.32] — 2026-07-23
+
+### Added
+
+- **Per-endpoint overview page.** A new "Overview" entry at the top of the sidebar shows an
+  endpoint-specific summary of the currently selected endpoint only (not a cross-host
+  dashboard): Docker version/host, running/total containers, images, volumes, networks,
+  stacks, CPU cores, memory, available updates and images with critical CVEs, plus a
+  warnings list and the endpoint's containers. Choosing "All endpoints" shows a hint to
+  pick a specific one.
+- **Change a user's role inline.** An admin can now edit an existing user's role by clicking
+  the role badge (same interaction as editing the email) and picking Admin/Viewer. You
+  cannot change your own role, and the last remaining admin cannot be demoted.
+
 ## [0.1.31] — 2026-07-23
 
 ### Fixed

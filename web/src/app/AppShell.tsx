@@ -7,6 +7,7 @@ import {
   Boxes,
   HardDrive,
   Layers,
+  LayoutDashboard,
   LayoutGrid,
   LogOut,
   Menu,
@@ -38,6 +39,7 @@ interface NavItem {
 }
 
 const nav: NavItem[] = [
+  { to: '/overview', labelKey: 'nav.dashboard', icon: <LayoutDashboard className="h-4 w-4" /> },
   { to: '/containers', labelKey: 'nav.containers', icon: <Boxes className="h-4 w-4" /> },
   { to: '/images', labelKey: 'nav.images', icon: <Layers className="h-4 w-4" /> },
   { to: '/volumes', labelKey: 'nav.volumes', icon: <HardDrive className="h-4 w-4" /> },

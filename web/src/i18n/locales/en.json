@@ -352,7 +352,12 @@
     "criticalCves": "{{count}} images with critical vulnerabilities",
     "topRestarts": "Most restarts",
     "restarts": "{{count}} restarts",
-    "noRestarts": "No notable restarts"
+    "noRestarts": "No notable restarts",
+    "volumes": "Volumes",
+    "networks": "Networks",
+    "stacks": "Stacks",
+    "updatesShort": "Updates",
+    "criticalShort": "Critical CVEs"
   },
   "containers": {
     "title": "Containers",
@@ -632,7 +637,8 @@
     "emailPlaceholder": "name@example.com",
     "emailSet": "Email saved",
     "noEmail": "—",
-    "addUserDirect": "Create directly"
+    "addUserDirect": "Create directly",
+    "roleUpdated": "Role updated"
   },
   "roles": {
     "viewerNotice": "Read-only account: changes are disabled.",
@@ -927,5 +933,8 @@
     "expires": "Expires",
     "revoke": "Revoke",
     "revokeConfirm": "Revoke the invitation for {{email}}? The link will stop working."
+  },
+  "overview": {
+    "selectEndpoint": "The overview is per endpoint — please pick a specific endpoint above."
   }
 }

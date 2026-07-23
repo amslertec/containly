@@ -107,9 +107,7 @@ export function UsersPage() {
                 <EmailCell user={u} setEmail={mut.setEmail} />
               </Td>
               <Td>
-                <Badge tone={u.role === 'admin' ? 'primary' : 'neutral'}>
-                  {u.role === 'admin' ? t('settings.roleAdmin') : t('settings.roleViewer')}
-                </Badge>
+                <RoleCell user={u} setRole={mut.setRole} canEdit={u.id !== user?.id} />
               </Td>
               <Td>
                 <span className="text-muted">{relativeTime(u.createdAt.replace(' ', 'T') + 'Z')}</span>
@@ -171,6 +169,77 @@ export function UsersPage() {
       <AddUserDialog open={addOpen} onClose={() => setAddOpen(false)} onCreate={mut.create} />
       <ConfirmDialog {...dialogProps} loading={mut.remove.isPending} />
     </Page>
+  );
+}
+
+/** Rolle inline bearbeiten — Klick auf das Badge → Auswahl, Änderung speichert sofort.
+    Die eigene Rolle (canEdit=false) ist nie änderbar → Anzeige als reines Badge. */
+function RoleCell({
+  user,
+  setRole,
+  canEdit,
+}: {
+  user: User;
+  setRole: ReturnType<typeof useUserMutations>['setRole'];
+  canEdit: boolean;
+}) {
+  const { t } = useTranslation();
+  const [editing, setEditing] = useState(false);
+
+  const roleBadge = (
+    <Badge tone={user.role === 'admin' ? 'primary' : 'neutral'}>
+      {user.role === 'admin' ? t('settings.roleAdmin') : t('settings.roleViewer')}
+    </Badge>
+  );
+
+  if (!canEdit) return roleBadge;
+
+  const save = async (role: Role): Promise<void> => {
+    if (role === user.role) {
+      setEditing(false);
+      return;
+    }
+    try {
+      await setRole.mutateAsync({ id: user.id, role });
+      toast.success(t('settings.roleUpdated'));
+      setEditing(false);
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : t('common.error'));
+    }
+  };
+
+  if (editing) {
+    return (
+      <div className="flex items-center gap-1.5">
+        <Select
+          value={user.role}
+          onChange={(v) => void save(v as Role)}
+          className="h-8 min-w-[130px]"
+          options={[
+            { value: 'viewer', label: t('settings.roleViewer') },
+            { value: 'admin', label: t('settings.roleAdmin') },
+          ]}
+        />
+        <button
+          title={t('common.cancel')}
+          onClick={() => setEditing(false)}
+          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-surface-2 hover:text-ink"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <button
+      onClick={() => setEditing(true)}
+      title={t('common.edit')}
+      className="group inline-flex items-center gap-1.5 rounded-md text-left"
+    >
+      {roleBadge}
+      <Pencil className="h-3 w-3 text-faint opacity-0 transition-opacity group-hover:opacity-100" />
+    </button>
   );
 }
 

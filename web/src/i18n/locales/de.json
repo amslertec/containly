@@ -352,7 +352,12 @@
     "criticalCves": "{{count}} Images mit kritischen Lücken",
     "topRestarts": "Häufigste Neustarts",
     "restarts": "{{count}} Neustarts",
-    "noRestarts": "Keine auffälligen Neustarts"
+    "noRestarts": "Keine auffälligen Neustarts",
+    "volumes": "Volumes",
+    "networks": "Netzwerke",
+    "stacks": "Stacks",
+    "updatesShort": "Updates",
+    "criticalShort": "Kritische CVEs"
   },
   "containers": {
     "title": "Container",
@@ -632,7 +637,8 @@
     "emailPlaceholder": "name@example.com",
     "emailSet": "E-Mail gespeichert",
     "noEmail": "—",
-    "addUserDirect": "Direkt anlegen"
+    "addUserDirect": "Direkt anlegen",
+    "roleUpdated": "Rolle aktualisiert"
   },
   "roles": {
     "viewerNotice": "Nur-Lesen-Konto: Änderungen sind deaktiviert.",
@@ -929,5 +935,8 @@
     "expires": "Läuft ab",
     "revoke": "Widerrufen",
     "revokeConfirm": "Einladung für {{email}} widerrufen? Der Link wird ungültig."
+  },
+  "overview": {
+    "selectEndpoint": "Die Übersicht gilt pro Endpoint — bitte oben einen Endpoint wählen."
   }
 }

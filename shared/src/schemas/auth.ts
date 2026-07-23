@@ -186,6 +186,10 @@ export type PendingInvite = z.infer<typeof PendingInviteSchema>;
 export const UpdateUserEmailSchema = z.object({ email: EmailSchema });
 export type UpdateUserEmail = z.infer<typeof UpdateUserEmailSchema>;
 
+/** Aktualisierung der Rolle eines Benutzers (Admin). */
+export const UpdateUserRoleSchema = z.object({ role: RoleSchema });
+export type UpdateUserRole = z.infer<typeof UpdateUserRoleSchema>;
+
 export const ChangePasswordSchema = z.object({
   currentPassword: z.string().min(1).max(200),
   newPassword: PasswordSchema,

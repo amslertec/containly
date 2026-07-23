@@ -6,6 +6,7 @@ import {
 } from '@tanstack/react-router';
 import { AppShell } from './AppShell';
 import { DashboardPage } from '../pages/DashboardPage';
+import { OverviewPage } from '../pages/OverviewPage';
 import { ContainersPage } from '../pages/ContainersPage';
 import { ContainerDetailPage } from '../pages/ContainerDetailPage';
 import { ImagesPage } from '../pages/ImagesPage';
@@ -24,6 +25,7 @@ const rootRoute = createRootRoute({ component: AppShell });
 
 const routes = [
   createRoute({ getParentRoute: () => rootRoute, path: '/', component: DashboardPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/overview', component: OverviewPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/containers', component: ContainersPage }),
   createRoute({
     getParentRoute: () => rootRoute,
