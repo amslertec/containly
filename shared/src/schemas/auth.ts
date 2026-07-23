@@ -42,6 +42,8 @@ export const LoginRequestSchema = z.object({
   // Benutzername ODER E-Mail-Adresse.
   username: z.string().min(1).max(255),
   password: z.string().min(1).max(200),
+  // „Eingeloggt bleiben": lange Session, kein Idle-Timeout.
+  rememberMe: z.boolean().optional().default(false),
 });
 export type LoginRequest = z.infer<typeof LoginRequestSchema>;
 

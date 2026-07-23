@@ -17,26 +17,30 @@ function hashToken(token: string): string {
 }
 
 const insertStmt = db.prepare(
-  `INSERT INTO sessions (id, user_id, csrf_token, created_at, expires_at, last_seen, user_agent, ip)
-   VALUES (@id, @userId, @csrf, @created, @expires, @lastSeen, @ua, @ip)`,
+  `INSERT INTO sessions (id, user_id, csrf_token, created_at, expires_at, last_seen, user_agent, ip, remember)
+   VALUES (@id, @userId, @csrf, @created, @expires, @lastSeen, @ua, @ip, @remember)`,
 );
 
 export function createSession(
   userId: number,
   meta: { userAgent?: string; ip?: string },
+  remember = false,
 ): { token: string; csrfToken: string } {
   const token = randomBytes(32).toString('base64url');
   const csrfToken = randomBytes(32).toString('base64url');
   const now = Date.now();
+  // „Eingeloggt bleiben": lange TTL statt 12h, und Idle-Timeout ausgesetzt (siehe validateSession).
+  const ttl = remember ? config.sessionRememberMs : config.sessionTtlMs;
   insertStmt.run({
     id: hashToken(token),
     userId,
     csrf: csrfToken,
     created: now,
-    expires: now + config.sessionTtlMs,
+    expires: now + ttl,
     lastSeen: now,
     ua: meta.userAgent ?? null,
     ip: meta.ip ?? null,
+    remember: remember ? 1 : 0,
   });
   return { token, csrfToken };
 }
@@ -47,6 +51,7 @@ interface SessionRow {
   csrf_token: string;
   expires_at: number;
   last_seen: number;
+  remember: number;
 }
 
 /**
@@ -60,7 +65,10 @@ export function validateSession(token: string): SessionContext | null {
   if (!row) return null;
 
   const now = Date.now();
-  if (now > row.expires_at || now - row.last_seen > config.sessionIdleMs) {
+  // Absolutes Ablaufdatum gilt immer; das Idle-Timeout NUR für normale Sessions —
+  // „eingeloggt bleiben" (remember=1) wird nicht wegen Inaktivität beendet.
+  const idleExpired = row.remember === 0 && now - row.last_seen > config.sessionIdleMs;
+  if (now > row.expires_at || idleExpired) {
     db.prepare('DELETE FROM sessions WHERE id = ?').run(id);
     return null;
   }
@@ -146,8 +154,9 @@ export function destroyOtherUserSessions(userId: number, keepToken: string): voi
 /** Aufräumen abgelaufener Sessions (periodisch aufgerufen). */
 export function pruneSessions(): number {
   const now = Date.now();
+  // Abgelaufene immer entfernen; per Idle nur normale Sessions (remember=0).
   const info = db
-    .prepare('DELETE FROM sessions WHERE expires_at < ? OR last_seen < ?')
+    .prepare('DELETE FROM sessions WHERE expires_at < ? OR (remember = 0 AND last_seen < ?)')
     .run(now, now - config.sessionIdleMs);
   return info.changes;
 }

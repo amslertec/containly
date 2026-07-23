@@ -40,3 +40,7 @@ Logos/README.txt
 
 # Docker Hub repo overview (paste manually; not for git/image)
 DOCKERHUB.md
+
+# Native Android-App + Design-Spec: privat, NICHT auf GitHub
+clients/
+docs/superpowers/

@@ -237,7 +237,8 @@
     "hidePassword": "Hide password",
     "confirmPasswordLabel": "Confirm password",
     "passwordMismatch": "Passwords do not match",
-    "loginIdentifier": "Username or email"
+    "loginIdentifier": "Username or email",
+    "rememberMe": "Stay logged in"
   },
   "setup": {
     "title": "Set up Containly",

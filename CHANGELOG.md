@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.36] — 2026-07-23
+
+### Added
+
+- **"Stay logged in" on the login page.** A checkbox on the login form keeps you signed in:
+  the session then lasts 30 days and is exempt from the 2-hour idle timeout, so you are no
+  longer logged out automatically. Without it, the previous behaviour applies (12-hour
+  session, 2-hour idle). The choice is carried through the 2FA step (encoded in the signed
+  ticket) and the session cookie is persisted accordingly. Sessions store a `remember` flag
+  (migration v18).
+
 ## [0.1.35] — 2026-07-23
 
 ### Added

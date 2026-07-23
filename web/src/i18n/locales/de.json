@@ -237,7 +237,8 @@
     "hidePassword": "Passwort verbergen",
     "confirmPasswordLabel": "Passwort bestätigen",
     "passwordMismatch": "Passwörter stimmen nicht überein",
-    "loginIdentifier": "Benutzername oder E-Mail"
+    "loginIdentifier": "Benutzername oder E-Mail",
+    "rememberMe": "Eingeloggt bleiben"
   },
   "setup": {
     "title": "Containly einrichten",

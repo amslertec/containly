@@ -16,3 +16,7 @@ certs
 .idea
 README.md
 DOCKERHUB.md
+
+# Private native Android-App + Design-Spec: nie in den Docker-Build-Context
+clients
+docs

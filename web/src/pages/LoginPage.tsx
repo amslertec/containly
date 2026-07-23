@@ -6,6 +6,7 @@ import { useAuth } from '../app/AuthContext';
 import { AuthLayout } from './AuthLayout';
 import { Button } from '../components/ui/Button';
 import { Input, Label } from '../components/ui/primitives';
+import { Checkbox } from '../components/ui/Checkbox';
 
 type LoginResponse =
   | { user: User; csrfToken: string }
@@ -16,6 +17,7 @@ export function LoginPage() {
   const { applyAuth } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [remember, setRemember] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [ticket, setTicket] = useState<string | null>(null);
@@ -26,7 +28,11 @@ export function LoginPage() {
     setError(null);
     setLoading(true);
     try {
-      const res = await api.post<LoginResponse>('/api/auth/login', { username, password });
+      const res = await api.post<LoginResponse>('/api/auth/login', {
+        username,
+        password,
+        rememberMe: remember,
+      });
       if ('twoFactorRequired' in res) {
         setTicket(res.ticket);
         setLoading(false);
@@ -136,6 +142,11 @@ export function LoginPage() {
             required
           />
         </div>
+
+        <label className="flex cursor-pointer items-center gap-2 text-sm text-muted select-none">
+          <Checkbox checked={remember} onChange={() => setRemember((v) => !v)} aria-label={t('auth.rememberMe')} />
+          {t('auth.rememberMe')}
+        </label>
 
         {error && (
           <p className="rounded-md border border-danger-soft bg-danger-soft/50 px-3 py-2 text-sm text-danger">

@@ -51,23 +51,28 @@ import { Errors } from '../errors.js';
 /* ── Kurzlebiges 2FA-Ticket (stateless, HMAC-signiert) ─────────────────────── */
 const TICKET_TTL_MS = 5 * 60_000;
 
-function signTicket(userId: number): string {
+function signTicket(userId: number, remember: boolean): string {
   const exp = Date.now() + TICKET_TTL_MS;
-  const sig = createHmac('sha256', getSessionSecret()).update(`2fa.${userId}.${exp}`).digest('base64url');
-  return `${userId}.${exp}.${sig}`;
+  const rem = remember ? '1' : '0';
+  const sig = createHmac('sha256', getSessionSecret())
+    .update(`2fa.${userId}.${exp}.${rem}`)
+    .digest('base64url');
+  return `${userId}.${exp}.${rem}.${sig}`;
 }
 
-function verifyTicket(ticket: string): number | null {
+function verifyTicket(ticket: string): { userId: number; remember: boolean } | null {
   const parts = ticket.split('.');
-  if (parts.length !== 3) return null;
-  const [uid, exp, sig] = parts as [string, string, string];
-  const expected = createHmac('sha256', getSessionSecret()).update(`2fa.${uid}.${exp}`).digest('base64url');
+  if (parts.length !== 4) return null;
+  const [uid, exp, rem, sig] = parts as [string, string, string, string];
+  const expected = createHmac('sha256', getSessionSecret())
+    .update(`2fa.${uid}.${exp}.${rem}`)
+    .digest('base64url');
   const a = Buffer.from(sig);
   const b = Buffer.from(expected);
   if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
   if (Date.now() > Number(exp)) return null;
   const id = Number(uid);
-  return Number.isInteger(id) ? id : null;
+  return Number.isInteger(id) ? { userId: id, remember: rem === '1' } : null;
 }
 
 /** Prüft einen Login-Code gegen TOTP oder — falls kein Treffer — Recovery-Codes. */
@@ -89,12 +94,18 @@ async function verifySecondFactor(userId: number, code: string): Promise<boolean
   return false;
 }
 
-export function issueSession(reply: FastifyReply, req: FastifyRequest, userId: number) {
-  const { token, csrfToken } = createSession(userId, {
-    userAgent: req.headers['user-agent'],
-    ip: req.ip,
-  });
-  setSessionCookie(reply, token);
+export function issueSession(
+  reply: FastifyReply,
+  req: FastifyRequest,
+  userId: number,
+  remember = false,
+) {
+  const { token, csrfToken } = createSession(
+    userId,
+    { userAgent: req.headers['user-agent'], ip: req.ip },
+    remember,
+  );
+  setSessionCookie(reply, token, remember);
   return { user: getUserById(userId), csrfToken };
 }
 
@@ -129,12 +140,13 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
       }
 
       // 2FA aktiv → noch keine Session; zweiter Schritt via Ticket erforderlich.
+      // Die „eingeloggt bleiben"-Wahl wird ins signierte Ticket kodiert.
       if (row.totp_enabled === 1) {
-        return { twoFactorRequired: true as const, ticket: signTicket(row.id) };
+        return { twoFactorRequired: true as const, ticket: signTicket(row.id, body.rememberMe) };
       }
 
       audit({ userId: row.id, username: row.username, action: 'login', ip: req.ip });
-      return issueSession(reply, req, row.id);
+      return issueSession(reply, req, row.id, body.rememberMe);
     },
   );
 
@@ -144,8 +156,9 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     { config: { rateLimit: { max: 10, timeWindow: '5 minutes' } } },
     async (req, reply) => {
       const body = LoginTwoFactorSchema.parse(req.body);
-      const userId = verifyTicket(body.ticket);
-      if (userId === null) throw Errors.unauthorized('Sitzung abgelaufen — bitte erneut anmelden');
+      const ticket = verifyTicket(body.ticket);
+      if (ticket === null) throw Errors.unauthorized('Sitzung abgelaufen — bitte erneut anmelden');
+      const { userId, remember } = ticket;
       const row = getUserRowById(userId);
       if (!row) throw Errors.unauthorized();
 
@@ -154,7 +167,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
         throw Errors.unauthorized('Code ungültig');
       }
       audit({ userId, username: row.username, action: 'login', ip: req.ip });
-      return issueSession(reply, req, userId);
+      return issueSession(reply, req, userId, remember);
     },
   );
 

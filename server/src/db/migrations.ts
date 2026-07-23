@@ -326,6 +326,15 @@ const migrations: Migration[] = [
       );
     `,
   },
+  {
+    version: 18,
+    name: 'session_remember',
+    up: `
+      -- „Eingeloggt bleiben": Sessions mit remember=1 haben eine lange Lebensdauer und
+      -- sind vom Idle-Timeout ausgenommen (kein automatisches Ausloggen bei Inaktivität).
+      ALTER TABLE sessions ADD COLUMN remember INTEGER NOT NULL DEFAULT 0;
+    `,
+  },
 ];
 
 export function runMigrations(db: Database): void {

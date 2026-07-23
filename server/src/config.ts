@@ -60,6 +60,7 @@ export const config = {
   webRoot: resolve(process.env.CONTAINLY_WEB_ROOT ?? '../web/dist'),
   sessionTtlMs: 1000 * 60 * 60 * 12, // 12h
   sessionIdleMs: 1000 * 60 * 60 * 2, // 2h Inaktivität
+  sessionRememberMs: 1000 * 60 * 60 * 24 * 30, // 30 Tage bei „eingeloggt bleiben" (kein Idle)
 } as const;
 
 export type Config = typeof config;

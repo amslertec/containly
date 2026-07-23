@@ -14,14 +14,15 @@ declare module 'fastify' {
   }
 }
 
-/** Setzt das Session-Cookie mit sicheren Flags. */
-export function setSessionCookie(reply: FastifyReply, token: string): void {
+/** Setzt das Session-Cookie mit sicheren Flags. `remember` = lange, persistente Gültigkeit. */
+export function setSessionCookie(reply: FastifyReply, token: string, remember = false): void {
+  const ttlMs = remember ? config.sessionRememberMs : config.sessionTtlMs;
   reply.setCookie(SESSION_COOKIE, token, {
     httpOnly: true,
     secure: config.secureCookies,
     sameSite: 'strict',
     path: '/',
-    maxAge: Math.floor(config.sessionTtlMs / 1000),
+    maxAge: Math.floor(ttlMs / 1000),
   });
 }
 
