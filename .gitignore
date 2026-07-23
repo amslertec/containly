@@ -44,3 +44,17 @@ DOCKERHUB.md
 # Native Android-App + Design-Spec: privat, NICHT auf GitHub
 clients/
 docs/superpowers/
+
+# ── Closed-Source: Quellcode + Build-Tooling bleiben LOKAL, nie auf GitHub ──
+/server/
+/web/
+/shared/
+/scripts/
+/.github/
+/Dockerfile
+/package.json
+/package-lock.json
+/tsconfig.base.json
+/eslint.config.js
+/.prettierrc.json
+/.npmrc
