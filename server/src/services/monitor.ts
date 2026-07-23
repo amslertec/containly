@@ -1,5 +1,6 @@
 import type { Locale, NotificationType } from '@containly/shared';
 import { config } from '../config.js';
+import { db } from '../db/index.js';
 import { listEndpoints } from '../docker/endpoints.js';
 import { getDocker } from '../docker/endpoints.js';
 import { listContainers, parseStats } from '../docker/containers.js';
@@ -373,22 +374,39 @@ async function checkDisk(endpoint: string, endpointName: string): Promise<void> 
 
 /* ── Update-/Containly-/Vuln-Hooks (ereignisgesteuert, nicht im Tick) ─────── */
 
-// Bereits gemeldete Image-Updates (endpoint:image), damit nicht bei jeder 6-h-Prüfung
-// erneut gemailt wird. Fällt das Update weg (angewendet), wird der Eintrag entfernt →
-// ein künftiges Update meldet erneut.
-const notifiedUpdates = new Set<string>();
+// Bereits gemeldete Image-Updates werden PERSISTENT in `notified_updates` gehalten
+// (endpoint+image → zuletzt gemeldeter Digest). So wird nach einem Neustart NICHT erneut
+// gemailt, und ein neuer Digest meldet erneut. Fällt das Update weg (angewendet), wird
+// der Eintrag entfernt → ein künftiges Update meldet wieder.
+const selectNotified = db.prepare(
+  'SELECT digest FROM notified_updates WHERE endpoint = ? AND image = ?',
+);
+const upsertNotified = db.prepare(
+  `INSERT INTO notified_updates (endpoint, image, digest, notified_at) VALUES (?, ?, ?, ?)
+   ON CONFLICT(endpoint, image) DO UPDATE SET digest = excluded.digest, notified_at = excluded.notified_at`,
+);
+const deleteNotified = db.prepare('DELETE FROM notified_updates WHERE endpoint = ? AND image = ?');
 
-/** Meldet neu verfügbare Image-Updates eines Endpoints (einmalig je Update). */
+/**
+ * Meldet neu verfügbare Image-Updates eines Endpoints — einmalig je (Image, Digest),
+ * persistent über Neustarts hinweg. Wird sowohl vom Hintergrund-Check als auch bei der
+ * On-Demand-Prüfung (/api/updates) aufgerufen → die Mail geht raus, sobald ein Update
+ * erkannt wird, nicht erst beim nächsten 6-h-Zyklus oder nach einem Neustart.
+ */
 export async function notifyImageUpdates(
   endpoint: string,
   endpointName: string,
-  items: { image: string; updateAvailable: boolean }[],
+  items: { image: string; updateAvailable: boolean; latestDigest?: string | null }[],
 ): Promise<void> {
   for (const it of items) {
     const key = `${endpoint}:${it.image}`;
     if (it.updateAvailable) {
-      if (notifiedUpdates.has(key)) continue;
-      notifiedUpdates.add(key);
+      // Digest als Dedup-Schlüssel; fehlt er, ersatzweise ein Marker, damit trotzdem
+      // genau einmal gemeldet wird.
+      const digest = it.latestDigest ?? 'available';
+      const row = selectNotified.get(endpoint, it.image) as { digest: string } | undefined;
+      if (row?.digest === digest) continue; // exakt dieses Update schon gemeldet
+      upsertNotified.run(endpoint, it.image, digest, Date.now());
       await notify('image.update', {
         key,
         render: (lang) => ({
@@ -407,7 +425,7 @@ export async function notifyImageUpdates(
         }),
       });
     } else {
-      notifiedUpdates.delete(key);
+      deleteNotified.run(endpoint, it.image);
     }
   }
 }

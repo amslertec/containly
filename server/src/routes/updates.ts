@@ -4,6 +4,7 @@ import { ListQuerySchema } from '@containly/shared';
 import { checkUpdates } from '../docker/updates.js';
 import { applyImageUpdate } from '../docker/resources.js';
 import { getBulkJob, startBulkUpdate } from '../services/update-jobs.js';
+import { notifyImageUpdates } from '../services/monitor.js';
 import { getEndpoint } from '../docker/endpoints.js';
 import { currentUser, requireAdmin, requireAuth } from '../plugins/auth.js';
 import { audit } from '../services/audit.js';
@@ -14,9 +15,13 @@ const QuerySchema = ListQuerySchema.extend({ refresh: z.coerce.boolean().default
 export async function updateRoutes(app: FastifyInstance): Promise<void> {
   app.get('/api/updates', { preHandler: requireAuth }, async (req) => {
     const { endpoint, refresh } = QuerySchema.parse(req.query);
-    if (!getEndpoint(endpoint)) throw Errors.notFound(`Endpoint nicht gefunden: ${endpoint}`);
+    const ep = getEndpoint(endpoint);
+    if (!ep) throw Errors.notFound(`Endpoint nicht gefunden: ${endpoint}`);
     try {
-      return await checkUpdates(endpoint, refresh);
+      const res = await checkUpdates(endpoint, refresh);
+      // Bei Erkennung sofort melden (persistent dedupliziert) — nicht erst im 6-h-Zyklus.
+      void notifyImageUpdates(endpoint, ep.name, res.items);
+      return res;
     } catch (err) {
       if (err instanceof AppError) throw err;
       throw fromDockerError(err);

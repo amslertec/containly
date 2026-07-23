@@ -310,6 +310,22 @@ const migrations: Migration[] = [
       );
     `,
   },
+  {
+    version: 17,
+    name: 'notified_updates',
+    up: `
+      -- Gemeldete Image-Updates PERSISTENT (überlebt Neustarts): je Endpoint+Image der
+      -- zuletzt gemeldete Registry-Digest. Verhindert erneutes Melden nach Restart und
+      -- meldet erst wieder, wenn ein NEUERER Digest verfügbar ist.
+      CREATE TABLE notified_updates (
+        endpoint    TEXT NOT NULL,
+        image       TEXT NOT NULL,
+        digest      TEXT NOT NULL,
+        notified_at INTEGER NOT NULL,
+        PRIMARY KEY (endpoint, image)
+      );
+    `,
+  },
 ];
 
 export function runMigrations(db: Database): void {

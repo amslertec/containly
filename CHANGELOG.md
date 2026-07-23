@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.34] — 2026-07-23
+
+### Fixed
+
+- **Image-update emails arrived after applying an update instead of when it was first
+  detected.** The "already notified" state was kept only in memory, so it reset on every
+  restart — and applying an update (especially a Containly self-update) restarts the
+  server, after which the background check re-sent emails for all still-pending updates.
+  The notified state is now persisted per endpoint+image with the registry digest
+  (migration v17), so a restart no longer re-sends, and an image is re-notified only when
+  a genuinely newer digest appears. Detection also notifies immediately now: the on-demand
+  update check (`/api/updates`, used by the dashboard/updates page) sends the email as soon
+  as an update is seen, rather than waiting for the 6-hourly background cycle.
+
 ## [0.1.33] — 2026-07-23
 
 ### Changed
