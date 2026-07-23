@@ -28,6 +28,7 @@ import { PullToRefresh } from '../components/PullToRefresh';
 import { UpdateModal } from '../components/UpdateModal';
 import { LangToggle, ThemeToggle } from '../components/ThemeLangControls';
 import { useAuth } from './AuthContext';
+import { useEndpoints } from './EndpointContext';
 import { cn } from '../lib/utils';
 
 interface NavItem {
@@ -55,6 +56,7 @@ const nav: NavItem[] = [
 export function AppShell() {
   const { t } = useTranslation();
   const { isAdmin } = useAuth();
+  const { isAll } = useEndpoints();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [cmdkOpen, setCmdkOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -71,7 +73,10 @@ export function AppShell() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  const items = nav.filter((item) => !item.admin || isAdmin);
+  // Die Übersicht gilt pro Endpoint → bei „Alle Hosts" den Eintrag ausblenden.
+  const items = nav.filter(
+    (item) => (!item.admin || isAdmin) && !(item.to === '/overview' && isAll),
+  );
   const isActive = (item: NavItem): boolean =>
     item.exact ? pathname === item.to : pathname.startsWith(item.to);
 

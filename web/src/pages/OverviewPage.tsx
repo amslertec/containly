@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -141,15 +141,13 @@ export function OverviewPage() {
   );
   const pg = usePagination(sorted, 10);
 
-  // „Alle Endpoints" gewählt → die Übersicht gilt pro Endpoint.
-  if (isAll) {
-    return (
-      <Page>
-        <PageHeader eyebrow={t('nav.dashboard')} title={t('nav.dashboard')} />
-        <EmptyState icon={<Server className="h-8 w-8" />} title={t('overview.selectEndpoint')} hint="" />
-      </Page>
-    );
-  }
+  // „Alle Endpoints" gewählt → die Übersicht gilt pro Endpoint; auf das globale
+  // Dashboard (/) umleiten, auch wenn man gerade auf dieser Seite ist.
+  useEffect(() => {
+    if (isAll) void navigate({ to: '/' });
+  }, [isAll, navigate]);
+  if (isAll) return null;
+
   if (!endpoint) {
     return (
       <Page>

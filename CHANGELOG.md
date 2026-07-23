@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.33] — 2026-07-23
+
+### Changed
+
+- **Overview follows the selected endpoint more naturally.** The sidebar "Overview" entry is
+  hidden while "All endpoints" is selected (the overview is per-endpoint); switching to
+  "All endpoints" now redirects to the global dashboard (`/`), even from the overview page.
+- **Clicking a host on the global dashboard opens that endpoint's overview.** The host cards
+  on `/` now select that endpoint (also in the connection switcher) and open its overview
+  page, instead of going to the endpoints list.
+
 ## [0.1.32] — 2026-07-23
 
 ### Added

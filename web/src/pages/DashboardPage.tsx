@@ -259,7 +259,7 @@ export function DashboardPage() {
         <span className="eyebrow">{t('endpoint.title')}</span>
         <div className="mt-2 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {endpoints.map((e) => (
-            <HostCard key={e.id} endpoint={e} info={infoById.get(e.id)} />
+            <HostCard key={e.id} endpoint={e} info={infoById.get(e.id)} onSelect={setSelected} />
           ))}
         </div>
       </div>
@@ -316,7 +316,15 @@ function AttentionRow({
   );
 }
 
-function HostCard({ endpoint, info }: { endpoint: Endpoint; info?: HostInfo['info'] }) {
+function HostCard({
+  endpoint,
+  info,
+  onSelect,
+}: {
+  endpoint: Endpoint;
+  info?: HostInfo['info'];
+  onSelect: (id: string) => void;
+}) {
   const { t } = useTranslation();
   const statusColor =
     endpoint.status === 'online'
@@ -324,8 +332,9 @@ function HostCard({ endpoint, info }: { endpoint: Endpoint; info?: HostInfo['inf
       : endpoint.status === 'unauthorized'
         ? 'var(--w-danger)'
         : 'var(--w-stop)';
+  // Klick wählt den Endpoint aus (auch im Verbindungs-Switcher) und öffnet dessen Übersicht.
   return (
-    <Link to="/endpoints/$id" params={{ id: endpoint.id }}>
+    <Link to="/overview" onClick={() => onSelect(endpoint.id)}>
       <Card className="p-4 transition-colors hover:border-border-strong">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
