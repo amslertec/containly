@@ -11,6 +11,8 @@ import { getStackFs, removeHelper, type StackFs } from './stack-fs.js';
 
 const COMPOSE_FILES = ['docker-compose.yml', 'docker-compose.yaml', 'compose.yml', 'compose.yaml'];
 const DEFAULT_COMPOSE = 'docker-compose.yml';
+/** Unterordner je Stack-Pfad, in den archivierte Stacks verschoben werden. */
+const ARCHIVE_DIR = 'ARCHIV';
 
 /* ── Stack-ID: kodiert Endpoint + Projektverzeichnis ──────────────────────── */
 function encodeId(endpoint: string, dir: string): string {
@@ -41,18 +43,30 @@ interface ResolvedStack {
   fs: StackFs;
 }
 
-/** Prüft, dass `dir` ein legitimes Projekt unter einem der Endpoint-Pfade ist. */
-async function resolveStack(id: string): Promise<ResolvedStack> {
+/**
+ * Prüft, dass `dir` ein legitimes Projekt unter einem der Endpoint-Pfade ist.
+ * `allowArchive` erlaubt zusätzlich Projekte unter `<stackPath>/ARCHIV/` (für
+ * Wiederherstellen/Löschen archivierter Stacks).
+ */
+async function resolveStackAt(id: string, allowArchive: boolean): Promise<ResolvedStack> {
   const { endpoint, dir } = decodeId(id);
   const ep = getEndpoint(endpoint);
   if (!ep) throw new Error('Endpoint nicht gefunden');
   const abs = resolve(dir);
+  const parent = resolve(dirname(abs));
   const allowed = ep.stackPaths.map((p) => resolve(p));
-  if (!allowed.includes(resolve(dirname(abs)))) throw new Error('Pfad nicht erlaubt');
+  const inStackPath = allowed.includes(parent);
+  const inArchive =
+    allowArchive && basename(parent) === ARCHIVE_DIR && allowed.includes(resolve(dirname(parent)));
+  if (!inStackPath && !inArchive) throw new Error('Pfad nicht erlaubt');
   const fs = getStackFs(endpoint);
   const st = await fs.stat(abs);
   if (!st || !st.isDir) throw new Error('Projekt nicht gefunden');
   return { endpoint, dir: abs, name: basename(abs), fs };
+}
+
+async function resolveStack(id: string): Promise<ResolvedStack> {
+  return resolveStackAt(id, false);
 }
 
 /** Laufzeit-Status über die Compose-Labels der Container des Ziel-Endpoints. */
@@ -172,6 +186,7 @@ async function scanEndpoint(ep: ReturnType<typeof listEndpoints>[number]): Promi
       continue;
     }
     for (const p of projects) {
+      if (p.name === ARCHIVE_DIR) continue; // Archiv-Ordner nie als Stack listen
       const dir = join(baseAbs, p.name);
       const st = idx.get(projectName(p.name));
       out.push({
@@ -267,8 +282,73 @@ export async function saveStackContent(id: string, content: string): Promise<voi
 }
 
 export async function deleteStack(id: string): Promise<void> {
-  const { dir, fs } = await resolveStack(id);
+  // allowArchive: derselbe Endpoint löscht normale UND archivierte Stacks.
+  const { dir, fs } = await resolveStackAt(id, true);
   await fs.remove(dir);
+}
+
+/** Verschiebt einen (gestoppten) Stack nach `<stackPath>/ARCHIV/<name>`. */
+export async function archiveStack(id: string): Promise<void> {
+  const { dir, fs } = await resolveStack(id); // nur echte Stacks im Stack-Pfad
+  const archiveDir = join(dirname(dir), ARCHIVE_DIR);
+  const dst = join(archiveDir, basename(dir));
+  if (await fs.stat(dst)) throw new Error('Im Archiv existiert bereits ein Stack mit diesem Namen');
+  await fs.mkdirp(archiveDir);
+  await fs.move(dir, dst);
+}
+
+/** Verschiebt einen archivierten Stack zurück in den Stack-Pfad. */
+export async function unarchiveStack(id: string): Promise<void> {
+  const { dir, fs } = await resolveStackAt(id, true);
+  const parent = dirname(dir);
+  if (basename(parent) !== ARCHIVE_DIR) throw new Error('Stack ist nicht archiviert');
+  const dst = join(dirname(parent), basename(dir)); // zurück in den Stack-Pfad
+  if (await fs.stat(dst)) throw new Error('Im Stacks-Pfad existiert bereits ein Stack mit diesem Namen');
+  await fs.move(dir, dst);
+}
+
+/** Scannt `<stackPath>/ARCHIV/` je Endpoint nach archivierten Stacks. */
+async function scanArchivedEndpoint(
+  ep: ReturnType<typeof listEndpoints>[number],
+): Promise<StackSummary[]> {
+  if (ep.stackPaths.length === 0) return [];
+  const fs = getStackFs(ep.id);
+  const idx = await buildStatusIndex(ep.id);
+  const out: StackSummary[] = [];
+  for (const base of ep.stackPaths) {
+    const archiveAbs = join(resolve(base), ARCHIVE_DIR);
+    let projects;
+    try {
+      projects = await fs.scanProjects(archiveAbs);
+    } catch {
+      continue;
+    }
+    for (const p of projects) {
+      const dir = join(archiveAbs, p.name);
+      const st = idx.get(projectName(p.name));
+      out.push({
+        id: encodeId(ep.id, dir),
+        name: p.name,
+        endpoint: ep.id,
+        endpointName: ep.name,
+        status: st?.status ?? 'stopped',
+        services: st?.services ?? 0,
+        running: st?.running ?? 0,
+        path: join(dir, p.composeFile),
+        updatedAt: p.mtime,
+        containerNames: st?.containerNames ?? [],
+        images: st?.images ?? [],
+      });
+    }
+  }
+  return out;
+}
+
+export async function listArchivedStacks(): Promise<StackSummary[]> {
+  const perEndpoint = await Promise.all(listEndpoints().map((ep) => scanArchivedEndpoint(ep)));
+  const out = perEndpoint.flat();
+  out.sort((a, b) => a.endpointName.localeCompare(b.endpointName) || a.name.localeCompare(b.name));
+  return out;
 }
 
 /* ── Datei-Operationen innerhalb eines Projektordners ─────────────────────── */

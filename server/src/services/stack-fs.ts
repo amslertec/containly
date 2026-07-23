@@ -36,6 +36,8 @@ export interface StackFs {
   writeFile(path: string, content: string): Promise<void>;
   mkdirp(dir: string): Promise<void>;
   remove(path: string): Promise<void>;
+  /** Verschiebt/benennt einen Pfad um (mv). */
+  move(src: string, dst: string): Promise<void>;
   /** `docker compose` im Projektordner — läuft nativ auf dem Ziel-Host. */
   compose(dir: string, project: string, composeFile: string, args: string[]): Promise<string>;
   /** Wie `compose`, aber streamt die Ausgabe live (onData) und liefert den Exit-Code. */
@@ -341,6 +343,11 @@ class RemoteFs implements StackFs {
   async remove(path: string): Promise<void> {
     const { exit, stderr } = await execInHelper(this.endpoint, ['rm', '-rf', path]);
     if (exit !== 0) throw new Error(stderr.trim() || 'Löschen fehlgeschlagen');
+  }
+
+  async move(src: string, dst: string): Promise<void> {
+    const { exit, stderr } = await execInHelper(this.endpoint, ['mv', src, dst]);
+    if (exit !== 0) throw new Error(stderr.trim() || 'Verschieben fehlgeschlagen');
   }
 
   compose(dir: string, project: string, composeFile: string, args: string[]): Promise<string> {

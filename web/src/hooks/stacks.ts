@@ -11,6 +11,17 @@ export function useStacks() {
   });
 }
 
+/** Archivierte Stacks (in `<stackPath>/ARCHIV/`); nur laden, wenn die Ansicht offen ist. */
+export function useArchivedStacks(enabled: boolean) {
+  return useQuery({
+    queryKey: ['stacks', 'archived'],
+    queryFn: () => api.get<{ stacks: StackSummary[] }>('/api/stacks/archived'),
+    select: (d) => d.stacks,
+    enabled,
+    refetchInterval: enabled ? 10_000 : false,
+  });
+}
+
 export function useStack(id: string | null) {
   return useQuery({
     queryKey: ['stack', id],
@@ -88,6 +99,14 @@ export function useStackMutations() {
     }),
     remove: useMutation({
       mutationFn: (id: string) => api.delete(`/api/stacks/${id}`),
+      onSuccess: () => invalidate(),
+    }),
+    archive: useMutation({
+      mutationFn: (id: string) => api.post(`/api/stacks/${id}/archive`),
+      onSuccess: () => invalidate(),
+    }),
+    unarchive: useMutation({
+      mutationFn: (id: string) => api.post(`/api/stacks/${id}/unarchive`),
       onSuccess: () => invalidate(),
     }),
   };

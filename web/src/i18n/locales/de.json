@@ -591,7 +591,15 @@
     "opRunning": "Wird ausgeführt …",
     "opDone": "Erfolgreich abgeschlossen.",
     "deleteFolder": "Ordner löschen",
-    "deleteFolderConfirm": "Ordner „{{name}}“ samt gesamtem Inhalt unwiderruflich löschen?"
+    "deleteFolderConfirm": "Ordner „{{name}}“ samt gesamtem Inhalt unwiderruflich löschen?",
+    "archive": "Archivieren",
+    "unarchive": "Zurück in Stacks-Pfad",
+    "showArchive": "Archiv anzeigen",
+    "showActive": "Aktive anzeigen",
+    "archived": "Stack archiviert",
+    "unarchived": "Stack zurück im Stacks-Pfad",
+    "archiveConfirm": "Stack „{{name}}“ ins Archiv verschieben? Er wird in den ARCHIV-Ordner verschoben und aus der Liste ausgeblendet.",
+    "noArchived": "Keine archivierten Stacks"
   },
   "audit": {
     "title": "Audit-Log",
@@ -935,8 +943,5 @@
     "expires": "Läuft ab",
     "revoke": "Widerrufen",
     "revokeConfirm": "Einladung für {{email}} widerrufen? Der Link wird ungültig."
-  },
-  "overview": {
-    "selectEndpoint": "Die Übersicht gilt pro Endpoint — bitte oben einen Endpoint wählen."
   }
 }

@@ -9,15 +9,18 @@ import {
   StackIdSchema,
 } from '@containly/shared';
 import {
+  archiveStack,
   createStack,
   deleteStack,
   deleteStackFile,
   deployStack,
   downStack,
   getStack,
+  listArchivedStacks,
   listStackDir,
   listStacks,
   readComposeContent,
+  unarchiveStack,
   readStackFile,
   saveStackContent,
   stackAction,
@@ -151,6 +154,42 @@ export async function stackRoutes(app: FastifyInstance): Promise<void> {
       throw Errors.badRequest(err instanceof Error ? err.message : 'Löschen fehlgeschlagen');
     }
     audit({ userId: ctx.userId, username: ctx.username, action: 'stack.delete', ip: req.ip });
+    return { ok: true as const };
+  });
+
+  /* ── Archiv ───────────────────────────────────────────────────────────── */
+  // Archivierte Stacks (in `<stackPath>/ARCHIV/`).
+  app.get('/api/stacks/archived', { preHandler: requireAuth }, async () => {
+    try {
+      return { stacks: await listArchivedStacks() };
+    } catch (err) {
+      stackError(err);
+    }
+  });
+
+  // Stack ins Archiv verschieben.
+  app.post('/api/stacks/:id/archive', { preHandler: requireAdmin }, async (req) => {
+    const ctx = currentUser(req);
+    const { id } = IdParams.parse(req.params);
+    try {
+      await archiveStack(id);
+    } catch (err) {
+      throw Errors.badRequest(err instanceof Error ? err.message : 'Archivieren fehlgeschlagen');
+    }
+    audit({ userId: ctx.userId, username: ctx.username, action: 'stack.archive', ip: req.ip });
+    return { ok: true as const };
+  });
+
+  // Archivierten Stack zurück in den Stack-Pfad verschieben.
+  app.post('/api/stacks/:id/unarchive', { preHandler: requireAdmin }, async (req) => {
+    const ctx = currentUser(req);
+    const { id } = IdParams.parse(req.params);
+    try {
+      await unarchiveStack(id);
+    } catch (err) {
+      throw Errors.badRequest(err instanceof Error ? err.message : 'Wiederherstellen fehlgeschlagen');
+    }
+    audit({ userId: ctx.userId, username: ctx.username, action: 'stack.unarchive', ip: req.ip });
     return { ok: true as const };
   });
 

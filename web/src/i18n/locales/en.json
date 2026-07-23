@@ -591,7 +591,15 @@
     "opRunning": "Running …",
     "opDone": "Completed successfully.",
     "deleteFolder": "Delete folder",
-    "deleteFolderConfirm": "Permanently delete folder “{{name}}” and all its contents?"
+    "deleteFolderConfirm": "Permanently delete folder “{{name}}” and all its contents?",
+    "archive": "Archive",
+    "unarchive": "Move back to stacks path",
+    "showArchive": "Show archive",
+    "showActive": "Show active",
+    "archived": "Stack archived",
+    "unarchived": "Stack moved back to the stacks path",
+    "archiveConfirm": "Move stack \"{{name}}\" to the archive? It is moved into the ARCHIV folder and hidden from the list.",
+    "noArchived": "No archived stacks"
   },
   "audit": {
     "title": "Audit log",
@@ -933,8 +941,5 @@
     "expires": "Expires",
     "revoke": "Revoke",
     "revokeConfirm": "Revoke the invitation for {{email}}? The link will stop working."
-  },
-  "overview": {
-    "selectEndpoint": "The overview is per endpoint — please pick a specific endpoint above."
   }
 }

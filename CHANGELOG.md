@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.35] — 2026-07-23
+
+### Added
+
+- **Archive stacks.** Non-running stacks now have an "Archive" action (in the row's ⋮
+  menu): the stack folder is moved into an `ARCHIV` subfolder of its stack path and hidden
+  from the normal list. An archive toggle next to the search shows the archived stacks in
+  the same table, with actions to move a stack back to the stacks path or delete it. Works
+  on local and remote endpoints (agent-less, via the helper container). An existing
+  `ARCHIV` folder is picked up automatically.
+
+### Removed
+
+- Dropped an unused i18n key (`overview.selectEndpoint`) left over from the 0.1.33 overview
+  redirect change.
+
 ## [0.1.34] — 2026-07-23
 
 ### Fixed

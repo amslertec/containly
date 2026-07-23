@@ -4,6 +4,8 @@ import { Link, useNavigate, useParams } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import {
+  Archive,
+  ArchiveRestore,
   ArrowLeft,
   ArrowUpCircle,
   Check,
@@ -29,7 +31,14 @@ import {
 import type { GitStack, StackActionName, StackStatus, StackSummary } from '@containly/shared';
 import { useAuth } from '../app/AuthContext';
 import { useEndpoints } from '../app/EndpointContext';
-import { useStack, useStackDir, useStackFile, useStackMutations, useStacks } from '../hooks/stacks';
+import {
+  useArchivedStacks,
+  useStack,
+  useStackDir,
+  useStackFile,
+  useStackMutations,
+  useStacks,
+} from '../hooks/stacks';
 import { useUpdateFlags } from '../hooks/updates';
 import { useConfirm } from '../hooks/useConfirm';
 import { Page, PageHeader } from '../components/PageHeader';
@@ -91,6 +100,8 @@ export function StacksPage() {
   const { isAdmin } = useAuth();
   const { endpoints, selected, isAll } = useEndpoints();
   const { data, isLoading, isError, error, refetch } = useStacks();
+  const [showArchive, setShowArchive] = useState(false);
+  const { data: archivedData } = useArchivedStacks(showArchive);
   const mut = useStackMutations();
   const { confirm, dialogProps } = useConfirm();
   const [creating, setCreating] = useState(false);
@@ -114,7 +125,7 @@ export function StacksPage() {
   }, [t, isAll, isAdmin]);
 
   // Nur den gewählten Endpoint zeigen; „Alle Hosts" kombiniert alle.
-  const all = data ?? [];
+  const all = (showArchive ? archivedData : data) ?? [];
   const scoped = isAll ? all : all.filter((s) => s.endpoint === selected);
   const q = query.trim().toLowerCase();
   const stacks = useMemo(() => {
@@ -150,6 +161,46 @@ export function StacksPage() {
     try {
       await mut.action.mutateAsync({ id: s.id, action });
       toast.success(t('stacks.actionDone', { action: t(`stacks.${action}`) }));
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : t('common.error'));
+    }
+  };
+
+  const doArchive = async (s: StackSummary): Promise<void> => {
+    const ok = await confirm({
+      title: t('stacks.archive'),
+      description: t('stacks.archiveConfirm', { name: s.name }),
+      confirmLabel: t('stacks.archive'),
+    });
+    if (!ok) return;
+    try {
+      await mut.archive.mutateAsync(s.id);
+      toast.success(t('stacks.archived'));
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : t('common.error'));
+    }
+  };
+
+  const doUnarchive = async (s: StackSummary): Promise<void> => {
+    try {
+      await mut.unarchive.mutateAsync(s.id);
+      toast.success(t('stacks.unarchived'));
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : t('common.error'));
+    }
+  };
+
+  const doDelete = async (s: StackSummary): Promise<void> => {
+    const ok = await confirm({
+      title: t('common.delete'),
+      description: t('stacks.deleteConfirm', { name: s.name }),
+      danger: true,
+      confirmLabel: t('common.delete'),
+    });
+    if (!ok) return;
+    try {
+      await mut.remove.mutateAsync(s.id);
+      toast.success(t('common.delete'));
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : t('common.error'));
     }
@@ -199,18 +250,32 @@ export function StacksPage() {
         />
       ) : (
         <>
-          <div className="relative mb-4 max-w-sm">
-            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-faint" />
-            <Input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder={t('stacks.searchPlaceholder')}
-              className="pl-8"
-            />
+          <div className="mb-4 flex items-center gap-2">
+            <div className="relative max-w-sm flex-1">
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-faint" />
+              <Input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={t('stacks.searchPlaceholder')}
+                className="pl-8"
+              />
+            </div>
+            <Button
+              variant={showArchive ? 'primary' : 'secondary'}
+              size="sm"
+              onClick={() => setShowArchive((v) => !v)}
+              title={showArchive ? t('stacks.showActive') : t('stacks.showArchive')}
+            >
+              <Archive className="h-4 w-4" /> {showArchive ? t('stacks.showActive') : t('stacks.archive')}
+            </Button>
           </div>
 
           {scoped.length === 0 ? (
-            <EmptyState icon={<Ship className="h-8 w-8" />} title={t('stacks.noStacks')} hint={t('stacks.scanHint')} />
+            showArchive ? (
+              <EmptyState icon={<Archive className="h-8 w-8" />} title={t('stacks.noArchived')} hint="" />
+            ) : (
+              <EmptyState icon={<Ship className="h-8 w-8" />} title={t('stacks.noStacks')} hint={t('stacks.scanHint')} />
+            )
           ) : stacks.length === 0 ? (
             <EmptyState icon={<Search className="h-8 w-8" />} title={t('stacks.noResults')} hint="" />
           ) : (
@@ -224,7 +289,11 @@ export function StacksPage() {
           >
             <tbody>
               {pg.pageItems.map((s: StackSummary) => (
-                <Tr key={s.id} className="cursor-pointer" onClick={() => open(s.id)}>
+                <Tr
+                  key={s.id}
+                  className={showArchive ? undefined : 'cursor-pointer'}
+                  onClick={showArchive ? undefined : () => open(s.id)}
+                >
                   <Td>
                     <div className="flex items-center gap-2">
                       <FileCode className="h-4 w-4 shrink-0 text-primary" />
@@ -252,13 +321,26 @@ export function StacksPage() {
                   {isAdmin && (
                     <Td className="text-right" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-1">
-                        <RowAction title={t('stacks.stop')} onClick={() => void runAction(s, 'stop')} disabled={mut.action.isPending}>
-                          <Square className="h-4 w-4" />
-                        </RowAction>
-                        <RowAction title={t('stacks.restart')} onClick={() => void runAction(s, 'restart')} disabled={mut.action.isPending}>
-                          <RotateCw className="h-4 w-4" />
-                        </RowAction>
-                        <StackRowMenu stack={s} onAction={runAction} />
+                        {showArchive ? (
+                          <>
+                            <RowAction title={t('stacks.unarchive')} onClick={() => void doUnarchive(s)} disabled={mut.unarchive.isPending}>
+                              <ArchiveRestore className="h-4 w-4" />
+                            </RowAction>
+                            <RowAction title={t('common.delete')} onClick={() => void doDelete(s)} disabled={mut.remove.isPending}>
+                              <Trash2 className="h-4 w-4" />
+                            </RowAction>
+                          </>
+                        ) : (
+                          <>
+                            <RowAction title={t('stacks.stop')} onClick={() => void runAction(s, 'stop')} disabled={mut.action.isPending}>
+                              <Square className="h-4 w-4" />
+                            </RowAction>
+                            <RowAction title={t('stacks.restart')} onClick={() => void runAction(s, 'restart')} disabled={mut.action.isPending}>
+                              <RotateCw className="h-4 w-4" />
+                            </RowAction>
+                            <StackRowMenu stack={s} onArchive={doArchive} onAction={runAction} />
+                          </>
+                        )}
                       </div>
                     </Td>
                   )}
@@ -302,7 +384,15 @@ function RowAction({
   );
 }
 
-function StackRowMenu({ stack, onAction }: { stack: StackSummary; onAction: (s: StackSummary, a: StackActionName) => void }) {
+function StackRowMenu({
+  stack,
+  onAction,
+  onArchive,
+}: {
+  stack: StackSummary;
+  onAction: (s: StackSummary, a: StackActionName) => void;
+  onArchive: (s: StackSummary) => void;
+}) {
   const { t } = useTranslation();
   return (
     <DropdownMenu.Root>
@@ -330,6 +420,12 @@ function StackRowMenu({ stack, onAction }: { stack: StackSummary; onAction: (s: 
           <MenuItem danger onSelect={() => onAction(stack, 'kill')} icon={<Zap className="h-4 w-4" />}>
             {t('stacks.kill')}
           </MenuItem>
+          {/* Archivieren nur für nicht (voll) laufende Stacks. */}
+          {stack.status !== 'running' && (
+            <MenuItem onSelect={() => onArchive(stack)} icon={<Archive className="h-4 w-4" />}>
+              {t('stacks.archive')}
+            </MenuItem>
+          )}
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>
