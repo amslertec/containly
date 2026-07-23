@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Check, Pencil, ShieldAlert, Trash2, UserPlus, X } from 'lucide-react';
-import type { Role, User } from '@containly/shared';
+import { Check, Copy, Mail, Pencil, ShieldAlert, Trash2, UserPlus, X } from 'lucide-react';
+import type { Locale, Role, User } from '@containly/shared';
 import { useAuth } from '../app/AuthContext';
-import { useUserMutations, useUsers } from '../hooks/admin';
+import { useInviteMutations, usePendingInvites, useUserMutations, useUsers } from '../hooks/admin';
 import { useConfirm } from '../hooks/useConfirm';
 import { evaluatePassword } from '../lib/passwordStrength';
 import { Page, PageHeader } from '../components/PageHeader';
@@ -24,10 +24,27 @@ export function UsersPage() {
   const { t } = useTranslation();
   const { user, isAdmin } = useAuth();
   const { data: users } = useUsers(isAdmin);
+  const { data: invites } = usePendingInvites(isAdmin);
   const mut = useUserMutations();
+  const inviteMut = useInviteMutations();
   const { confirm, dialogProps } = useConfirm();
   const [addOpen, setAddOpen] = useState(false);
   const pg = usePagination(users ?? [], 10);
+
+  const doRevokeInvite = async (id: number, email: string): Promise<void> => {
+    const ok = await confirm({
+      title: t('invites.revoke'),
+      description: t('invites.revokeConfirm', { email }),
+      danger: true,
+      confirmLabel: t('invites.revoke'),
+    });
+    if (!ok) return;
+    try {
+      await inviteMut.revoke.mutateAsync(id);
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : t('common.error'));
+    }
+  };
 
   const doRemove = async (id: number, username: string): Promise<void> => {
     const ok = await confirm({
@@ -113,6 +130,42 @@ export function UsersPage() {
       </TableWrap>
 
       {(users ?? []).length > 0 && <Pagination pg={pg} />}
+
+      {(invites ?? []).length > 0 && (
+        <div className="mt-8">
+          <h2 className="mb-3 text-sm font-semibold text-ink">{t('invites.pending')}</h2>
+          <TableWrap>
+            <THead>
+              <Th>{t('settings.emailColumn')}</Th>
+              <Th>{t('settings.role')}</Th>
+              <Th>{t('invites.expires')}</Th>
+              <Th className="text-right">{t('common.actions')}</Th>
+            </THead>
+            <tbody>
+              {(invites ?? []).map((inv) => (
+                <Tr key={inv.id}>
+                  <Td><span className="text-ink">{inv.email}</span></Td>
+                  <Td>
+                    <Badge tone={inv.role === 'admin' ? 'primary' : 'neutral'}>
+                      {inv.role === 'admin' ? t('settings.roleAdmin') : t('settings.roleViewer')}
+                    </Badge>
+                  </Td>
+                  <Td><span className="text-muted">{relativeTime(new Date(inv.expiresAt).toISOString())}</span></Td>
+                  <Td className="text-right">
+                    <button
+                      title={t('invites.revoke')}
+                      onClick={() => void doRevokeInvite(inv.id, inv.email)}
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-danger-soft hover:text-danger"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </Td>
+                </Tr>
+              ))}
+            </tbody>
+          </TableWrap>
+        </div>
+      )}
 
       <AddUserDialog open={addOpen} onClose={() => setAddOpen(false)} onCreate={mut.create} />
       <ConfirmDialog {...dialogProps} loading={mut.remove.isPending} />
@@ -205,85 +258,200 @@ function AddUserDialog({
   onClose: () => void;
   onCreate: ReturnType<typeof useUserMutations>['create'];
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const [mode, setMode] = useState<'create' | 'invite'>('create');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<Role>('viewer');
+  const [language, setLanguage] = useState<Locale>(i18n.language === 'de' ? 'de' : 'en');
+  const inviteMut = useInviteMutations();
+  const [inviteLink, setInviteLink] = useState<{ url: string; emailed: boolean } | null>(null);
   const strength = useMemo(() => evaluatePassword(password), [password]);
+  const emailValid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim());
 
-  const submit = async (): Promise<void> => {
+  const reset = (): void => {
+    setUsername('');
+    setEmail('');
+    setPassword('');
+    setRole('viewer');
+    setInviteLink(null);
+    setMode('create');
+  };
+  const close = (): void => {
+    onClose();
+    reset();
+  };
+
+  const submitCreate = async (): Promise<void> => {
     try {
       await onCreate.mutateAsync({ username, password, role, email: email.trim() || undefined });
       toast.success(t('common.create'));
-      onClose();
-      setUsername('');
-      setEmail('');
-      setPassword('');
-      setRole('viewer');
+      close();
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : t('common.error'));
     }
   };
 
+  const submitInvite = async (): Promise<void> => {
+    try {
+      const res = await inviteMut.create.mutateAsync({ email: email.trim(), role, language });
+      setInviteLink({ url: res.url, emailed: res.emailed });
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : t('common.error'));
+    }
+  };
+
+  const copyLink = (): void => {
+    if (!inviteLink) return;
+    void navigator.clipboard.writeText(inviteLink.url).then(() => toast.success(t('invites.copied')));
+  };
+
   return (
-    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent onClose={onClose}>
+    <Dialog open={open} onOpenChange={(o) => !o && close()}>
+      <DialogContent onClose={close}>
         <DialogTitle>{t('settings.addUser')}</DialogTitle>
-        <div className="mt-4 space-y-3">
-          <div>
-            <Label>{t('auth.usernameLabel')}</Label>
-            <Input value={username} onChange={(e) => setUsername(e.target.value)} autoFocus />
-          </div>
-          <div>
-            <Label>{t('settings.emailColumn')}</Label>
-            <Input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={t('settings.emailPlaceholder')}
-              autoComplete="off"
-            />
-          </div>
-          <div>
-            <Label>{t('auth.passwordLabel')}</Label>
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="new-password"
-            />
-            {password && !strength.valid && (
-              <p className="mt-1 text-xs text-warn">{t('setup.requirements.length')} · A-z 0-9 !@#</p>
-            )}
-          </div>
-          <div>
-            <Label>{t('settings.role')}</Label>
-            <Select
-              value={role}
-              onChange={(v) => setRole(v as Role)}
-              className="w-full"
-              options={[
-                { value: 'viewer', label: t('settings.roleViewer') },
-                { value: 'admin', label: t('settings.roleAdmin') },
-              ]}
-            />
-          </div>
+
+        {/* Modus-Umschalter: direkt anlegen oder per E-Mail einladen. */}
+        <div className="mt-4 flex gap-1 rounded-lg bg-surface-2 p-1">
+          {(['create', 'invite'] as const).map((m) => (
+            <button
+              key={m}
+              onClick={() => setMode(m)}
+              className={
+                'flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ' +
+                (mode === m ? 'bg-surface text-ink shadow-sm' : 'text-muted hover:text-ink')
+              }
+            >
+              {m === 'create' ? t('settings.addUserDirect') : t('invites.mode')}
+            </button>
+          ))}
         </div>
-        <div className="mt-6 flex justify-end gap-2">
-          <Button variant="ghost" onClick={onClose}>
-            {t('common.cancel')}
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() => void submit()}
-            loading={onCreate.isPending}
-            disabled={!username.trim() || !strength.valid}
-          >
-            {t('common.create')}
-          </Button>
-        </div>
+
+        {inviteLink ? (
+          // Einladung erstellt → Link zum Kopieren + Versand-Status.
+          <div className="mt-5 space-y-3">
+            <p className="flex items-start gap-2 text-sm text-muted">
+              <Mail className="mt-0.5 h-4 w-4 shrink-0 text-signal" />
+              {inviteLink.emailed ? t('invites.emailed', { email: email.trim() }) : t('invites.notEmailed')}
+            </p>
+            <div>
+              <Label>{t('invites.link')}</Label>
+              <div className="flex items-center gap-2">
+                <Input value={inviteLink.url} readOnly className="font-mono text-[12px]" />
+                <Button variant="secondary" size="sm" onClick={copyLink}>
+                  <Copy className="h-4 w-4" /> {t('invites.copy')}
+                </Button>
+              </div>
+            </div>
+            <div className="flex justify-end pt-2">
+              <Button variant="primary" onClick={close}>{t('common.done')}</Button>
+            </div>
+          </div>
+        ) : mode === 'create' ? (
+          <>
+            <div className="mt-4 space-y-3">
+              <div>
+                <Label>{t('auth.usernameLabel')}</Label>
+                <Input value={username} onChange={(e) => setUsername(e.target.value)} autoFocus />
+              </div>
+              <div>
+                <Label>{t('settings.emailColumn')}</Label>
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={t('settings.emailPlaceholder')}
+                  autoComplete="off"
+                />
+              </div>
+              <div>
+                <Label>{t('auth.passwordLabel')}</Label>
+                <Input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="new-password"
+                />
+                {password && !strength.valid && (
+                  <p className="mt-1 text-xs text-warn">{t('setup.requirements.length')} · A-z 0-9 !@#</p>
+                )}
+              </div>
+              <RoleSelect role={role} setRole={setRole} />
+            </div>
+            <div className="mt-6 flex justify-end gap-2">
+              <Button variant="ghost" onClick={close}>{t('common.cancel')}</Button>
+              <Button
+                variant="primary"
+                onClick={() => void submitCreate()}
+                loading={onCreate.isPending}
+                disabled={!username.trim() || !strength.valid}
+              >
+                {t('common.create')}
+              </Button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="mt-4 space-y-3">
+              <p className="text-sm text-muted">{t('invites.hint')}</p>
+              <div>
+                <Label>{t('settings.emailColumn')}</Label>
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={t('settings.emailPlaceholder')}
+                  autoComplete="off"
+                  autoFocus
+                />
+              </div>
+              <RoleSelect role={role} setRole={setRole} />
+              <div>
+                <Label>{t('invites.language')}</Label>
+                <Select
+                  value={language}
+                  onChange={(v) => setLanguage(v as Locale)}
+                  className="w-full"
+                  options={[
+                    { value: 'de', label: 'Deutsch' },
+                    { value: 'en', label: 'English' },
+                  ]}
+                />
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-2">
+              <Button variant="ghost" onClick={close}>{t('common.cancel')}</Button>
+              <Button
+                variant="primary"
+                onClick={() => void submitInvite()}
+                loading={inviteMut.create.isPending}
+                disabled={!emailValid}
+              >
+                {t('invites.send')}
+              </Button>
+            </div>
+          </>
+        )}
       </DialogContent>
     </Dialog>
+  );
+}
+
+function RoleSelect({ role, setRole }: { role: Role; setRole: (r: Role) => void }) {
+  const { t } = useTranslation();
+  return (
+    <div>
+      <Label>{t('settings.role')}</Label>
+      <Select
+        value={role}
+        onChange={(v) => setRole(v as Role)}
+        className="w-full"
+        options={[
+          { value: 'viewer', label: t('settings.roleViewer') },
+          { value: 'admin', label: t('settings.roleAdmin') },
+        ]}
+      />
+    </div>
   );
 }

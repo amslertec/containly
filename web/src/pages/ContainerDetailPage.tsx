@@ -135,7 +135,7 @@ export function ContainerDetailPage() {
         )}
         {tab === 'stats' && (
           <Suspense fallback={<LoadingState />}>
-            <StatsPanel endpoint={selected} id={id} running={running} />
+            <StatsPanel endpoint={selected} id={id} name={c.name} running={running} />
           </Suspense>
         )}
         {tab === 'console' && (

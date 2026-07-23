@@ -70,6 +70,14 @@ export function getUserRowByLogin(login: string): UserRow | undefined {
     .get(login, login) as UserRow | undefined;
 }
 
+/** Prüft, ob bereits ein Benutzer diese E-Mail nutzt (case-insensitive). */
+export function emailInUse(email: string): boolean {
+  const row = db
+    .prepare("SELECT 1 FROM users WHERE lower(email) = lower(?) AND email IS NOT NULL AND email != '' LIMIT 1")
+    .get(email.trim());
+  return !!row;
+}
+
 export function getUserRowById(id: number): UserRow | undefined {
   return db.prepare('SELECT * FROM users WHERE id = ?').get(id) as UserRow | undefined;
 }

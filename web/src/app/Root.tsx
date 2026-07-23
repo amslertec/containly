@@ -3,6 +3,7 @@ import { EndpointProvider } from './EndpointContext';
 import { AppRouter } from './router';
 import { SetupPage } from '../pages/SetupPage';
 import { LoginPage } from '../pages/LoginPage';
+import { InvitePage } from '../pages/InvitePage';
 import { LogoMark } from '../components/Logo';
 
 /**
@@ -11,6 +12,12 @@ import { LogoMark } from '../components/Logo';
  */
 export function Root() {
   const { ready, setupComplete, user } = useAuth();
+
+  // Öffentliche Annahme-Seite für Einladungslinks — unabhängig vom Auth-Status,
+  // aber nur solange noch niemand eingeloggt ist (danach zeigt die App den Nutzer).
+  if (!user && window.location.pathname.startsWith('/invite/')) {
+    return <InvitePage />;
+  }
 
   if (!ready) {
     return (

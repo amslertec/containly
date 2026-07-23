@@ -23,6 +23,12 @@ function getRow(): SmtpRow | undefined {
   return db.prepare('SELECT * FROM smtp_config WHERE id = 1').get() as SmtpRow | undefined;
 }
 
+/** Ob SMTP so weit konfiguriert ist, dass tatsächlich Mails versendet würden. */
+export function isSmtpConfigured(): boolean {
+  const r = getRow();
+  return !!(r && r.host && r.from_addr);
+}
+
 /** SMTP-Konfiguration ohne Passwort (für die UI). */
 export function getSmtpConfig(): SmtpConfig {
   const r = getRow();
@@ -105,6 +111,50 @@ export async function sendNotificationEmail(
     attachments: [LOGO_ATTACHMENT],
   });
   logger.info({ subject, recipients: to.length }, 'Benachrichtigungs-E-Mail gesendet');
+}
+
+/** Einladungs-Mail mit Annahme-Link. Liefert true, wenn tatsächlich versendet wurde. */
+export async function sendInviteEmail(to: string, url: string, lang: 'de' | 'en'): Promise<boolean> {
+  const t = buildTransport();
+  if (!t) return false;
+  const txt =
+    lang === 'de'
+      ? {
+          subject: 'Containly · Einladung zu deinem Konto',
+          heading: 'Du wurdest zu Containly eingeladen',
+          intro:
+            'Erstelle dein Konto über den Button unten. Der Link ist 7 Tage gültig und nur einmal nutzbar.',
+          label: 'E-Mail',
+          action: 'Konto erstellen',
+          footer: 'Du erhältst diese E-Mail, weil dich ein Administrator zu Containly eingeladen hat.',
+        }
+      : {
+          subject: 'Containly · Invitation to your account',
+          heading: 'You have been invited to Containly',
+          intro:
+            'Create your account using the button below. The link is valid for 7 days and can be used once.',
+          label: 'Email',
+          action: 'Create account',
+          footer: 'You received this email because an administrator invited you to Containly.',
+        };
+  const content: EmailContent = {
+    severity: 'info',
+    heading: txt.heading,
+    intro: txt.intro,
+    rows: [{ label: txt.label, value: to }],
+    action: { label: txt.action, url },
+    footer: txt.footer,
+  };
+  await t.transport.sendMail({
+    from: t.from,
+    to,
+    subject: txt.subject,
+    text: renderText(content),
+    html: renderHtml(content),
+    attachments: [LOGO_ATTACHMENT],
+  });
+  logger.info({ to }, 'Einladungs-E-Mail gesendet');
+  return true;
 }
 
 export interface TestEmailResult {

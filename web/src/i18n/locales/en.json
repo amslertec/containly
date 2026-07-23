@@ -197,7 +197,8 @@
     "on": "on",
     "off": "off",
     "host": "Host",
-    "edit": "Edit"
+    "edit": "Edit",
+    "done": "Done"
   },
   "states": {
     "loading": "Loading",
@@ -529,7 +530,8 @@
       "driver": "Driver",
       "scope": "Scope",
       "subnet": "Subnet"
-    }
+    },
+    "inUse": "In use"
   },
   "stacks": {
     "title": "Stacks",
@@ -629,7 +631,8 @@
     "emailColumn": "Email",
     "emailPlaceholder": "name@example.com",
     "emailSet": "Email saved",
-    "noEmail": "—"
+    "noEmail": "—",
+    "addUserDirect": "Create directly"
   },
   "roles": {
     "viewerNotice": "Read-only account: changes are disabled.",
@@ -893,5 +896,36 @@
   },
   "cfiles": {
     "notRunning": "File access requires a running container."
+  },
+  "invite": {
+    "title": "Set up your account",
+    "subtitle": "Complete your invitation and choose your password.",
+    "emailLabel": "Email",
+    "usernameLabel": "Username",
+    "passwordLabel": "Password",
+    "confirmLabel": "Confirm password",
+    "submit": "Create account",
+    "submitting": "Creating…",
+    "mismatch": "The passwords do not match.",
+    "failed": "Could not create the account.",
+    "invalidTitle": "Invitation invalid",
+    "invalidText": "This invitation link is invalid, expired, or has already been used.",
+    "backToLogin": "Go to sign in",
+    "securityNote": "You will be signed in right after creating your account."
+  },
+  "invites": {
+    "mode": "Invite",
+    "hint": "The invitee gets a link and sets their own username and password.",
+    "language": "Invitation language",
+    "send": "Send invitation",
+    "link": "Invitation link",
+    "copy": "Copy",
+    "copied": "Link copied",
+    "emailed": "Invitation sent to {{email}}.",
+    "notEmailed": "No SMTP configured — share the link below manually.",
+    "pending": "Pending invitations",
+    "expires": "Expires",
+    "revoke": "Revoke",
+    "revokeConfirm": "Revoke the invitation for {{email}}? The link will stop working."
   }
 }

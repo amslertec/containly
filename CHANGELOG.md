@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.30] — 2026-07-23
+
+### Added
+
+- **Invite users by email link.** Alongside creating a user directly (username +
+  password), admins can now invite by entering an **email + role + language**. The invitee
+  gets a link (shown for copying, and emailed if SMTP is configured) that opens a dedicated
+  accept page in the login design — email prefilled, they choose their own username and
+  password (with confirmation and a show/hide toggle) — and are signed in immediately on
+  submit. The invitation email uses the same branded template as the other mails, in the
+  chosen language, and the accept page renders in that language too. Invitation links are
+  single-use and expire after 7 days; a "Pending invitations" list lets admins revoke open
+  ones. Tokens are stored only as a SHA-256 hash.
+
+### Fixed
+
+- **Pruning orphaned volumes did nothing for named volumes.** Docker's volume prune only
+  removes *anonymous* volumes by default; the button now passes `all=true`, so orphaned
+  **named** volumes (e.g. from Compose) are removed as well.
+- **Networks page didn't show which networks are in use.** Non-system networks now display
+  an **In use** / **Orphaned** badge based on their connected-container count.
+- **Container resource history was lost after a recreate.** Metrics were keyed by the
+  container ID, which changes on every recreate. They are now keyed by the stable container
+  **name**, so the CPU/RAM history carries across recreates/updates.
+
 ## [0.1.29] — 2026-07-22
 
 ### Fixed

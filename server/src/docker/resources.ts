@@ -242,7 +242,12 @@ export async function removeVolume(endpoint: string, name: string): Promise<void
 }
 
 export async function pruneVolumes(endpoint: string): Promise<PruneResult> {
-  const res = (await getDocker(endpoint).pruneVolumes()) as {
+  // all=true → auch BENANNTE ungenutzte Volumes entfernen. Ohne den Filter löscht Docker
+  // (API ≥ 1.42) nur ANONYME Volumes, sodass verwaiste named Volumes (z. B. aus Compose:
+  // `projekt_name`) stehen bleiben — der Button „schien" dann wirkungslos.
+  const res = (await getDocker(endpoint).pruneVolumes({
+    filters: JSON.stringify({ all: ['true'] }),
+  })) as {
     VolumesDeleted?: string[];
     SpaceReclaimed?: number;
   };

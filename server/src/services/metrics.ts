@@ -15,7 +15,7 @@ const RETENTION_MS = 7 * 24 * 60 * 60 * 1000; // 7 Tage
 const MAX_POINTS = 200; // Downsampling-Ziel für die Chart-Antwort
 
 const insertStmt = db.prepare(
-  'INSERT INTO metrics (endpoint, container_id, ts, cpu, mem, mem_bytes) VALUES (?, ?, ?, ?, ?, ?)',
+  'INSERT INTO metrics (endpoint, container_id, container_name, ts, cpu, mem, mem_bytes) VALUES (?, ?, ?, ?, ?, ?, ?)',
 );
 
 interface RawStats {
@@ -41,7 +41,9 @@ async function sampleOnce(): Promise<void> {
       try {
         const raw = (await docker.getContainer(c.id).stats({ stream: false })) as unknown as RawStats;
         const s = parseStats(c.id, raw as Parameters<typeof parseStats>[1]);
-        insertStmt.run(ep.id, c.id, now, s.cpuPercent, s.memoryPercent, s.memoryUsage);
+        // Name als stabiler Key (überlebt Recreate); id nur noch informativ.
+        const name = c.names[0] ?? c.id;
+        insertStmt.run(ep.id, c.id, name, now, s.cpuPercent, s.memoryPercent, s.memoryUsage);
       } catch (err) {
         logger.debug({ err, container: c.id }, 'Metrics: Stats fehlgeschlagen');
       }
@@ -83,11 +85,12 @@ interface MetricRow {
  * Liefert die Zeitreihe eines Containers über die letzten `rangeMs`, aufsteigend nach ts.
  * Bei sehr vielen Punkten wird per Zeit-Bucket gemittelt (Ziel ≈ MAX_POINTS Punkte).
  */
-export function getMetrics(endpoint: string, containerId: string, rangeMs: number): MetricPoint[] {
+export function getMetrics(endpoint: string, containerName: string, rangeMs: number): MetricPoint[] {
   const since = Date.now() - rangeMs;
+  // Abfrage per NAME (stabil über Recreates) statt per ephemerer Container-ID.
   const rows = db
-    .prepare('SELECT ts, cpu, mem FROM metrics WHERE endpoint = ? AND container_id = ? AND ts >= ? ORDER BY ts ASC')
-    .all(endpoint, containerId, since) as MetricRow[];
+    .prepare('SELECT ts, cpu, mem FROM metrics WHERE endpoint = ? AND container_name = ? AND ts >= ? ORDER BY ts ASC')
+    .all(endpoint, containerName, since) as MetricRow[];
   if (rows.length <= MAX_POINTS) {
     return rows.map((r) => ({ ts: r.ts, cpu: r.cpu, mem: r.mem }));
   }

@@ -162,7 +162,13 @@ export function NetworksPage() {
                 <Td>
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-ink">{net.name}</span>
-                    {net.system && <Badge tone="neutral">{t('networks.system')}</Badge>}
+                    {net.system ? (
+                      <Badge tone="neutral">{t('networks.system')}</Badge>
+                    ) : net.containers > 0 ? (
+                      <Badge tone="run">{t('networks.inUse')}</Badge>
+                    ) : (
+                      <Badge tone="warn">{t('networks.orphan')}</Badge>
+                    )}
                     {net.internal && <Badge tone="warn">internal</Badge>}
                   </div>
                   <span className="font-mono text-[11px] text-faint">{shortId(net.id)}</span>

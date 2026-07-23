@@ -281,6 +281,35 @@ const migrations: Migration[] = [
       );
     `,
   },
+  {
+    version: 15,
+    name: 'metrics_by_container_name',
+    up: `
+      -- Metriken zusätzlich am stabilen Container-NAMEN indexieren: die Container-ID
+      -- ändert sich bei jedem Recreate, der Name bleibt → sonst geht der Verlauf verloren.
+      ALTER TABLE metrics ADD COLUMN container_name TEXT NOT NULL DEFAULT '';
+      CREATE INDEX idx_metrics_name ON metrics(endpoint, container_name, ts);
+    `,
+  },
+  {
+    version: 16,
+    name: 'user_invites',
+    up: `
+      -- Einladungen: Admin erstellt Token (E-Mail + Rolle), der Eingeladene setzt beim
+      -- Annehmen Username + Passwort. Nur der SHA-256-Hash des Tokens wird gespeichert.
+      CREATE TABLE user_invites (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        token_hash  TEXT NOT NULL UNIQUE,
+        email       TEXT NOT NULL,
+        role        TEXT NOT NULL CHECK (role IN ('admin', 'viewer')),
+        language    TEXT NOT NULL DEFAULT 'en' CHECK (language IN ('de', 'en')),
+        created_by  INTEGER,
+        created_at  TEXT NOT NULL DEFAULT (datetime('now')),
+        expires_at  INTEGER NOT NULL,      -- epoch ms
+        accepted_at INTEGER                -- epoch ms, NULL = offen
+      );
+    `,
+  },
 ];
 
 export function runMigrations(db: Database): void {

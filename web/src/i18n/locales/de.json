@@ -197,7 +197,8 @@
     "on": "an",
     "off": "aus",
     "host": "Host",
-    "edit": "Bearbeiten"
+    "edit": "Bearbeiten",
+    "done": "Fertig"
   },
   "states": {
     "loading": "Wird geladen",
@@ -529,7 +530,8 @@
       "driver": "Treiber",
       "scope": "Scope",
       "subnet": "Subnetz"
-    }
+    },
+    "inUse": "In Verwendung"
   },
   "stacks": {
     "title": "Stacks",
@@ -629,7 +631,8 @@
     "emailColumn": "E-Mail",
     "emailPlaceholder": "name@example.com",
     "emailSet": "E-Mail gespeichert",
-    "noEmail": "—"
+    "noEmail": "—",
+    "addUserDirect": "Direkt anlegen"
   },
   "roles": {
     "viewerNotice": "Nur-Lesen-Konto: Änderungen sind deaktiviert.",
@@ -895,5 +898,36 @@
   },
   "cfiles": {
     "notRunning": "Datei-Zugriff nur bei laufendem Container."
+  },
+  "invite": {
+    "title": "Konto einrichten",
+    "subtitle": "Schließe deine Einladung ab und lege dein Passwort fest.",
+    "emailLabel": "E-Mail",
+    "usernameLabel": "Benutzername",
+    "passwordLabel": "Passwort",
+    "confirmLabel": "Passwort bestätigen",
+    "submit": "Konto erstellen",
+    "submitting": "Wird erstellt…",
+    "mismatch": "Die Passwörter stimmen nicht überein.",
+    "failed": "Konto konnte nicht erstellt werden.",
+    "invalidTitle": "Einladung ungültig",
+    "invalidText": "Dieser Einladungslink ist ungültig, abgelaufen oder wurde bereits eingelöst.",
+    "backToLogin": "Zur Anmeldung",
+    "securityNote": "Nach dem Erstellen bist du direkt angemeldet."
+  },
+  "invites": {
+    "mode": "Einladen",
+    "hint": "Der Eingeladene erhält einen Link und legt Benutzername und Passwort selbst fest.",
+    "language": "Sprache der Einladung",
+    "send": "Einladung senden",
+    "link": "Einladungslink",
+    "copy": "Kopieren",
+    "copied": "Link kopiert",
+    "emailed": "Einladung an {{email}} gesendet.",
+    "notEmailed": "Kein SMTP konfiguriert — teile den Link unten manuell.",
+    "pending": "Offene Einladungen",
+    "expires": "Läuft ab",
+    "revoke": "Widerrufen",
+    "revokeConfirm": "Einladung für {{email}} widerrufen? Der Link wird ungültig."
   }
 }

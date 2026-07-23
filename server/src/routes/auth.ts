@@ -89,7 +89,7 @@ async function verifySecondFactor(userId: number, code: string): Promise<boolean
   return false;
 }
 
-function issueSession(reply: FastifyReply, req: FastifyRequest, userId: number) {
+export function issueSession(reply: FastifyReply, req: FastifyRequest, userId: number) {
   const { token, csrfToken } = createSession(userId, {
     userAgent: req.headers['user-agent'],
     ip: req.ip,

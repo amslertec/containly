@@ -19,10 +19,12 @@ const RANGES = [
 export function StatsPanel({
   endpoint,
   id,
+  name,
   running,
 }: {
   endpoint: string;
   id: string;
+  name: string;
   running: boolean;
 }) {
   const { t } = useTranslation();
@@ -90,21 +92,22 @@ export function StatsPanel({
         </>
       )}
 
-      <HistorySection endpoint={endpoint} id={id} />
+      <HistorySection endpoint={endpoint} id={id} name={name} />
     </div>
   );
 }
 
 /* ── Verlauf (Zeitreihe aus der metrics-Tabelle) ──────────────────────────── */
-function HistorySection({ endpoint, id }: { endpoint: string; id: string }) {
+function HistorySection({ endpoint, id, name }: { endpoint: string; id: string; name: string }) {
   const { t } = useTranslation();
   const [range, setRange] = useState<(typeof RANGES)[number]>(RANGES[0]);
 
   const { data } = useQuery({
-    queryKey: ['metrics', endpoint, id, range.ms],
+    // Verlauf per stabilem Namen abfragen → überlebt Recreate (neue Container-ID).
+    queryKey: ['metrics', endpoint, name, range.ms],
     queryFn: () =>
       api.get<MetricsResponse>(
-        `/api/containers/${encodeURIComponent(id)}/metrics?endpoint=${encodeURIComponent(endpoint)}&range=${range.ms}`,
+        `/api/containers/${encodeURIComponent(id)}/metrics?endpoint=${encodeURIComponent(endpoint)}&range=${range.ms}&name=${encodeURIComponent(name)}`,
       ),
     select: (d) => d.points,
     refetchInterval: 60_000,

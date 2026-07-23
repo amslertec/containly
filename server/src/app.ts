@@ -28,6 +28,7 @@ import { catalogRoutes } from './routes/catalog.js';
 import { favoriteRoutes } from './routes/favorites.js';
 import { metricsRoutes } from './routes/metrics.js';
 import { containerFileRoutes } from './routes/container-files.js';
+import { inviteRoutes } from './routes/invites.js';
 import { versionRoutes } from './routes/version.js';
 import { registerLogsWs } from './ws/logs.js';
 import { registerStatsWs } from './ws/stats.js';
@@ -112,6 +113,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(favoriteRoutes);
   await app.register(metricsRoutes);
   await app.register(containerFileRoutes);
+  await app.register(inviteRoutes);
   await app.register(versionRoutes);
 
   // WebSocket-Routen

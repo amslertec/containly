@@ -133,6 +133,55 @@ export const CreateUserSchema = z.object({
 });
 export type CreateUser = z.infer<typeof CreateUserSchema>;
 
+/* ── Einladungen (User per E-Mail-Link erstellen) ─────────────────────────── */
+
+/** Pflicht-E-Mail (nicht leer) — die Einladung geht an genau diese Adresse. */
+export const RequiredEmailSchema = z
+  .string()
+  .max(255)
+  .refine((v) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v), 'Ungültige E-Mail-Adresse');
+
+/** Admin erstellt eine Einladung: E-Mail + Rolle + Sprache (steuert Mail & Annahme-Seite). */
+export const InviteCreateSchema = z.object({
+  email: RequiredEmailSchema,
+  role: RoleSchema,
+  language: LocaleSchema,
+});
+export type InviteCreate = z.infer<typeof InviteCreateSchema>;
+
+/** Antwort nach dem Erstellen: der Annahme-Link + ob eine Mail versendet wurde. */
+export const InviteCreatedSchema = z.object({
+  url: z.string(),
+  emailed: z.boolean(),
+  expiresAt: z.number(),
+});
+export type InviteCreated = z.infer<typeof InviteCreatedSchema>;
+
+/** Öffentliche Info zur Vorausfüllung/Sprachwahl der Annahme-Seite (kein Auth). */
+export const InviteInfoSchema = z.object({
+  email: z.string(),
+  role: RoleSchema,
+  language: LocaleSchema,
+});
+export type InviteInfo = z.infer<typeof InviteInfoSchema>;
+
+/** Der Eingeladene setzt Username + Passwort (E-Mail/Rolle stammen aus der Einladung). */
+export const InviteAcceptSchema = z.object({
+  username: UsernameSchema,
+  password: PasswordSchema,
+});
+export type InviteAccept = z.infer<typeof InviteAcceptSchema>;
+
+/** Offene Einladung in der Admin-Übersicht. */
+export const PendingInviteSchema = z.object({
+  id: z.number(),
+  email: z.string(),
+  role: RoleSchema,
+  createdAt: z.string(),
+  expiresAt: z.number(),
+});
+export type PendingInvite = z.infer<typeof PendingInviteSchema>;
+
 /** Aktualisierung der E-Mail-Adresse eines Benutzers (Admin). */
 export const UpdateUserEmailSchema = z.object({ email: EmailSchema });
 export type UpdateUserEmail = z.infer<typeof UpdateUserEmailSchema>;

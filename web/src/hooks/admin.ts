@@ -3,6 +3,9 @@ import type {
   CreateEndpoint,
   CreateUser,
   Endpoint,
+  InviteCreate,
+  InviteCreated,
+  PendingInvite,
   Role,
   UpdateEndpoint,
   User,
@@ -17,6 +20,30 @@ export function useUsers(enabled: boolean) {
     select: (d) => d.users,
     enabled,
   });
+}
+
+/* Einladungen */
+export function usePendingInvites(enabled: boolean) {
+  return useQuery({
+    queryKey: ['invites'],
+    queryFn: () => api.get<{ invites: PendingInvite[] }>('/api/users/invites'),
+    select: (d) => d.invites,
+    enabled,
+  });
+}
+export function useInviteMutations() {
+  const qc = useQueryClient();
+  const invalidate = () => void qc.invalidateQueries({ queryKey: ['invites'] });
+  return {
+    create: useMutation({
+      mutationFn: (body: InviteCreate) => api.post<InviteCreated>('/api/users/invite', body),
+      onSuccess: invalidate,
+    }),
+    revoke: useMutation({
+      mutationFn: (id: number) => api.delete(`/api/users/invites/${id}`),
+      onSuccess: invalidate,
+    }),
+  };
 }
 export function useUserMutations() {
   const qc = useQueryClient();
