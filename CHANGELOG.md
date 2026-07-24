@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.38] — 2026-07-24
+
+### Fixed
+
+- **Exec console: the active prompt is no longer clipped.** The terminal now sizes itself to
+  the visible console box instead of its taller parent element, so after many commands the
+  bottom line — the shell prompt where you type the next command — stays fully visible.
+
+### Changed
+
+- **Exec console shell picker is now a styled dropdown.** The row of shell buttons and the
+  always-visible custom field are replaced by a single dropdown (Auto / /bin/sh / /bin/bash /
+  /bin/ash / Custom); choosing **Custom** reveals an input for a custom command path. Defaults
+  to Auto.
+
+## [0.1.37] — 2026-07-24
+
+### Fixed
+
+- **Update check now surfaces newer version tags.** For images pinned to an immutable version
+  tag (e.g. `repo:v0.1.52`), the check previously compared only the digest of that exact tag
+  and never noticed a newly published higher tag. It now also enumerates the repository's tags
+  and reports the highest **stable** semver tag as an available update (pre-release tags such as
+  `-rc`/`-beta`/`-alpha` are ignored). The digest-based check for rolling tags (e.g. `latest`)
+  is unchanged. The update entry gains an optional `latestVersion` field.
+- **Vulnerability rescans no longer re-notify about already-known findings.** Email alerts were
+  previously gated on critical/high **counts** with a short in-memory cooldown, so a rescan (or
+  a Containly restart, or a Trivy database refresh) could re-send mail for the same known
+  vulnerabilities. Alerts are now gated on a persisted fingerprint of the critical/high CVE-ID
+  set per image and fire only when a genuinely new CVE appears (migration v19).
+
 ## [0.1.36] — 2026-07-23
 
 ### Added
