@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.42] — 2026-07-24
+
+### Added
+
+- **Cancel a running migration.** A running migration can be cancelled from the wizard; the
+  target is rolled back (only artifacts the migration itself created — container/volumes/
+  networks/stack dir — are removed, never pre-existing ones), and the source, if it was
+  stopped for a consistent copy, is started again. New endpoint `POST /api/migrations/:id/cancel`.
+- **Resume a running migration.** A "Migrating…" indicator appears on the Stacks and Containers
+  rows while a migration runs; clicking it reopens the wizard straight into the live progress
+  view (phase bar + streaming log), even after the modal was closed.
+
+### Changed
+
+- **Faster transfers.** Volume and image data can be compressed on the wire (gzip, on by
+  default, toggle in the wizard) — a big win on slow or relayed links — and a stack's volumes
+  are now copied in parallel (up to 3 at a time) instead of one after another.
+- The migration wizard now uses custom dropdowns/checkboxes throughout, closes on an outside
+  click or Escape (unless a migration is running), and dropped the redundant kind badge.
+
+### Fixed
+
+- **Migrations no longer hang silently on a stalled transfer.** Volume/image transfers now have
+  a stall watchdog (no byte progress for 2 minutes → the transfer fails and rolls back instead
+  of waiting forever) and honour cancellation mid-transfer.
+- **Dropdowns inside dialogs are no longer hidden behind the modal.** The custom Select's
+  portaled list rendered below dialog overlays (e.g. the migration wizard's target-endpoint
+  picker), which made it look locked and unselectable; it now renders above them.
+
 ## [0.1.41] — 2026-07-24
 
 ### Fixed
