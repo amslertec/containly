@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.40] — 2026-07-24
+
+### Added
+
+- **Live migration between endpoints.** Move a complete stack (compose + named volumes + user
+  networks + image) or a standalone container (+ its volumes/networks/image) from one Docker
+  host to another, with full real-time progress. A wizard on the Stacks and Containers pages
+  runs a pre-flight check (CPU-architecture match warning, name/port conflicts, bind mounts,
+  external networks, reachability, transfer path), then streams every phase
+  (stop → networks → image → volumes → create → verify) over a live WebSocket log. Volumes and
+  images transfer **directly host-to-host** when reachable, otherwise **relayed through
+  Containly**; the image is re-pulled from a registry when available, else streamed via
+  `docker save | docker load`. The source is left stopped as a safety net and only removed on
+  explicit confirmation. New endpoints `POST /api/migrations`, `/preflight`,
+  `/:id/remove-source`, `GET /api/migrations[/:id]`, and WS `GET /api/migrations/:id/stream`.
+
+### Fixed
+
+- **Applied updates now disappear from the Updates list immediately** instead of lingering
+  until the next forced re-check — the server update cache is invalidated after an update is
+  applied.
+
 ## [0.1.39] — 2026-07-24
 
 ### Added
