@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.43] — 2026-07-24
+
+### Added
+
+- **Migrating a stack now transfers the whole stack folder** — every file in the stack directory
+  (the compose file, `.env`, config files, and any bind-mount data) is copied to the target as
+  its own step, not just the compose file. Fixes target deploys that failed with
+  "env file … not found" / missing variables.
+- **Archive the source after a migration** — the done screen now offers "Archive source" (for
+  stacks) next to "Remove source", moving the source stack into the archive on its origin host.
+- **Copy buttons in the endpoint setup guide** — each command block (certificates, `daemon.json`,
+  systemd override) is its own field with a one-click copy button that works over plain HTTP too
+  (falls back from the clipboard API to `execCommand`); commands wrap instead of scrolling sideways.
+
+### Changed
+
+- The migration wizard can now be closed (outside click / Escape) even while a migration is
+  running — it keeps running in the background and can be reopened from the "Migrating…" row hint.
+- Stacks row menu now matches the containers menu: **Kill** is the last item, after a separator.
+
 ## [0.1.42] — 2026-07-24
 
 ### Added
