@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.45] — 2026-07-24
+
+### Changed
+
+- **Endpoints page is now a table** — status, name, type, address, Docker version, compose paths
+  and last-checked time in columns instead of individual cards.
+- **Endpoint setup guide reworked** — the TLS certificate steps are now separate, labelled,
+  comment-free copyable blocks, with the copy button outside the code field.
+
+### Fixed
+
+- **Copy buttons copy directly over plain HTTP** — the clipboard fallback now focuses and selects
+  a real textarea so one click copies, instead of only selecting the text.
+
 ## [0.1.44] — 2026-07-24
 
 ### Added
