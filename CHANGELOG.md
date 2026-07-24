@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.44] — 2026-07-24
+
+### Added
+
+- **"Archive source" option in the migration wizard.** For stack migrations a checkbox archives
+  the source stack into its origin host's archive after a successful migration; when left
+  unchecked the source stays in the normal stack path. Mutually exclusive with "remove source".
+
 ## [0.1.43] — 2026-07-24
 
 ### Added
