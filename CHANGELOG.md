@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.39] — 2026-07-24
+
+### Added
+
+- **One-click version updates for pinned image tags.** When the Updates page detects a newer
+  stable version tag (e.g. `v0.1.52 → v0.1.53`), the update button now moves the pinned tag
+  forward automatically: for a **stack** it rewrites the tag in the compose file or the stack's
+  `.env` — whichever defines it — and redeploys; for a **standalone container** it pulls the new
+  tag and recreates the container. No more editing `.env` by hand. If the tag cannot be located
+  the update is aborted with a clear message and nothing is changed; a failed redeploy rolls the
+  file change back. New endpoint `POST /api/updates/apply-version`.
+
+### Security
+
+- **Bumped `find-my-way` to 9.7.0** to resolve a high-severity HTTP/2 denial-of-service
+  advisory (GHSA-c96f-x56v-gq3h / CVE-2026-47219, CVSS 7.5) affecting the Fastify router at
+  version ≤ 9.6.0. Pinned via an npm `overrides` entry.
+
 ## [0.1.38] — 2026-07-24
 
 ### Fixed
