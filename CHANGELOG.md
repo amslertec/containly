@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.46] — 2026-07-24
+
+### Changed
+
+- **Endpoints table now uses the shared table styling** — same surface background, header
+  colours and hover behaviour as the Stacks and Containers tables.
+
+### Fixed
+
+- **Copy buttons in the endpoint setup guide now work inside the dialog over plain HTTP.** The
+  clipboard fallback selects the visible code directly instead of a hidden textarea, so the
+  Radix modal's focus trap no longer prevents the copy from happening.
+- **"Remove source" on the migration done screen now gives feedback** — it shows a loading state
+  while the source stack/container is torn down and surfaces any error, instead of appearing to
+  do nothing.
+
 ## [0.1.45] — 2026-07-24
 
 ### Changed
