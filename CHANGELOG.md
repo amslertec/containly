@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.41] — 2026-07-24
+
+### Fixed
+
+- **Migrating a stack no longer fails with "no such container".** Starting a stack migration
+  ran the container-specific pre-flight against the stack id; the pre-flight is now kind-aware
+  (stacks use a daemon-level architecture/reachability check, container-specific checks happen
+  per service at run time).
+
+### Changed
+
+- **Reworked the migration wizard** — custom dropdowns and checkboxes (no browser-native
+  controls), a source → target banner, clearer option descriptions, and a polished pre-flight
+  and progress view.
+
 ## [0.1.40] — 2026-07-24
 
 ### Added
