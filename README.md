@@ -11,8 +11,8 @@
 Stack definitions live as version-controllable files on the filesystem, not in a
 database. Built for homelabs with multiple Docker hosts behind a reverse proxy.
 
-[![CI](https://github.com/amslertec/containly/actions/workflows/ci.yml/badge.svg)](https://github.com/amslertec/containly/actions/workflows/ci.yml)
 [![Docker Hub](https://img.shields.io/docker/v/amslertec/containly?logo=docker&label=Docker%20Hub&sort=semver)](https://hub.docker.com/r/amslertec/containly)
+[![Website](https://img.shields.io/badge/website-containly.amslertec.ch-2bb6a2)](https://containly.amslertec.ch)
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](LICENSE)
 
 > ⚠️ **Security-critical.** Containly talks to the Docker socket — that is
@@ -26,23 +26,45 @@ database. Built for homelabs with multiple Docker hosts behind a reverse proxy.
   **live logs**, **exec console** (in-browser terminal), **live resource stats**
   (CPU/RAM/net/IO).
 - **Images** — list, pull, remove, prune (incl. unused tagged images), tag
-  management, **update indicator**.
+  management, **update indicator**, and **CVE / vulnerability scanning** (Trivy) with
+  severity badges.
 - **Volumes & networks** — list, create, remove, inspect, detect orphans.
 - **Stacks** — Compose deployments kept as **files** (version-controllable, no DB
   lock-in). Per-endpoint stack paths, file browser with folder navigation, editor,
   "new file", **search** (stack/container/image), a **`docker run` →
-  `docker-compose.yml` converter**, and stack-wide actions.
+  `docker-compose.yml` converter**, GitOps auto-sync, and stack-wide actions.
 - **Multi-host** — multiple endpoints: local socket, TCP with TLS client
   certificates, SSH; an **"All hosts"** combined view. **Agent-less remote stack
   management** via a helper container (file CRUD + deploy over the plain Docker API).
-- **Updates** — registry digest checks without pulling, background checking, and a
-  **server-side bulk update job** (survives reloads) with live progress.
+- **Live migration** — move a container or a whole Compose stack (with its image,
+  volumes and networks) **between hosts**, streamed live with a progress log,
+  pre-flight checks, and automatic rollback if anything fails.
+- **Monitoring & alerts** — background watch for offline hosts, unhealthy containers,
+  OOM kills, restart loops, low disk, image updates and new critical CVEs — notified
+  in-app and by email.
+- **Updates & self-update** — registry digest checks without pulling, a server-side
+  **bulk update job** (survives reloads) with live progress, and **one-click
+  self-update** where Containly recreates its own container and rolls back if the new
+  version isn't healthy.
 - **Registry login** — Docker Hub / registry sign-in (encrypted) for authenticated
   pulls & checks and private images.
 - **Security** — Argon2id passwords, **two-factor authentication (TOTP + recovery
   codes)**, encrypted secrets at rest, audit log, CSRF, rate limiting.
 - **Backup & restore** — passphrase-encrypted full backup for dev→prod migration.
 - **i18n** — German & English; light/dark theme; role-based access (**admin/viewer**).
+
+---
+
+## Pricing
+
+Containly is **free for up to 3 Docker hosts** (including the built-in local host) —
+every feature included, no account, self-hosted. For **unlimited hosts**, a **Pro**
+license is available as a **one-time (Lifetime)** purchase or an **annual
+subscription**, bought and activated directly inside the app (**Settings → License**).
+A Pro license works offline and can be used on up to 3 Containly instances; your data
+never leaves your server.
+
+See pricing and features at **[containly.amslertec.ch](https://containly.amslertec.ch)**.
 
 ---
 

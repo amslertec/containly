@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.0] — 2026-07-25
+
+First stable release. 🎉
+
+### Added
+
+- **Licensing & Pro tier** — Containly is free for up to **3 Docker hosts** (including the
+  built-in local host); **unlimited hosts** require a **Pro** license, available as a one-time
+  **Lifetime** purchase or an **annual subscription**. Purchase and activation happen **in-app**
+  (Settings → License) via Lemon Squeezy. A Pro license works **offline** (7-day validation
+  grace) and can be used on up to **3 Containly instances**.
+- **Endpoint capacity enforcement** — without a valid Pro license, endpoints beyond the free
+  limit are **locked**: greyed with a "Pro" badge, not selectable in the host switcher/command
+  palette, and the server refuses to connect to them. The built-in local host plus the oldest
+  hosts stay active; a valid license unlocks everything instantly.
+- **Live migration** and **one-click self-update** surfaced as first-class features.
+
+### Changed
+
+- **Content-Security-Policy** now allows the Lemon Squeezy checkout overlay (`*.lemonsqueezy.com`
+  for `frame-src`, `connect-src`, `script-src`, `form-action`).
+
+### Notes
+
+- Self-update reads GitHub Releases; **1.0.0** supersedes the entire 0.1.x line.
+
 ## [0.1.46] — 2026-07-24
 
 ### Changed
