@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.4] — 2026-07-26
+
+### Fixed
+
+- **License → "Re-check" did not update the "last checked" time for an owner license.** Owner
+  licenses validate fully offline, so re-check returned early without touching the timestamp —
+  clicking it appeared to do nothing. It now refreshes the "last checked" time so the action
+  gives visible feedback (the owner license is, as before, never downgraded).
+
 ## [1.0.3] — 2026-07-26
 
 ### Changed
