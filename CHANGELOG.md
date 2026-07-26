@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.11] — 2026-07-26
+
+### Changed
+
+- **Version tab always shows the release notes.** The changelog for the latest release is now
+  shown even when you are already up to date (previously only when an update was available), so
+  you can always see what changed in the current/newest version.
+
 ## [1.0.10] — 2026-07-26
 
 ### Added
