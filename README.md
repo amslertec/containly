@@ -42,10 +42,13 @@ database. Built for homelabs with multiple Docker hosts behind a reverse proxy.
 - **Monitoring & alerts** — background watch for offline hosts, unhealthy containers,
   OOM kills, restart loops, low disk, image updates and new critical CVEs — notified
   in-app and by email.
-- **Updates & self-update** — registry digest checks without pulling, a server-side
-  **bulk update job** (survives reloads) with live progress, and **one-click
-  self-update** where Containly recreates its own container and rolls back if the new
-  version isn't healthy.
+- **Updates & self-update** — registry digest checks without pulling, semver detection for
+  pinned version tags, a server-side **bulk update job** (survives reloads) with live progress,
+  and **one-click self-update** where Containly recreates its own container and rolls back if
+  the new version isn't healthy.
+- **Scheduled tasks** — automate update checks, vulnerability scans, backups, pruning and
+  auto-updates on an **hourly / per-weekday / monthly** schedule; every run is recorded in the
+  audit log.
 - **Registry login** — Docker Hub / registry sign-in (encrypted) for authenticated
   pulls & checks and private images.
 - **Security** — Argon2id passwords, **two-factor authentication (TOTP + recovery
@@ -57,14 +60,19 @@ database. Built for homelabs with multiple Docker hosts behind a reverse proxy.
 
 ## Pricing
 
-Containly is **free for up to 3 Docker hosts** (including the built-in local host) —
-every feature included, no account, self-hosted. For **unlimited hosts**, a **Pro**
-license is available as a **one-time (Lifetime)** purchase or an **annual
-subscription**, bought and activated directly inside the app (**Settings → License**).
-A Pro license works offline and can be used on up to 3 Containly instances; your data
-never leaves your server.
+Containly is **free for up to 2 Docker hosts** (the built-in local host plus one more) —
+every feature included, no account, self-hosted. For **unlimited hosts**, a **Pro** license
+is bought and activated directly inside the app (**Settings → License**):
 
-See pricing and features at **[containly.amslertec.ch](https://containly.amslertec.ch)**.
+| Plan | Price | Valid for | Free trial |
+|---|---|---|---|
+| **Lifetime** | CHF 189 one-time | 1 Containly instance | — |
+| **Yearly** | CHF 89 / year | 1 Containly instance | 7 days |
+| **Monthly** | CHF 15.90 / month | 2 Containly instances | 7 days |
+
+A Pro license unlocks **unlimited hosts**, works **offline** (7-day validation grace), and
+your data never leaves your server. See the latest pricing at
+**[containly.amslertec.ch](https://containly.amslertec.ch)**.
 
 ---
 
@@ -166,25 +174,6 @@ containly/
 | Backend | Node 22, Fastify 5, dockerode, better-sqlite3, argon2, Zod |
 | Frontend | React 19, TypeScript (strict), Vite, TanStack Query + Router, Tailwind CSS 4, Radix, i18next, xterm |
 | Persistence | SQLite (users/sessions/endpoints/registries/audit) · Compose stacks as files |
-
----
-
-## Development
-
-```bash
-npm install
-npm run dev                 # backend (:8420) + Vite dev server in parallel
-```
-
-```bash
-npm run typecheck           # tsc --strict across all workspaces
-npm run lint                # typecheck + ESLint
-npm run build               # production build (shared → server → web)
-```
-
-For local HTTP testing set `CONTAINLY_SECURE_COOKIES=false` in `.env`. All
-environment variables are documented in [`.env.example`](.env.example). See
-[CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ---
 
