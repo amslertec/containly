@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.7] — 2026-07-26
+
+### Changed
+
+- **Free tier now allows 2 Docker hosts** (was 3): the host where Containly runs (the built-in
+  local host) plus one more. A Pro license still removes the limit. Existing free installs with
+  a third host will have that newest host locked until a Pro license is activated.
+
 ## [1.0.6] — 2026-07-26
 
 ### Fixed
