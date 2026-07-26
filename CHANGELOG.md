@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.5] — 2026-07-26
+
+### Added
+
+- **License panel: reveal & copy the active key.** The license key can now be shown (eye
+  toggle) and copied — including the owner token, which is now stored on activation so it can
+  be displayed (re-activate an existing owner license once to populate it).
+- **Consolidated update email.** When the periodic scan finds image updates across several
+  hosts, Containly now sends a **single** email listing each host and its update (with the
+  target version for pinned tags), instead of one email per image/host.
+
+### Fixed
+
+- **License panel: the "remove" action was missing for owner licenses.** Deactivating is now
+  available for owner licenses too (drops back to free; the same token re-activates it).
+
+### Notes
+
+- The **all-hosts updates view already exists**: pick **"All hosts"** in the host switcher and
+  open Updates to see every endpoint's updates in one table — with the host column, bulk
+  "Update all", and self-update handling.
+
 ## [1.0.4] — 2026-07-26
 
 ### Fixed
