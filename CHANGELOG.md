@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.6] — 2026-07-26
+
+### Fixed
+
+- **License panel: revealing the key pushed the show/copy buttons off-screen.** The full key is
+  a long unbroken string; it now wraps (`break-all`) instead of forcing a single line, so the
+  reveal and copy buttons stay visible and the key can be hidden again.
+
 ## [1.0.5] — 2026-07-26
 
 ### Added
