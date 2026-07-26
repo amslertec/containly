@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.3] — 2026-07-26
+
+### Changed
+
+- **Redesigned the License panel (Settings → License).** Clearer status card with a host-usage
+  bar on the free tier, side-by-side plan cards (Lifetime / Annual) with the included benefits,
+  a dedicated "already have a key" field, and tidier manage actions.
+
+### Fixed
+
+- **In-app purchase opened a new browser tab instead of the overlay.** `lemon.js` was loaded but
+  never initialised, so `window.LemonSqueezy` was undefined and the checkout fell back to a new
+  tab. It is now initialised (`createLemonSqueezy()` + `Setup`), so the checkout opens as an
+  **in-app overlay**, and the license refreshes automatically after a successful purchase.
+- **"Update all" gave no feedback and did not handle self-updates.** The bulk update now behaves
+  like the per-image button: it shows a completion toast, refreshes the list so applied updates
+  disappear, and — when the batch includes a **Containly self-update** — shows the self-update
+  notice and reloads the page. The self-update is also applied **last** so it can't interrupt the
+  other updates in the batch.
+
 ## [1.0.2] — 2026-07-26
 
 ### Fixed
