@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.10] — 2026-07-26
+
+### Added
+
+- **Scheduled tasks: hourly & monthly frequencies + per-weekday selection.** Every scheduled
+  task (update check, vulnerability scan, backup, prune, auto-update) can now run **hourly** (at
+  a chosen minute), on **selected weekdays** (any combination — all days = daily, one = weekly),
+  or **monthly** (on a chosen day of the month).
+- **The update check is now enabled by default** (daily at 03:00) so update emails arrive
+  automatically without opening the Updates page first.
+
+### Fixed
+
+- **Schedule form no longer overflows on mobile.** The frequency / day / time controls now wrap
+  instead of pushing the time field off-screen.
+
 ## [1.0.9] — 2026-07-26
 
 ### Changed
