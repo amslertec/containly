@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.12] — 2026-07-26
+
+### Added
+
+- **Automatic system tasks now appear in the audit log.** Every scheduled task run (update
+  check, vulnerability scan, backup, prune, auto-update) is recorded — attributed to **System**
+  when it runs automatically, or to the user who triggered it manually.
+- **Containly self-update banner on the Updates page.** When a new Containly version is available
+  (from the GitHub release check), the Updates page shows it at the top; clicking "Check for
+  updates" in Settings → Version reflects it there immediately (shared version state).
+
+### Changed
+
+- **Notifications settings redesigned.** Category sections now carry an icon and an active count,
+  the header shows a total "X/Y active" summary, and the grouping is cleaner.
+
 ## [1.0.11] — 2026-07-26
 
 ### Changed
