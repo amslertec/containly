@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.1] — 2026-07-26
+
+### Fixed
+
+- **Update detection for pinned version tags stopped working after the server had been
+  running for a while.** For images pinned to an immutable tag (e.g. `repo:v0.1.54`), the
+  newer-version check enumerates the repository's Docker Hub tags. That call reused a cached
+  Docker Hub login token for up to 4 hours, but the token expires sooner — the stale token
+  produced a `401`, which was swallowed silently, so no newer tag was ever reported (the image
+  showed as "up to date" even though a higher version existed). The Docker Hub client now
+  refreshes the token on failure and falls back to an anonymous request for public repositories,
+  so a stale token can no longer suppress update detection. Concurrent tag lookups also share a
+  single login instead of triggering a burst of logins.
+- **Vulnerability notifications flooded the mailbox with already-known CVEs.** The **first**
+  scan of an image had no baseline, so every pre-existing CRITICAL/HIGH CVE was treated as
+  "new" and mailed. This flooded on every fresh install, every newly monitored host, and every
+  freshly pulled image (new image ID). The first scan now silently records a baseline and only
+  sends mail when a genuinely new CRITICAL/HIGH CVE appears afterwards.
+
 ## [1.0.0] — 2026-07-25
 
 First stable release. 🎉
