@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.9] — 2026-07-26
+
+### Changed
+
+- **License status now shows the term clearly.** A Pro license shows a **Term** row: *Lifetime ·
+  never expires* for one-time and owner licenses, or *valid until &lt;date&gt; · &lt;n&gt; days
+  left* for subscriptions. The plan badge reads **Lifetime** or **Subscription**.
+
 ## [1.0.8] — 2026-07-26
 
 ### Added
