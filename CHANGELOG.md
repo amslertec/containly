@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.8] — 2026-07-26
+
+### Added
+
+- **License plans redesigned with prices.** The upgrade section now shows three plan cards:
+  **Lifetime** (CHF 189.– one-time, 1 instance), **Yearly** (CHF 89.– / year, 1 instance) and
+  **Monthly** (CHF 15.90 / month, 2 instances). The Yearly and Monthly subscriptions include a
+  **7-day free trial** (Lifetime does not). Each card shows its price, validity and included
+  features, and opens the checkout as an in-app overlay.
+
 ## [1.0.7] — 2026-07-26
 
 ### Changed
