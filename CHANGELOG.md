@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.2] — 2026-07-26
+
+### Fixed
+
+- **"Update all" did not apply pinned version-tag updates.** The per-image update button
+  already handled images pinned to an immutable tag (e.g. `repo:v0.1.54` → `v0.1.55`) by
+  rewriting the tag in the stack's Compose/`.env` and redeploying. The bulk **Update all** job,
+  however, ran a plain digest pull for every image — a no-op for immutable tags — so pinned
+  version updates were silently skipped. The bulk job now uses the **same branch** as the
+  per-image button: version-tag rewrite for pinned tags, digest pull otherwise.
+
 ## [1.0.1] — 2026-07-26
 
 ### Fixed
