@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.13] — 2026-07-27
+
+### Security
+
+- **Updated `@fastify/static` 10.1.0 → 10.1.2**, resolving **CVE-2026-15074** (high) and
+  **CVE-2026-7120** (medium).
+
+### Changed
+
+- **Settings: "Version" and "License" are now a single "Version & License" tab**, with the two
+  panels shown side by side on wide screens (stacked on smaller ones).
+
 ## [1.0.12] — 2026-07-26
 
 ### Added
