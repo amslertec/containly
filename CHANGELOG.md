@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.14] — 2026-07-27
+
+### Fixed
+
+- **Applying a pinned-version update now handles images whose full reference lives in an `.env`
+  variable.** Moving a version tag forward (e.g. `0.3.7` → `0.3.8`) now also works when the
+  Compose file uses `image: ${VAR}` / `image: ${VAR:-repo:tag}` and the `.env` holds the whole
+  reference (`VAR=repo:tag`), not just the bare tag. When several such image variables exist
+  (e.g. an app plus its database), the correct one is matched by repository.
+
 ## [1.0.13] — 2026-07-27
 
 ### Security
