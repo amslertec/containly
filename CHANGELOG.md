@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.1.0] — 2026-07-27
+
+### Added
+
+- **Microsoft Entra ID single sign-on (Pro).** Let your team sign in with their Microsoft
+  accounts, with Entra security groups mapped to Containly's admin and read-only roles. The
+  login flow is auto-selected: a seamless Authorization Code + PKCE redirect when a public
+  HTTPS base URL is configured, or a device-code login that works over plain HTTP without a
+  domain. A schedulable background sync re-syncs roles from group membership and removes users
+  who are no longer in any mapped group; anyone in no mapped group is denied access. Local and
+  Entra SSO accounts are shown in separate tables on the Users page, and a local user and an
+  SSO user may share an email address. Configure it under **Settings → Single Sign-On**, which
+  includes a step-by-step setup guide with the exact redirect URI and required Entra
+  permissions. The sign-in page shows a customizable "Sign in with Microsoft" button with the
+  official Microsoft logo, and optional auto-redirect. SSO is a Pro feature and requires a
+  license.
+
 ## [1.0.14] — 2026-07-27
 
 ### Fixed
