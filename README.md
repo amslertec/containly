@@ -56,6 +56,9 @@ database. Built for homelabs with multiple Docker hosts behind a reverse proxy.
 - **Single sign-on** *(Pro)* — **Microsoft Entra ID SSO**: sign in with Microsoft accounts,
   Entra security groups mapped to admin/read-only roles, device-code login (plain HTTP, no
   domain) or seamless redirect, and a scheduled background role sync.
+- **Appearance presets** *(Pro)* — give the instance its own look: curated colour &
+  typography presets, or build your own from an accent, a font and per-mode background
+  colours; the palette is derived contrast-safe for light & dark and applies to every user.
 - **Backup & restore** — passphrase-encrypted full backup for dev→prod migration.
 - **i18n** — German & English; light/dark theme; role-based access (**admin/viewer**).
 
@@ -73,8 +76,9 @@ is bought and activated directly inside the app (**Settings → License**):
 | **Yearly** | CHF 89 / year | 1 Containly instance | 7 days |
 | **Monthly** | CHF 15.90 / month | 2 Containly instances | 7 days |
 
-A Pro license unlocks **unlimited hosts** and **Microsoft Entra ID single sign-on**, works
-**offline** (7-day validation grace), and your data never leaves your server. See the latest
+A Pro license unlocks **unlimited hosts**, **Microsoft Entra ID single sign-on** and
+**appearance presets**, works **offline** (7-day validation grace), and your data never
+leaves your server. See the latest
 pricing at
 **[containly.amslertec.ch](https://containly.amslertec.ch)**.
 
