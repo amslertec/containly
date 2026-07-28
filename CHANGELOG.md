@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.2.0] — 2026-07-28
+
+### Added
+
+- **Appearance presets (Pro).** Choose an instance-wide colour and typography preset that applies
+  to every user, under **Settings → Appearance**. Ships with curated presets (Teal, Ocean, Violet,
+  Amber, High contrast) and lets admins create custom presets: pick an accent colour, a font, and
+  optionally a custom background colour per light/dark mode — the rest of the palette (surfaces,
+  borders, text) is derived automatically and stays contrast-safe. Adds bundled, self-hosted font
+  families (IBM Plex, Space Grotesk, Inter, Source Serif, Nunito) so presets look distinct. The
+  light/dark theme toggle keeps working; the active preset supplies each mode's palette. Appearance
+  presets are a Pro feature.
+
+### Fixed
+
+- **Images pinned by digest are no longer shown as "orphaned".** An image referenced by
+  `repo:tag@sha256:…` has no local repo tag (only a repo digest), so it was flagged orphaned and
+  shown without a name on the Images page. It now displays its (shortened) digest reference and the
+  correct in-use / unused state.
+
 ## [1.1.1] — 2026-07-28
 
 ### Fixed
