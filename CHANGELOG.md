@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.1.1] — 2026-07-28
+
+### Fixed
+
+- **Registry credentials are now applied when deploying Compose stacks.** A private image
+  referenced in a stack's Compose file could fail to pull during deploy with "pull access
+  denied", because the Docker Hub / registry login saved under **Settings → Registries** was not
+  passed to `docker compose up`/`pull`. The saved credentials are now injected (via
+  `DOCKER_CONFIG`) for every stack deploy — on local and remote endpoints alike. Direct image
+  pulls from the Images tab were unaffected and already used the stored credentials.
+
 ## [1.1.0] — 2026-07-27
 
 ### Added
