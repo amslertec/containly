@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.2.1] — 2026-07-29
+
+### Fixed
+
+- **Private Docker Hub images pinned to a version tag detect updates again.** Semver update
+  detection (a newer `X.Y.Z` tag becoming available for an immutable version tag) listed a
+  repository's tags through the Docker Hub *web* API, whose anonymous fallback returns nothing for
+  private repositories — so a private image pinned to e.g. `4.0.10` never saw `4.0.11` and
+  auto-update never fired. Tags are now listed via the Registry v2 API using the same pull
+  credentials that authorize `docker pull`, so private repos work; all tags are read (no 25-tag
+  page cap), and an auth failure is logged instead of silently swallowed.
+
+### Changed
+
+- **Update-check notifications are now bundled per scan.** Running an update scan sends exactly
+  one email: scanning from the all-hosts view sends a single digest covering every host that has
+  updates (grouped per endpoint); scanning a single endpoint sends one bundled email for just that
+  host. Previously the all-hosts view emailed once per host. Merely viewing the updates list no
+  longer sends mail — only an explicit scan, the startup scan, and the scheduled check notify.
+  Added `POST /api/updates/scan` (scans 1..n endpoints, one bundled email); `GET /api/updates`
+  is now side-effect free.
+
 ## [1.2.0] — 2026-07-28
 
 ### Added
