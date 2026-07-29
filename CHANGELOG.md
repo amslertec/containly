@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.2.2] — 2026-07-29
+
+### Added
+
+- **Admin password reset for users.** On Settings → Users, an admin can reset a local user's
+  password. If SMTP is configured and the user has an email address, a reset link is emailed to
+  them; otherwise the admin gets a copyable link to hand over. The link opens a public page where
+  the user sets a new password (link is single-use and expires after 1 hour). Resetting signs the
+  user out of all sessions. SSO/Entra users are excluded (no local password).
+- **Multiple accounts per registry.** You can now connect several Docker Hub accounts (or several
+  accounts on any registry host). For an image `ns/name`, Containly picks the account whose
+  username matches the namespace; otherwise the account marked as **default** for that host. Compose
+  deploys and unknown namespaces use the default account (Docker's `config.json` allows one login
+  per host). Each connected account shows its exact connection time.
+
+### Changed
+
+- **Updates page:** the "Check" button now spins its own refresh icon while checking instead of
+  showing a separate loading spinner next to it.
+- **Registries tab:** the connection time is now shown as an exact, unambiguous timestamp (stored in
+  UTC) instead of a relative "x days ago".
+
 ## [1.2.1] — 2026-07-29
 
 ### Fixed
