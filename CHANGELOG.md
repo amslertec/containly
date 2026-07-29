@@ -7,7 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-## [1.2.3] — 2026-07-29
+## [1.2.4] — 2026-07-30
+
+### Added
+
+- **Entra profile photos.** SSO users' Microsoft Entra profile picture is now synced on each
+  sign-in and shown as their avatar in the sidebar and on the profile page (falls back to the
+  default icon when no photo is set). Requires the `User.Read` delegated permission on the Entra
+  app registration.
+
+### Fixed
+
+- **Audit log showed the Entra object ID instead of the name for SSO users.** Actions performed by
+  an SSO user, and the SSO sign-in entry, now show the user's display name (first/last name)
+  instead of the raw GUID.
+- **Clearer audit action labels.** SSO and user-management actions (SSO sign-in, SSO settings,
+  password reset, invites, registry default account, …) now have proper labels instead of a
+  prettified action code.
 
 ### Fixed
 
