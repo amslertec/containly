@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.2.3] — 2026-07-29
+
+### Fixed
+
+- **Bulk update progress counted stale jobs.** The "Update all" progress and its toast summed the
+  bulk-job status of every in-scope host, including finished jobs the server keeps in memory (so a
+  running job survives a reload). With one real update it could show "1/2" / "2/2". Progress now
+  counts only the hosts of the current bulk run.
+
 ## [1.2.2] — 2026-07-29
 
 ### Added
