@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.3.0] — 2026-07-30
+
+### Added
+
+- **Agent endpoints (reverse tunnel).** Connect a remote Docker host without opening its Docker port
+  or SSH: deploy the hardened `containly-agent` container on the host and it dials out to Containly
+  over WSS (works behind NAT). Onboarding hands you a ready-to-paste `docker run` command and a
+  `docker-compose.yml`, plus a live "waiting for the agent" indicator; the agent enrolls with a
+  one-time token and then reconnects on its own with a persistent credential. Everything works exactly
+  as over TCP+TLS — containers, exec console, live logs, stats, file browser and Compose stacks — all
+  tunnelled through the single outbound connection.
+- **Private Git repositories for GitOps stacks.** "Add stack from Git" now takes an optional access
+  token (stored encrypted) to clone and auto-sync private repositories; a missing credential no longer
+  hangs on an interactive prompt but fails with a clear error.
+
 ## [1.2.4] — 2026-07-30
 
 ### Added

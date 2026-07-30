@@ -32,10 +32,16 @@ database. Built for homelabs with multiple Docker hosts behind a reverse proxy.
 - **Stacks** — Compose deployments kept as **files** (version-controllable, no DB
   lock-in). Per-endpoint stack paths, file browser with folder navigation, editor,
   "new file", **search** (stack/container/image), a **`docker run` →
-  `docker-compose.yml` converter**, GitOps auto-sync, and stack-wide actions.
+  `docker-compose.yml` converter**, GitOps auto-sync (public **or private** repos via an
+  access token), and stack-wide actions.
 - **Multi-host** — multiple endpoints: local socket, TCP with TLS client
   certificates, SSH; an **"All hosts"** combined view. **Agent-less remote stack
   management** via a helper container (file CRUD + deploy over the plain Docker API).
+- **Agent endpoints** *(reverse tunnel)* — connect a host without opening its Docker port or
+  SSH: a hardened `containly-agent` container dials **out** to Containly over WSS (works behind
+  NAT). One-time-token enrollment → persistent credential; copy-paste `docker run` / compose in
+  the UI. Everything (exec, logs, stats, files, Compose stacks) is tunnelled over that one
+  connection, exactly as over TCP+TLS.
 - **Live migration** — move a container or a whole Compose stack (with its image,
   volumes and networks) **between hosts**, streamed live with a progress log,
   pre-flight checks, and automatic rollback if anything fails.
