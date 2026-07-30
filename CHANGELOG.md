@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.3.1] — 2026-07-30
+
+### Changed
+
+- **Git stacks moved into a modal.** On the Stacks page the Git-linked stacks are no longer an
+  inline list — a "Git stacks" button (next to "Archive") opens a clean table showing each stack's
+  name, repository + branch, last commit, last sync status and per-row sync/unlink actions.
+
 ## [1.3.0] — 2026-07-30
 
 ### Added
