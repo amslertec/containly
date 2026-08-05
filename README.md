@@ -12,7 +12,7 @@ Stack definitions live as version-controllable files on the filesystem, not in a
 database. Built for homelabs with multiple Docker hosts behind a reverse proxy.
 
 [![Docker Hub](https://img.shields.io/docker/v/amslertec/containly?logo=docker&label=Docker%20Hub&sort=semver)](https://hub.docker.com/r/amslertec/containly)
-[![Website](https://img.shields.io/badge/website-containly.amslertec.ch-2bb6a2)](https://containly.amslertec.ch)
+[![Website](https://img.shields.io/badge/website-containly.ch-2bb6a2)](https://containly.ch)
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](LICENSE)
 
 > ⚠️ **Security-critical.** Containly talks to the Docker socket — that is
@@ -86,7 +86,7 @@ A Pro license unlocks **unlimited hosts**, **Microsoft Entra ID single sign-on**
 **appearance presets**, works **offline** (7-day validation grace), and your data never
 leaves your server. See the latest
 pricing at
-**[containly.amslertec.ch](https://containly.amslertec.ch)**.
+**[containly.ch](https://containly.ch)**.
 
 ---
 

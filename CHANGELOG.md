@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.3.2] — 2026-07-30
+
+### Changed
+
+- **Git-stacks modal is wider.** The Git-stacks table modal now uses more of the screen width so the
+  whole table is visible without horizontal scrolling.
+- **License checkout opens in a new tab.** Buying a Pro plan now opens the checkout in a new browser
+  tab (with an external-link icon on the buttons) instead of the in-app overlay.
+
 ## [1.3.1] — 2026-07-30
 
 ### Changed
