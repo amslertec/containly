@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.3.3] — 2026-08-12
+
+### Security
+
+- Patched all HIGH-severity vulnerabilities reported by the image scanner:
+  - **openssl** (`libcrypto3` / `libssl3`) CVE-2026-14456 — the runtime image now
+    runs `apk upgrade` at build time to pull the latest patched Alpine packages.
+  - **brace-expansion** CVE-2026-69152 (→ 5.0.9) and **fast-uri** CVE-2026-18446
+    (→ 3.1.6 / 4.1.3), both bumped via the lockfile.
+- No functional changes; image scans clean of HIGH/CRITICAL findings.
+
 ## [1.3.2] — 2026-07-30
 
 ### Changed
