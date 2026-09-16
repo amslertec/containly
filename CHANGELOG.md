@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [1.3.4] — 2026-09-16
 
+### Fixed
+
+- Loading spinners (e.g. **Check** and **Update** on the Updates page, bulk
+  "Updating n/m") no longer freeze when the operating system asks for reduced motion
+  (Windows "Animation effects" off, typical in RDP sessions). Decorative animations
+  and transitions stay reduced; only functional progress spinners keep rotating.
+
 ### Security
 
 - **fastify** 5.10.0 → 5.12.5 — fixes CVE-2026-16732 (request spoofing via numeric
