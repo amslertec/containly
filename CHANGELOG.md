@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.3.4] — 2026-09-16
+
+### Security
+
+- **fastify** 5.10.0 → 5.12.5 — fixes CVE-2026-16732 (request spoofing via numeric
+  `trustProxy`), CVE-2026-18504 (schema validation bypass via root primitive coercion),
+  the four HIGH advisories fixed in 5.12.2 (CVE-2026-84428, CVE-2026-84469,
+  CVE-2026-76169, CVE-2026-84504) and CVE-2026-92081 (HTTP/2 trailer DoS, 5.12.5).
+- **nodemailer** 9.0.3 → 9.1.1 — fixes GHSA-2x7j-588g-ccc2 (quadratic address parsing),
+  GHSA-cc9r-2j5m-2m83 (recipient-domain validation bypass via RFC 5322 comments),
+  GHSA-wmmp-3585-3rmp (IDN/Punycode allow-list bypass) and GHSA-8m3c-c648-2xjj
+  (`resolveContent()` bypassing `disableFileAccess`).
+- Release images are now always built with a fresh base image and without layer cache,
+  so the build-time `apk upgrade` can never be served stale.
+- No functional changes; the image scans clean across all severities.
+
 ## [1.3.3] — 2026-08-12
 
 ### Security
