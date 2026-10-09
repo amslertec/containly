@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.0.4] — 2026-10-09
+
+### Fixed
+
+- Updates page: while checking, two spinners showed at once (one in the "Checking"
+  button, one above the status text next to the title, off its line). Only the button
+  spins now; the status line reads "Checking 43 images …" as plain text.
+
+## [2.0.3] — 2026-10-09
+
+### Changed
+
+- Update confirmation: each image is now a card with its name and repository, the
+  version change as two chips (current tag and digest, then the new version or new build
+  and its digest) and the release notes link on its own line. The dialog is wider, so
+  nothing wraps into a narrow column any more; the same cards are used when updating
+  several images at once, and on phones.
+
 ## [2.0.2] — 2026-10-09
 
 ### Added
