@@ -7,14 +7,115 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.0.2] — 2026-10-09
+
+### Added
+
+- Dashboard events: pagination with a page-size choice (10, 25, 50 or 100, remembered
+  per browser) instead of an ever-growing list. Pages are loaded from the server, the
+  range shows "1–25 of 120", and a day divider appears when events from earlier days
+  are listed. The warnings count now shows the real total.
+- API: `GET /api/history/events` accepts `offset` and returns `total` (number of
+  matching events) for page-based lists.
+
+## [2.0.1] — 2026-10-09
+
+### Fixed
+
+- Pull-to-refresh in the installed app (PWA) started too early when scrolling back up:
+  the pages scroll in their own containers, so the gesture only checked the outer shell,
+  which is always at the top. A pull now only starts when every scrolled container is at
+  its top and has rested there for a moment, after a short dead zone, and never in the
+  same swipe that scrolled the content back up.
+- The back-to-top button now follows the container that actually scrolls, so it also
+  appears on the dashboard and on phones.
+
+## [2.0.0] — 2026-10-09
+
+A complete redesign of the web interface ("Werkbank"), new server data behind it and
+stricter access rules for non-admin users.
+
+### Added
+
+- **New interface on every page.** Icon rail, top bar with host switcher and live status,
+  command palette (`Ctrl/Cmd+K`, recent items, `>` for commands), notifications panel,
+  keyboard navigation in lists (`j`/`k`, `Enter`, `Esc`, `/`) and a phone layout with a
+  bottom tab bar. Every route loads on demand, so the first page loads less JavaScript.
+- **Dashboard with a status line and a 24 h history ("Verlauf").** One sentence and one KPI
+  strip summarise all hosts; below it a timeline per host, stack and container shows
+  running, unhealthy, restarting, crashed and stopped periods with markers for deploys,
+  updates, restarts and incidents. A scrubber shows the state at any past moment
+  (6 h, 12 h, 24 h, 7 days). Then an attention queue with one-click actions, a host
+  matrix, most restarts and a live event stream. Selecting one host turns the page into
+  its host overview.
+- **Containers as a workbench.** List and inspector side by side (full page on narrow
+  screens), grouping by stack, column choice, bulk actions, logs with search, line limit,
+  timestamps, wrap, follow and download, stats charts readable at any point.
+- **Stacks:** compose editor with line numbers, syntax colours and lint, `.env` editor with
+  masked secrets, a diff before every deploy, streaming deploy output, `docker run` to
+  Compose converter, archive view, view by host, and **scanned stacks**: Compose projects
+  started outside Containly are listed read-only and can be started, stopped and
+  restarted.
+- **Images, volumes, networks:** CVE overview per image, layers, pull with registry search,
+  clean-up with preview, volume sizes, volume browser, network details with subnet and
+  gateway, connect and disconnect containers.
+- **Endpoints:** a real page per host with CPU, RAM and disk usage and their history,
+  availability and outages, containers and stack paths.
+- **Users and accounts:** disable and enable users, reset another user's 2FA, see and end
+  other users' sessions, failed sign-ins, sign in on a new device with a code approved from
+  a signed-in session, invite details on the invite page.
+- **Appearance:** 8 themes, each tuned for light and dark, font pairings, density and corner
+  style, custom themes from an accent colour with a contrast check, an instance default and
+  an optional per-user choice (Pro).
+- New server APIs: container state history and Docker events (kept 7 days by default,
+  configurable), per-host metrics with history, a dashboard summary, appearance v2.
+
+### Changed
+
+- New typefaces (Space Grotesk, Hanken Grotesk, Geist Mono, self-hosted) and Phosphor
+  icons replace IBM Plex and lucide-react.
+- `/` is now called Dashboard; the per-host view is the Host overview (`/overview` and
+  `/endpoints/<id>` keep working).
+- Opening the notifications panel no longer marks everything as read. Bulk removal asks you to type the count; unlinking a Git stack,
+  signing out of a registry, deactivating the licence and ending a session now ask for
+  confirmation. Images are sorted by size by default.
+- German texts use Swiss spelling ("ss").
+- Dependency updates (all versions stay pinned exactly). Major updates:
+  **nodemailer** 9.1.1 → 10.0.16, **vitest** 4.1.10 → 5.0.3, **vite-plugin-pwa**
+  1.3.0 → 2.0.0, **@types/better-sqlite3** 7.6.13 → 9.6.0; minor and patch updates for
+  React 19.3, vite 8.3, zod 4.6, all `@fastify/*` and `@radix-ui/*` packages and more.
+  `@types/nodemailer` and `@types/tar-stream` were dropped (both packages ship their own
+  types); an exact `lightningcss` 1.33.0 override keeps the arm64 image build working.
+
+### Fixed
+
+- Sorting the Networks list by driver.
+- The endpoint re-check spinner turned on for every host while one was checked.
+- Stack details kept loading forever when the stack could not be read.
+- The Users page had no loading or error state.
+- Editing an agent endpoint sent SSH fields.
+- A short rate limit right after a restart could show the setup screen instead of sign-in.
+
+### Security
+
+- Non-admin users no longer receive environment values, raw inspect data or mount sources
+  from the server (removed server-side, not only hidden), cannot download files from
+  containers or volumes, and cannot read stack `.env` files.
+- Sign-in rate limits return a structured error with the retry time.
+- Transitive dependencies updated to clear all `npm audit` advisories.
+
+### Documentation
+
+- New README and screenshots for the redesigned interface.
+
 ### Documentation
 
 - Rewrote the README for the redesigned interface: a shorter intro, features organised
   like the app (Dashboard, Containers, Stacks, Images, volumes and networks, App catalog
   and updates, Endpoints, Administration, Appearance, keyboard and mobile) and a
-  screenshot gallery with light, dark and phone views.
+  screenshot gallery with light, dark and phone views taken from a real 2.0 instance.
 - Replaced the old screenshots (`setup.png`, `dashboard.png`, `endpoints.png`) with a new
-  set of eleven, listed in `docs/screenshots/README.md`.
+  set listed in `docs/screenshots/README.md`.
 
 ## [1.3.4] — 2026-09-16
 
