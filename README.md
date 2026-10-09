@@ -41,12 +41,13 @@ version, back up and edit without Containly.
 - **Timeline.** The state of every host and stack over the last 24 h (or 6 h, 12 h,
   7 days), with outages, restarts, deploys and updates marked on one time axis.
 - **Attention queue.** Offline hosts, unhealthy or crashed containers, available updates
-  and images with critical CVEs, each with the action that fixes it (re-check, restart,
-  start, update all, open).
-- **Host matrix.** Every host in one table: status, Docker version, containers, images,
-  CPU, RAM and disk with a 24 h CPU trend, updates and CVEs per host.
-- **Live events.** A running feed of container, image, update and sign-in events, with a
-  filter for warnings. Plus the containers with the most restarts.
+  and images with critical CVEs, each with a direct action (restart, start, update all,
+  open the container, host or image list).
+- **Host matrix.** Every host in one table: status, Docker version, containers, CPU, RAM
+  and disk as a heat table, a 24 h CPU trend, updates and critical CVEs per host.
+- **Live events.** A running feed of container state changes, deploys, updates, CVE scans
+  and actions taken in Containly (with the user), with a filter for warnings. Plus the
+  containers with the most restarts.
 
 ### Containers
 
@@ -139,14 +140,15 @@ version, back up and edit without Containly.
   built from an accent colour.
 - **Per-user override** *(Pro)*. Admins set the instance default; users may pick their
   own theme, font and density if the admin allows it.
-- **Density and fonts.** Comfortable or compact rows, corner style, and four font
+- **Density and fonts** *(Pro)*. Comfortable or compact rows, corner style, and four font
   pairings. All fonts are self-hosted; nothing loads from a third party.
 
 ### Keyboard, mobile, languages
 
-- **Keyboard-first.** `Ctrl`/`Cmd` + `K` opens the command palette for pages, hosts,
-  containers and images. In lists, `j` and `k` move, `Enter` opens the inspector, `Esc`
-  closes it, `/` searches, and `g` then `d` or `c` jumps to the dashboard or containers.
+- **Keyboard-first.** `Ctrl`/`Cmd` + `K` opens the command palette for pages (including
+  the App catalog), hosts, containers, images and quick actions. In lists, `j` and `k` move,
+  `Enter` opens the inspector, `Esc` closes it, `/` searches, `g` then a letter jumps to a
+  page (`d` dashboard, `c` containers, `s` stacks), and `?` lists every shortcut.
 - **Mobile and PWA.** A phone layout with bottom navigation and pull to refresh.
   Install Containly as an app on your phone or desktop.
 - **Languages.** English and German.
@@ -162,8 +164,8 @@ version, back up and edit without Containly.
 | ![Live container logs](docs/screenshots/container-logs-dark.png) | ![Stack detail with the compose editor, light mode](docs/screenshots/stack-editor-light.png) |
 | **Image CVEs** | **Host page** |
 | ![Image inspector listing CVEs](docs/screenshots/images-cves-dark.png) | ![Endpoint host page](docs/screenshots/endpoint-host-dark.png) |
-| **Appearance and themes** | **Sign-in** |
-| ![Appearance settings with the theme gallery, light mode](docs/screenshots/appearance-themes-light.png) | ![Sign-in page](docs/screenshots/login-dark.png) |
+| **Command palette** | **Sign-in** |
+| ![Command palette searching containers and images, light mode](docs/screenshots/command-palette-light.png) | ![Sign-in page](docs/screenshots/login-dark.png) |
 
 <p align="center">
   <img src="docs/screenshots/phone-dashboard-dark.png" alt="Dashboard on a phone" width="260">
@@ -278,7 +280,7 @@ containly/
 | Layer | Technology |
 |---|---|
 | Backend | Node 22, Fastify 5, dockerode, better-sqlite3, argon2, Zod |
-| Frontend | React 19, TypeScript (strict), Vite, TanStack Query + Router, Tailwind CSS 4, Radix, i18next, xterm |
+| Frontend | React 19, TypeScript (strict), Vite, TanStack Query + Router, Tailwind CSS 4, Radix, Phosphor icons, i18next, xterm |
 | Persistence | SQLite (users, sessions, endpoints, registries, audit) and Compose stacks as files |
 
 ---

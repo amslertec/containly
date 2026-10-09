@@ -7,6 +7,9 @@ Desktop shots are 1600 x 1000 px, phone shots 390 x 844 px, PNG at device scale 
 losslessly optimised (oxipng), ideally under 400 KB each. Use sample data only: no real
 hostnames, IPs, tokens, keys or personal data.
 
+The current set was taken from Containly 2.0.0 in English, connected to two throwaway
+Docker-in-Docker hosts (`homeserver` and `nas-keller`) running demo homelab stacks.
+
 | Filename | Shows | Mode |
 |---|---|---|
 | `dashboard-dark.png` | Dashboard: status line, key numbers, timeline, live events (README hero) | dark |
@@ -16,7 +19,7 @@ hostnames, IPs, tokens, keys or personal data.
 | `stack-editor-light.png` | Stack detail with the compose editor | light |
 | `images-cves-dark.png` | Image inspector, vulnerabilities (CVE) tab | dark |
 | `endpoint-host-dark.png` | Endpoint host page | dark |
-| `appearance-themes-light.png` | Settings > Appearance with the theme gallery | light |
+| `command-palette-light.png` | Command palette (`Ctrl`/`Cmd` + `K`) searching containers and images | light |
 | `login-dark.png` | Sign-in page | dark |
 | `phone-dashboard-dark.png` | Dashboard on a phone (390 x 844) | dark |
 | `phone-containers-dark.png` | Container list on a phone (390 x 844) | dark |
