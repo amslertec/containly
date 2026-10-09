@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Documentation
+
+- Rewrote the README for the redesigned interface: a shorter intro, features organised
+  like the app (Dashboard, Containers, Stacks, Images, volumes and networks, App catalog
+  and updates, Endpoints, Administration, Appearance, keyboard and mobile) and a
+  screenshot gallery with light, dark and phone views.
+- Replaced the old screenshots (`setup.png`, `dashboard.png`, `endpoints.png`) with a new
+  set of eleven, listed in `docs/screenshots/README.md`.
+
 ## [1.3.4] — 2026-09-16
 
 ### Fixed
