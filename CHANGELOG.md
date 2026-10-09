@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.0.5] — 2026-10-09
+
+### Changed
+
+- Updates page: after the last update of a run (one image, a selection or a retry),
+  the list refreshes itself quietly about 2.5 seconds later. Rows marked "Updated" and the
+  finished progress card disappear without a page reload, so "Updates only" shows the
+  real state; failed rows stay for a retry.
+
 ## [2.0.4] — 2026-10-09
 
 ### Fixed
