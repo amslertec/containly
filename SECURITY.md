@@ -49,20 +49,18 @@ Security fixes are provided for the latest released minor version.
 
 ### Priority 2 — recommended
 
-5. **Login lockout**: on top of rate limiting, a temporary account lockout after
-   repeated failures + an audit alert.
-6. **Manage the master key externally** (Docker secret / env) instead of a file.
-7. **Least privilege for TCP endpoints**: use the socket proxy on remote hosts
+5. **Least privilege for TCP endpoints**: use the socket proxy on remote hosts
    too; scope TLS client certificates tightly.
-8. **Network segmentation**: run Containly and the Docker hosts on a separate,
+6. **Network segmentation**: run Containly and the Docker hosts on a separate,
    non-public network.
 
 ### Priority 3 — ongoing
 
-9. **Keep dependencies up to date** (Dependabot is configured) and watch the CI
-   image scans (Trivy).
-10. **Keep the CSP strict**, no inline scripts without a hash.
-11. **Keep backups encrypted and offline** — they contain the master key.
+7. **Keep Containly up to date.** Updates show up in the app and install with one
+   click (automatic rollback if the new version is not healthy).
+8. **Scan your images**: run the built-in Trivy scans on a schedule and act on
+   critical findings.
+9. **Keep backups encrypted and offline** — they contain the master key.
 
 ### Known trade-offs
 

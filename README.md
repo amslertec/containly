@@ -15,6 +15,7 @@
 <p align="center">
   <a href="https://hub.docker.com/r/amslertec/containly"><img src="https://img.shields.io/docker/v/amslertec/containly?logo=docker&label=Docker%20Hub&sort=semver" alt="Docker Hub"></a>
   <a href="https://containly.ch"><img src="https://img.shields.io/badge/website-containly.ch-2bb6a2" alt="Website"></a>
+  <a href="https://www.youtube.com/watch?v=y7NTYoFYXoU"><img src="https://img.shields.io/badge/video-8%20min%20tour-red?logo=youtube" alt="Video: 8-minute tour"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-AGPL--3.0-blue.svg" alt="License: AGPL-3.0"></a>
 </p>
 
@@ -26,6 +27,11 @@ Containly is built for homelabs and small fleets: a few Docker hosts at home, a 
 VPS or two, usually behind a reverse proxy. It shows what needs attention first, lets you
 act on it in one click, and keeps your Compose files where they belong: in folders you can
 version, back up and edit without Containly.
+
+**Watch the 8-minute tour:** [Containly on YouTube](https://www.youtube.com/watch?v=y7NTYoFYXoU)
+(install, dashboard, containers, stacks, scans, updates, hosts, phone).
+Install guide: [containly.ch/install](https://containly.ch/install) ·
+FAQ: [containly.ch/faq](https://containly.ch/faq)
 
 > **Security-critical.** Containly talks to the Docker socket, which is equivalent to root
 > on the host. Read [Security](#security) before you expose it.
@@ -179,7 +185,7 @@ version, back up and edit without Containly.
 
 Containly is **free for up to 2 Docker hosts** (the built-in local host plus one more),
 with every core feature included, no account, self-hosted. For **unlimited hosts**, a
-**Pro** license is bought and activated directly inside the app (**Settings > License**):
+**Pro** license is bought and activated directly inside the app (**Settings > Version and licence**):
 
 | Plan | Price | Valid for | Free trial |
 |---|---|---|---|

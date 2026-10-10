@@ -50,7 +50,8 @@ docs/superpowers/
 /web/
 /shared/
 /scripts/
-/.github/
+/.github/*
+!/.github/ISSUE_TEMPLATE/
 /Dockerfile
 /package.json
 /package-lock.json

@@ -1,0 +1,55 @@
+name: Bug report
+description: Something in Containly does not work as expected.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please do **not** post security vulnerabilities here, see SECURITY.md.
+        Remove passwords, tokens and other secrets from logs before you paste them.
+  - type: input
+    id: version
+    attributes:
+      label: Containly version
+      description: Shown in Settings > Version and licence, or the image tag you run.
+      placeholder: "for example 2.0.5"
+    validations:
+      required: true
+  - type: dropdown
+    id: connection
+    attributes:
+      label: How is the affected host connected?
+      options:
+        - Local socket
+        - TCP with TLS
+        - SSH
+        - Agent
+        - Not host-related
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open ...
+        2. Click ...
+        3. See ...
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Relevant lines from `docker compose logs containly`.
+      render: text
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      description: Docker version, host OS, browser, reverse proxy if any.

@@ -56,7 +56,7 @@ services:
   # network only; never expose plain 2375 externally!) and remove the direct
   # socket mount above.
   socket-proxy:
-    image: tecnativa/docker-socket-proxy:latest
+    image: tecnativa/docker-socket-proxy:v0.5.0
     container_name: containly-socket-proxy
     profiles: ["hardened"]
     restart: unless-stopped

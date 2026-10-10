@@ -1,46 +1,34 @@
 # Contributing
 
-Thanks for your interest in Containly! Contributions are welcome.
+Thanks for your interest in Containly. The source code of the app is not published in
+this repository; it holds the documentation, the example Compose and `.env` files, the
+logos, screenshots and the changelog. You can still help a lot:
 
-## Development environment
+## Report a bug
 
-Requirements: Node.js ≥ 22, npm ≥ 10, and a reachable Docker socket.
+Open an [issue](https://github.com/amslertec/containly/issues/new/choose) with the
+**Bug report** template. Please include:
 
-```sh
-npm install
-npm run dev        # backend (tsx watch) + frontend (Vite) in parallel
-```
+- the Containly version (shown in **Settings > Version and licence**, or the image tag you run),
+- how the host is connected (local socket, TCP+TLS, SSH or agent),
+- what you did, what you expected and what happened,
+- relevant lines from `docker compose logs containly` (remove secrets and tokens first).
 
-The project is an npm-workspaces monorepo:
+## Suggest a feature
 
-- `shared/` — `@containly/shared`: Zod schemas / shared types (the API contract).
-- `server/` — `@containly/server`: Fastify backend.
-- `web/` — `@containly/web`: React/Vite frontend.
+Open an issue with the **Feature request** template and describe the problem you want
+solved, not only the solution. Use cases from real setups help most.
 
-## Before committing
+## Improve the docs
 
-```sh
-npm run lint
-npm run typecheck
-npm run build
-```
+Corrections to the README, the example files or the screenshots notes are welcome as
+pull requests. Describe *what* changed and *why*.
 
-Please keep all three green. New or changed API fields go into the `shared`
-package first, so the server and web share the same contract.
+## Security issues
 
-## Conventions
+Please do **not** report vulnerabilities in public issues. See [SECURITY.md](SECURITY.md).
 
-- **TypeScript strict**, no `any` escapes without justification.
-- **Commits**: short, meaningful messages (ideally [Conventional Commits](https://www.conventionalcommits.org/)).
-- **Security first**: Containly has root-equivalent access — validate every input
-  (Zod), watch for path traversal, and never expose secrets.
-- **i18n**: add new UI strings to both `de.json` and `en.json`.
+## Questions and licences
 
-## Pull requests
-
-Describe *what* and *why*. Reference an issue when there is one. Clearly flag any
-changes to the API contract in the PR.
-
-## Vulnerabilities
-
-Please do **not** report publicly — see [SECURITY.md](SECURITY.md).
+For licence questions or anything that does not fit an issue, use the contact form on
+[containly.ch](https://containly.ch/#contact).

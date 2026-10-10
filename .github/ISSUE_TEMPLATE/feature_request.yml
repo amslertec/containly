@@ -1,0 +1,21 @@
+name: Feature request
+description: Suggest an idea or an improvement for Containly.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem do you want to solve?
+      description: Describe the situation in your setup, not only the solution.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea
+      description: How could Containly help here?
+  - type: textarea
+    id: context
+    attributes:
+      label: Anything else?
+      description: Screenshots, links, how other tools handle it.
