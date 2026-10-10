@@ -16,7 +16,7 @@
   <a href="https://hub.docker.com/r/amslertec/containly"><img src="https://img.shields.io/docker/v/amslertec/containly?logo=docker&label=Docker%20Hub&sort=semver" alt="Docker Hub"></a>
   <a href="https://containly.ch"><img src="https://img.shields.io/badge/website-containly.ch-2bb6a2" alt="Website"></a>
   <a href="https://www.youtube.com/watch?v=y7NTYoFYXoU"><img src="https://img.shields.io/badge/video-8%20min%20tour-red?logo=youtube" alt="Video: 8-minute tour"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-AGPL--3.0-blue.svg" alt="License: AGPL-3.0"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-proprietary%2C%20free%20for%202%20hosts-blue.svg" alt="License: proprietary, free for 2 hosts"></a>
 </p>
 
 <p align="center">
@@ -308,5 +308,10 @@ vulnerabilities privately (see that file), not via public issues.
 
 ## License
 
-[GNU AGPL-3.0](LICENSE). You run a root-equivalent tool; review the security notes before
-exposing it. Provided without warranty.
+Containly is proprietary software: free for up to 2 Docker hosts, for private and
+commercial use; a Pro license key unlocks more. The source code is not published; this
+repository holds the documentation, example files, logos and screenshots, which you may
+reuse to set up and describe Containly. Full terms in [LICENSE](LICENSE).
+
+You run a root-equivalent tool; review the security notes before exposing it. Provided
+without warranty.

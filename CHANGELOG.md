@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- **License:** Containly is now distributed under the proprietary Containly Software License
+  (see `LICENSE`): free for up to 2 hosts for private and commercial use, Pro license key for
+  more, no redistribution or reverse engineering. It applies from the next release (2.0.6). The
+  repository's documentation, example files and screenshots may be reused to set up Containly.
+
 ## [2.0.5] — 2026-10-09
 
 ### Changed
