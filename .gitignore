@@ -58,3 +58,11 @@ docs/superpowers/
 /eslint.config.js
 /.prettierrc.json
 /.npmrc
+
+# Lokale Notizen/Anleitungen — nie ins Repo
+*.local.md
+
+# Local design drafts, brand sources and editor backups: never in the repo
+/docs/entwuerfe/
+/brand/
+*.bak-*

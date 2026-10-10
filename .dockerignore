@@ -20,3 +20,9 @@ DOCKERHUB.md
 # Private native Android-App + Design-Spec: nie in den Docker-Build-Context
 clients
 docs
+
+# Lokales Release-Skript mit Build-Args — nie in den Build-Context
+scripts/release.sh
+
+# Lokale Notizen/Anleitungen — nie ins Image
+*.local.md
