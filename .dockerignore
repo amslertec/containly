@@ -26,3 +26,7 @@ scripts/release.sh
 
 # Lokale Notizen/Anleitungen — nie ins Image
 *.local.md
+
+# Local demo dev build + scratch files
+server/.demo-build
+server/.scratch

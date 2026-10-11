@@ -67,3 +67,9 @@ docs/superpowers/
 /docs/entwuerfe/
 /brand/
 *.bak-*
+
+# Public demo (closed source build files + internal ops docs): never in the repo
+/deploy/
+/docs/demo/
+/server/.demo-build/
+/server/.scratch/
