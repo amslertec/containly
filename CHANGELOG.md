@@ -5,14 +5,35 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [2.0.6] — 2026-10-10
+
+### Added
+
+- **E-mail preview:** Settings › Notifications shows how notification e-mails look with the
+  current appearance, as Auto, Light or Dark, next to the existing "Send test" card. The
+  preview is rendered by the server and shown in a sandboxed frame; nothing is sent.
+  Admins only.
 
 ### Changed
 
+- **E-mails look like the app:** notification, invitation, password reset and test e-mails
+  now use the app's design instead of their own colours: surfaces, text, lines, accent and
+  status colours come straight from the theme tokens, plus the theme's corner radius and font
+  pair (with safe fallbacks). Without Pro every e-mail uses the default design (Teal, Werkbank
+  fonts, light or dark following the reader's mail app). With Pro, e-mails use the instance
+  theme, including custom accent themes; if personal appearance is allowed, users receive
+  e-mails in their own theme. Recipients without an account get the instance theme.
+- The Containly shield in e-mails is tinted with the theme accent. Info, warning and critical
+  e-mails use the theme's status colours, and the footer line is now translated.
+- E-mails are hardened for dark mode in Gmail, Outlook and Apple Mail (colour scheme hints,
+  explicit background colours, an opaque logo tile). The plain-text part stays.
+- Web fonts in e-mails are only referenced when `CONTAINLY_PUBLIC_URL` is set; otherwise the
+  e-mail uses the fallback fonts. Outlook always uses its safe fallback.
 - **License:** Containly is now distributed under the proprietary Containly Software License
   (see `LICENSE`): free for up to 2 hosts for private and commercial use, Pro license key for
-  more, no redistribution or reverse engineering. It applies from the next release (2.0.6). The
+  more, no redistribution or reverse engineering. It applies from this release (2.0.6). The
   repository's documentation, example files and screenshots may be reused to set up Containly.
+  The Docker image now carries OCI labels with the license and the repository link.
 
 ## [2.0.5] — 2026-10-09
 
@@ -1358,7 +1379,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v0.1.27...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v2.0.6...HEAD
+[2.0.6]: https://github.com/amslertec/containly/compare/v2.0.5...v2.0.6
 [0.1.27]: https://github.com/amslertec/containly/compare/v0.1.26...v0.1.27
 [0.1.26]: https://github.com/amslertec/containly/compare/v0.1.25...v0.1.26
 [0.1.25]: https://github.com/amslertec/containly/compare/v0.1.24...v0.1.25
