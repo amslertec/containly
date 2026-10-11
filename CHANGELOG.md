@@ -5,6 +5,41 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.0.7] — 2026-10-11
+
+### Added
+
+- **New folder:** every place that can create files can now also create folders: the file
+  tree of the stack Compose editor (next to "New file"), the container Files tab and the
+  volume browser (next to "Upload"). Names follow the same rules as files (no `/` or `\`,
+  no `.`/`..`, no leading or trailing spaces, no control characters, at most 255 bytes);
+  parent folders are created as needed and an existing name is reported instead of being
+  overwritten. The new folder opens right away, so the next new file or upload lands inside
+  it, and empty folders show an empty-state hint. New endpoints
+  `POST /api/stacks/:id/dir`, `POST /api/containers/:id/files/mkdir` and
+  `POST /api/volumes/mkdir` (admins only) use the existing path checks, reject traversal
+  attempts and write audit entries (`stack.dir.create`, `container.file.mkdir`,
+  `volume.mkdir`). Deleting a folder keeps the existing confirmation that says it is
+  deleted with everything in it.
+
+### Fixed
+
+- **Dropdowns:** full-width dropdowns rendered as tall boxes with the value centred on top
+  and the chevron on a second line (Tailwind's `.block` utility overrode the trigger's flex
+  layout). All dropdown triggers are now a single line again: value left-aligned with
+  ellipsis, chevron vertically centred on the right, the same height as the text fields in
+  dialogs, and the same accent focus ring as text fields. Affected: the New stack and Git
+  stack dialogs (Endpoint, Stack path), the host picker in the image pull and volume/network
+  create dialogs, the container migration dialog (target host, transfer path), the settings
+  and profile section switcher on phones and the invite language picker in Users. Checked
+  as well: the stacks toolbar (Origin, Sort,
+  Per page), container, image, volume, update, endpoint and catalog toolbars, settings
+  (notifications, schedule, registries, audit filters), users and pagination.
+- Dropdown menus are capped to the viewport (width and available height) and scroll when
+  long. In menus with a filter field, Arrow Down moves into the list and Enter picks the
+  first match.
+- The Compose editor status line ("YAML valid") no longer puts its icon on its own line.
+
 ## [2.0.6] — 2026-10-10
 
 ### Added
@@ -1379,7 +1414,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v2.0.6...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v2.0.7...HEAD
+[2.0.7]: https://github.com/amslertec/containly/compare/v2.0.6...v2.0.7
 [2.0.6]: https://github.com/amslertec/containly/compare/v2.0.5...v2.0.6
 [0.1.27]: https://github.com/amslertec/containly/compare/v0.1.26...v0.1.27
 [0.1.26]: https://github.com/amslertec/containly/compare/v0.1.25...v0.1.26
