@@ -30,3 +30,6 @@ scripts/release.sh
 # Local demo dev build + scratch files
 server/.demo-build
 server/.scratch
+
+# Dated edit backups (<file>.bak-YYYY-MM-DD*) never ship in the image
+**/*.bak-*

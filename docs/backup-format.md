@@ -1,6 +1,7 @@
 # Containly backup format (version 1)
 
-This document describes how Containly 2.2.0 and later store data backups of volumes, stacks and
+This document describes how Containly 2.2.0 and later (2.3.0 additions: database dumps, S3 and
+SFTP targets, `.clbk` single-file export) store data backups of volumes, stacks and
 containers. It is public on purpose: a backup must stay readable without Containly. The bundled
 recovery tool `scripts/clbk-decrypt.mjs` (zero dependencies, Node.js 22.15 or newer) implements
 everything below.
@@ -15,7 +16,13 @@ A backup set is one directory on the target:
     meta.json.zst[.cenc]              inner manifest (container inspect, compose info, volume facts)
     volumes/<volume>.tar.zst[.cenc]   one tar per named volume
     stack/project.tar.zst[.cenc]      the Compose project folder (compose file, .env, in-folder data)
+    dumps/<service>.<preset>.zst[.cenc]   database dump (2.3.0, see below)
 ```
+
+The layout is the same on every target type. On S3 the set directory is an object key prefix
+(`<bucket>/<prefix>/containly-backups/…`), on SFTP a directory below the configured folder. Files
+are uploaded under a temporary name (`.part` on SFTP, multipart upload on S3) and only appear
+under their final name when complete; `manifest.json` stays the last file written.
 
 All path segments are slugs (`[a-z0-9._-]`). A directory without `manifest.json` is a partial
 set (failed or interrupted) and is removed by retention after 24 hours.
@@ -32,7 +39,7 @@ are stored expanded.
   "formatVersion": 1,
   "setId": "01JA…",                 ULID
   "createdAt": "2026-10-12T01:15:03.000Z",
-  "containly": "2.2.0",
+  "containly": "2.3.0",
   "scope": { "kind": "stack|container|volume", "ref": "…", "label": "immich", "endpointName": "nas", "planName": null },
   "source": { "hostname": "nas", "engineId": "ABCD:…", "arch": "amd64", "dockerVersion": "29.0.0" },
   "encryption": null | {
@@ -40,7 +47,7 @@ are stored expanded.
     "keyslots": [{ "kdf": "scrypt", "N": 131072, "r": 8, "p": 1, "salt": "b64", "iv": "b64", "tag": "b64", "wrappedDek": "b64" }]
   },
   "compression": "zstd|gzip|none",
-  "files": [{ "path": "volumes/db.tar.zst.cenc", "role": "volume", "ref": "db", "bytesStored": 123, "sha256Stored": "…" }],
+  "files": [{ "path": "volumes/db.tar.zst.cenc", "role": "volume|stack|meta|dump", "ref": "db", "bytesStored": 123, "sha256Stored": "…" }],
   "totals": { "bytesStored": 0, "bytesRaw": 0 },
   "complete": true,
   "manifestMac": "hex"              encrypted sets only
@@ -88,6 +95,48 @@ JSON object with `v: 1`, `setId`, `scope`, `containerConfigs` (raw `docker inspe
 plain tar, `entries`, `archiveRoot`, `specials`, `root` owner and mode, `file`), `images`,
 `networks`, `consistency`, `warnings` and `excluded`. It may contain environment secrets, so it is
 encrypted whenever the set is.
+
+## Database dumps (2.3.0)
+
+With the consistency mode "Datenbank-Dump" a set holds one file per database service under
+`dumps/`, role `dump`, `ref` = Compose service (or container name). The payload before
+compression and encryption is the native output of the database tool, read from its stdout inside
+the running database container:
+
+| preset   | file name                    | payload                                         | restore                                   |
+|----------|------------------------------|-------------------------------------------------|-------------------------------------------|
+| postgres | `dumps/<svc>.postgres.zst`   | `pg_dumpall --clean --if-exists` (SQL text)     | `psql -f -` as the configured user        |
+| mariadb  | `dumps/<svc>.mariadb.zst`    | `mariadb-dump --single-transaction --routines --events --triggers` with `--all-databases` as root, otherwise `--databases <MARIADB_DATABASE>` as the app user (SQL) | `mariadb` / `mysql` client |
+| mysql    | `dumps/<svc>.mysql.zst`      | `mysqldump`, same options                        | `mysql` client                            |
+| mongodb  | `dumps/<svc>.mongodb.zst`    | `mongodump --archive` (binary archive)           | `mongorestore --archive --drop`           |
+| redis    | `dumps/<svc>.redis.zst`      | RDB snapshot from `redis-cli --rdb -`            | file restore: the RDB becomes `dump.rdb`, or the AOF base (`appendonlydir/<name>.1.base.rdb` plus manifest) when AOF is on |
+
+Credentials are read from the container at run time (`POSTGRES_USER`, `MARIADB_ROOT_PASSWORD`,
+`MYSQL_*`, `MONGO_INITDB_ROOT_*`, `--requirepass`, also `*_FILE` secrets) and passed to the tool as
+exec environment only; they are never stored in the set. `meta.json` gains a `dumps` array:
+`service`, `container`, `image`, `preset`, `tool` (version line), `file`, `bytesRaw`, `sha256`
+(of the plain dump) and for Redis `rdbDir` and `rdbFile`. When "also copy raw data" is off, the
+database volumes are not in the set.
+
+Manual recovery: decrypt and decompress the dump (see below) and feed it to the same tool, for
+example `… | zstd -d | psql -U postgres -f -`.
+
+## Single-file export (.clbk, 2.3.0)
+
+"Herunterladen" streams a complete set as one file `<label>-<YYYYMMDDTHHMMSSZ>-<id8>.clbk`. It is a
+plain POSIX tar (no compression around it) with `manifest.json` as the FIRST entry, followed by
+every file of the set under its path from the manifest. Nothing is decrypted: an encrypted set
+stays encrypted inside the `.clbk`.
+
+Import validates `manifest.json` against the schema, rejects any entry that is not listed in the
+manifest, uses an absolute path or `..`, or differs in size or `sha256Stored`, then writes the files
+to the chosen target and `manifest.json` last. To read a `.clbk` without Containly, unpack it and
+use the recovery tool on the directory:
+
+```sh
+mkdir set && tar -xf immich-20261012T011503Z-ab12cd34.clbk -C set
+node clbk-decrypt.mjs set --verify
+```
 
 ## Recovery without Containly
 

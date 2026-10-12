@@ -5,6 +5,70 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.3.0] — 2026-10-12
+
+### Added
+
+- **Backups, phase 2 (Pro): plan schedules.** Plans run hourly, on chosen weekdays or monthly
+  at a set time (start spread over five minutes), show the next run in the list and inspector
+  and catch up a missed run on the same day. Schedules share the scheduler of updates and
+  configuration backups. Without an active Pro licence scheduled plans pause ("Pausiert") and
+  resume on their own once Pro is active again; the settings are kept.
+- **Notification `backup.stale`:** warns once per gap when a scheduled plan has had no
+  successful backup for the configured number of days (default 3), by email and in the app.
+- **Scheduled verification (Pro):** a plan can read its newest set back in full every N days
+  (checksums, decryption, manifest MAC).
+- **S3-compatible targets (Pro):** Amazon S3, Hetzner Object Storage, Backblaze B2, MinIO,
+  Cloudflare R2, Wasabi and other S3 services with presets for endpoint and region. Own small
+  SigV4 client (multipart uploads in 16 MiB parts, path or virtual-host addressing, optional
+  custom CA). The endpoint is checked against SSRF rules: no loopback, link-local or cloud
+  metadata addresses, not Containly itself, no redirects, the resolved address is pinned for
+  the connection; private LAN addresses stay allowed (`CONTAINLY_BACKUP_BLOCK_PRIVATE=1` blocks
+  them). HTTP only on request for a MinIO in the LAN. Remote targets only accept encrypted sets.
+- **SFTP targets (Pro):** password or private key (stored encrypted), host key pinned on the first
+  successful connection test (TOFU) and checked on every connection after that, uploads under
+  `.part` and renamed when complete. Same SSRF rules as S3.
+- **Database dump presets for backup and restore:** PostgreSQL (`pg_dumpall`), MariaDB and MySQL
+  (`mariadb-dump`/`mysqldump`), MongoDB (`mongodump --archive`) and Redis (RDB snapshot). The
+  databases of a stack are detected by image and preselected; the dump runs in the running
+  container without stopping it, optionally with the other containers of the stack stopped and
+  the raw volume data copied as well. Credentials are read from the container at run time
+  (including `*_FILE` secrets), passed as exec environment only and never stored. Restore loads
+  the dump after the containers are up again (Redis as a file restore, also with AOF on). Free,
+  like all consistency modes.
+- **Download and import (`.clbk`):** a complete set can be downloaded as a single file (a tar
+  with the manifest first, encryption untouched) and imported on another Containly instance onto
+  any of its targets; every file is checked against the manifest. Free.
+- **"Containly ist nicht erreichbar" screen:** when the web app or the installed PWA cannot reach
+  the server, or something in between answers instead (VPN off, reverse proxy or WAF with an HTML
+  401/403, SSO login page, 502/503), a full-screen state names the likely reason (offline, no
+  answer, blocked by a proxy or firewall, proxy sign-in, server error) with tips, a retry button
+  and automatic retries (3 s up to every 30 s). It disappears as soon as Containly answers; nothing
+  is reloaded and unsaved input stays. Such answers are no longer read as "logged out".
+- **Help and community links:** the user menu (desktop), the "Mehr" sheet (phone) and a new card
+  "Hilfe und Community" under Settings > Version link to the help pages, the community forum and
+  the support chat on containly.ch (German or English by the app language, opened in a new tab).
+  Admins also get a link to the customer account, and the licence panel points there for
+  licences, invoices and the subscription. The "nicht erreichbar" screen links help and forum.
+- Demo: S3 and SFTP targets and the dump presets work simulated (nothing leaves the demo).
+
+### Changed
+
+- Backup plan dialog: the schedule and verification settings replace the "folgt später" note;
+  Free shows them locked with a hint. Target dialog: S3 and SFTP are selectable (Pro), SMB and NFS
+  stay marked for a later version, like restoring to another host.
+- Existing backups on Pro targets stay listable, verifiable, downloadable and restorable without
+  Pro; only new writes need Pro.
+
+### Fixed
+
+- **No more black screen after an update or with a blocked bundle:** a failed page chunk (old tab
+  or PWA after an update) reloads once with fresh caches instead of leaving an empty page; if the
+  app bundle does not start at all, a plain "nicht erreichbar" page with retry appears after a
+  few seconds. The service worker drops the precache of older builds and takes over at once
+  (versioned cache name), and the server no longer lets browsers cache `sw.js`,
+  `registerSW.js`, `boot.js` or the manifest.
+
 ## [2.2.0] — 2026-10-12
 
 ### Added
@@ -1514,7 +1578,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v2.2.0...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v2.3.0...HEAD
+[2.3.0]: https://github.com/amslertec/containly/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/amslertec/containly/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/amslertec/containly/compare/v2.0.8...v2.1.0
 [2.0.8]: https://github.com/amslertec/containly/compare/v2.0.7...v2.0.8
