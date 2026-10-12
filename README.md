@@ -31,7 +31,9 @@ version, back up and edit without Containly.
 **Watch the 8-minute tour:** [Containly on YouTube](https://www.youtube.com/watch?v=y7NTYoFYXoU)
 (install, dashboard, containers, stacks, scans, updates, hosts, phone).
 Install guide: [containly.ch/install](https://containly.ch/install) ·
-FAQ: [containly.ch/faq](https://containly.ch/faq)
+FAQ: [containly.ch/faq](https://containly.ch/faq) ·
+Help: [containly.ch/help](https://containly.ch/help) ·
+Forum: [containly.ch/forum](https://containly.ch/forum)
 
 > **Security-critical.** Containly talks to the Docker socket, which is equivalent to root
 > on the host. Read [Security](#security) before you expose it.
@@ -85,6 +87,25 @@ FAQ: [containly.ch/faq](https://containly.ch/faq)
 - A `docker run` to `docker-compose.yml` converter, archive and restore, and stack-wide
   actions.
 
+### Backups
+
+- **Stacks, containers and volumes.** Back up named volumes, the stack folder with the
+  Compose file and `.env`, and the container configuration with image digests. Restore as a
+  copy next to the original, or replace in place after a server-side preview (a safety backup
+  is made first).
+- **Encrypted by default.** Streaming tar, zstd and AES-256-GCM with a key from your
+  passphrase, which is never stored. Every set has a plaintext manifest and can be read
+  without Containly ([format](docs/backup-format.md)).
+- **Consistency.** Live, stop the containers during the backup, pre and post hooks, or a
+  **database dump** for PostgreSQL, MariaDB/MySQL, MongoDB and Redis, detected per stack.
+- **Targets.** A folder on the Docker host or in the Containly container, and *(Pro)*
+  **S3-compatible storage** (Amazon S3, Hetzner Object Storage, Backblaze B2, MinIO,
+  Cloudflare R2, Wasabi) and **SFTP** with host key pinning.
+- **Plans.** Contents, target, key and retention in one plan; *(Pro)* schedules (hourly, on
+  chosen weekdays or monthly), scheduled verification and a warning when backups go stale.
+- **Download and import.** Move a complete set to another Containly instance as one `.clbk`
+  file.
+
 ### Images, volumes, networks
 
 - **Images.** Pull with Docker Hub search and tag picker, tag, remove, prune unused,
@@ -131,7 +152,8 @@ FAQ: [containly.ch/faq](https://containly.ch/faq)
   redirect, and a scheduled role sync.
 - **Two-factor authentication.** TOTP with recovery codes.
 - **Audit log.** Every change, with user, target, outcome and IP.
-- **Backups.** Passphrase-encrypted full backup and restore, also on a schedule.
+- **Configuration backup.** Passphrase-encrypted backup and restore of Containly's own
+  configuration, also on a schedule.
 - **Notifications.** In-app feed and email (SMTP) for offline hosts, crashed, unhealthy or
   OOM-killed containers, restart loops, CPU, memory and disk thresholds, image and
   Containly updates, and new critical CVEs. Recipients per event type.
@@ -156,7 +178,9 @@ FAQ: [containly.ch/faq](https://containly.ch/faq)
   `Enter` opens the inspector, `Esc` closes it, `/` searches, `g` then a letter jumps to a
   page (`d` dashboard, `c` containers, `s` stacks), and `?` lists every shortcut.
 - **Mobile and PWA.** A phone layout with bottom navigation and pull to refresh.
-  Install Containly as an app on your phone or desktop.
+  Install Containly as an app on your phone or desktop. When the server cannot be reached
+  (VPN off, a proxy or firewall in between), a clear screen names the reason and retries on
+  its own.
 - **Languages.** English and German.
 
 ---
@@ -189,13 +213,16 @@ with every core feature included, no account, self-hosted. For **unlimited hosts
 
 | Plan | Price | Valid for | Free trial |
 |---|---|---|---|
-| **Lifetime** | CHF 189 one-time | 1 Containly instance | none |
+| **Monthly** | CHF 15.90 / month | 1 Containly instance | 7 days |
 | **Yearly** | CHF 89 / year | 1 Containly instance | 7 days |
-| **Monthly** | CHF 15.90 / month | 2 Containly instances | 7 days |
+| **Lifetime** | CHF 189 one-time | 1 Containly instance | none |
 
-A Pro license unlocks **unlimited hosts**, **Microsoft Entra ID single sign-on** and
-**themes and appearance**, works **offline** (7-day validation grace), and your data never
-leaves your server. Current pricing is on **[containly.ch](https://containly.ch)**.
+The free trial is available once per customer. A Pro license unlocks **unlimited hosts**,
+**Microsoft Entra ID single sign-on**, **themes and appearance** and the **Pro backup
+features** (schedules, S3, SFTP, scheduled verification), works **offline**, and your data
+never leaves your server. Licences, invoices and the subscription are managed in your
+customer account at **[containly.ch/account](https://containly.ch/account)**. Current pricing
+is on **[containly.ch](https://containly.ch/#pricing)**.
 
 ---
 
@@ -259,6 +286,28 @@ docker compose --profile hardened up -d
 Then add a TCP endpoint on `socket-proxy:2375` in Containly (reachable only on the
 internal Compose network; **never** expose plain 2375 externally). See
 [SECURITY.md](SECURITY.md) for the full hardening plan.
+
+---
+
+## Updating
+
+```bash
+docker compose pull
+docker compose up -d
+```
+
+Or use the one-click self-update in the app. What changed is in the [CHANGELOG](CHANGELOG.md).
+
+---
+
+## Support
+
+- **Guides and troubleshooting:** [containly.ch/help](https://containly.ch/help)
+- **Questions, bug reports and ideas:** the community forum at
+  [containly.ch/forum](https://containly.ch/forum) (one account for licences, support and
+  the forum)
+- **Email:** support@amslertec.ch
+- **Security issues:** privately, see [SECURITY.md](SECURITY.md)
 
 ---
 
