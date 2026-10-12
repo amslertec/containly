@@ -5,6 +5,65 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.2.0] — 2026-10-12
+
+### Added
+
+- **Data backups for stacks, containers and volumes:** a new page **Backups** (`G R`)
+  backs up the data of a stack (named volumes, the stack folder with compose file and
+  `.env`, the container configuration with image digests), a single container or a single
+  volume, and restores it on the same host. Free for manual backups.
+  - **Back up now** on the Backups overview, in the stack list and stack inspector (new
+    tab "Backups"), on the container overview and on the Volumes page.
+  - **Encrypted by default:** streaming tar, zstd compression and chunked AES-256-GCM
+    (format CENC1) with a key derived from your passphrase (scrypt). The passphrase is
+    never stored; unattended runs use the derived key, kept encrypted with the instance
+    master key. Unencrypted backups stay possible on local targets.
+  - **Open format with a recovery tool:** every backup set has a plaintext `manifest.json`
+    (written last, so a set without it is incomplete) and can be read without Containly
+    with `scripts/clbk-decrypt.mjs` (in the image under `/app/scripts`). The format is
+    documented in `docs/backup-format.md`.
+  - **Targets:** a folder on the Docker host (default `/var/backups/containly`, written
+    through a short-lived hardened helper container, so it works on socket, TCP, SSH and
+    agent hosts) or a folder inside the Containly container (for example a dedicated
+    `/backups` mount). Test connection and scan for existing sets.
+  - **Consistency:** live, stop the containers during the backup (they are started again
+    afterwards, also after a crash of Containly on the next start) or pre and post hooks.
+  - **Restore:** always with a server-side preview first (actions, conflicts, risky
+    settings, disk space). Restore as a copy (new names, nothing is overwritten) or replace
+    (type the name to confirm; a safety backup is made first and pinned for 7 days).
+  - **Plans** bundle contents, target, key, compression and retention and run with
+    "Run now". Retention (keep last, daily, weekly, monthly, yearly) is free.
+  - Runs with live phases, progress and log; verify a set on demand; pin and delete sets.
+  - Notifications `backup.failed` (on) and `backup.succeeded` (off) by email and in the
+    app, audit log entries for every action, viewers can look but not change anything.
+- **Pro, visible but not yet available:** schedules for plans, S3, SFTP, SMB and NFS
+  targets, database dump presets and restoring to another host are marked in the UI and
+  follow in a later version.
+
+### Changed
+
+- Settings: "Backup and restore" is now called **Containly configuration** and points to
+  the new Backups page. The scheduled configuration backup is labelled accordingly.
+- While a backup or restore holds a stack, container or volume, deploys, stack actions,
+  migrations, auto updates, container actions and volume removal answer "Backup läuft"
+  (409) instead of interfering. Containers stopped for a backup do not trigger
+  "container exited" alerts.
+
+### Fixed
+
+- **Helper container per Containly instance:** with two Containly instances on one Docker
+  host, both used the same `containly-helper` container and recreated it with their own
+  folder mounts in turn. A write could then land inside the helper instead of the host (a
+  stack restored as a copy reported "ok" but was not in the stack folder). Each instance now
+  runs its own helper (`containly-helper-<instance id>`, label
+  `ch.amslertec.containly.instance`), checks its image, labels and mounts before use and
+  before every write, and recreates it when anything differs. Stack file writes and restored
+  stack folders are checked on the host afterwards; a restore fails with an error if the
+  data is not there. The old shared `containly-helper` is left for its owner.
+- Deleting backup sets no longer leaves empty folders on the target; empty parent folders
+  are removed up to the target folder.
+
 ## [2.1.0] — 2026-10-12
 
 ### Added
@@ -1455,7 +1514,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v2.1.0...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v2.2.0...HEAD
+[2.2.0]: https://github.com/amslertec/containly/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/amslertec/containly/compare/v2.0.8...v2.1.0
 [2.0.8]: https://github.com/amslertec/containly/compare/v2.0.7...v2.0.8
 [2.0.7]: https://github.com/amslertec/containly/compare/v2.0.6...v2.0.7
