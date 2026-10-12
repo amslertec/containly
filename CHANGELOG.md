@@ -5,6 +5,37 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.1.0] — 2026-10-12
+
+### Added
+
+- **Own licensing (CL1 keys):** Containly now accepts licence keys from the new Containly
+  shop (`shop.containly.ch`, keys start with `CL1-`). The key is checked offline against the
+  public key of the Containly licence server; activation binds it to this installation and
+  stores a signed lease. Pro is decided locally (lease signature, licence and installation
+  match, expiry), so Containly keeps working offline. The lease is renewed on start, about
+  every 24 hours (with jitter) and on "Check now". If the licence server cannot be reached
+  the current lease stays valid until it expires (plus up to 14 days if it expired while
+  the server was unreachable); a definitive answer (revoked, refunded, cancelled after the
+  paid period, unknown licence) ends Pro right away. A licence covers one Containly
+  installation with any number of Docker hosts. If it is already active on another
+  installation, the licence card names that installation (hostname, last seen) and explains
+  how to move it. Deactivating frees the installation slot again.
+- **Installation id:** every installation gets a random 128-bit id, created once and kept in
+  the database (not the hostname). It identifies the installation to the licence server.
+- **Version and licence tab:** CL1 licences show plan (monthly, yearly, lifetime), paid
+  until, last and next check, installations in use and a warning while the licence server is
+  unreachable. Buy buttons open the Containly shop.
+- New settings `CONTAINLY_LICENSE_API` (default `https://containly.ch/api/license/v1`),
+  `CONTAINLY_LICENSE_PUBKEY` (base64 of the raw 32-byte Ed25519 public key; the production
+  key of the Containly licence server is built in, so this is only needed for testing) and
+  `CONTAINLY_SHOP_URL`.
+
+### Changed
+
+- Existing Lemon Squeezy licences and the offline owner licence work exactly as before.
+- The activation field now accepts longer keys (up to 2000 characters).
+
 ## [2.0.8] — 2026-10-11
 
 ### Fixed
@@ -1424,7 +1455,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v2.0.8...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/amslertec/containly/compare/v2.0.8...v2.1.0
 [2.0.8]: https://github.com/amslertec/containly/compare/v2.0.7...v2.0.8
 [2.0.7]: https://github.com/amslertec/containly/compare/v2.0.6...v2.0.7
 [2.0.6]: https://github.com/amslertec/containly/compare/v2.0.5...v2.0.6
