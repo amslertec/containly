@@ -5,6 +5,16 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.0.8] — 2026-10-11
+
+### Fixed
+
+- **Appearance:** the names and descriptions of the eight built-in themes (Teal, Ocean,
+  Copper, Moss, Amber, Iris, Basalt, Contrast) were always shown in German, because the
+  server sends fixed labels. They are now translated in the web UI by theme id, on the
+  Appearance page (theme cards, menus, delete dialog, "uses the default" note) and in the
+  e-mail preview under Notifications. Custom themes keep the name their owner gave them.
+
 ## [2.0.7] — 2026-10-11
 
 ### Added
@@ -1414,7 +1424,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v2.0.7...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v2.0.8...HEAD
+[2.0.8]: https://github.com/amslertec/containly/compare/v2.0.7...v2.0.8
 [2.0.7]: https://github.com/amslertec/containly/compare/v2.0.6...v2.0.7
 [2.0.6]: https://github.com/amslertec/containly/compare/v2.0.5...v2.0.6
 [0.1.27]: https://github.com/amslertec/containly/compare/v0.1.26...v0.1.27
