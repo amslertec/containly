@@ -5,6 +5,32 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.4.1] — 2026-10-13
+
+### Fixed
+
+- **Host CPU and RAM missing for later hosts.** The dashboard host table showed CPU and RAM only
+  for the first hosts; hosts further down the list showed a dash. The container sampler queried
+  every container of every host one after the other (one to two seconds each) and stamped all
+  values with the start time of the pass, so with many containers the values of later hosts were
+  already too old when the host table read them. Hosts are now sampled in parallel (at most 4
+  containers per host and 16 overall at a time, 10 s timeout per container), each host's values
+  carry the time its sampling finished, and the freshness window grows with the measured duration
+  of a pass (at least 150 s). The first pass now runs a few seconds after start.
+
+### Added
+
+- **Disk usage for remote hosts.** TCP, SSH and agent hosts now show the real disk usage (used of
+  total) of the filesystem that holds Docker's data directory. Containly measures it at most every
+  10 minutes with a short-lived helper container (the same hardened helper the host folder picker
+  uses: no network, no capabilities, read-only root filesystem, Docker's data directory mounted
+  read-only). If the helper cannot run, the table falls back to the space used by Docker.
+
+### Changed
+
+- **Space used by Docker instead of a dash.** When only the space used by Docker is known, the
+  disk cell shows it (for example `12 GB`) with a tooltip explaining the value.
+
 ## [2.4.0] — 2026-10-13
 
 ### Added
@@ -1642,6 +1668,7 @@ the filesystem instead of in a database.
 - **i18n** — German & English; light/dark theme.
 
 [Unreleased]: https://github.com/amslertec/containly/compare/v2.3.0...HEAD
+[2.4.1]: https://github.com/amslertec/containly/compare/v2.4.0...v2.4.1
 [2.4.0]: https://github.com/amslertec/containly/compare/v2.3.0...v2.4.0
 [2.3.0]: https://github.com/amslertec/containly/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/amslertec/containly/compare/v2.1.0...v2.2.0
