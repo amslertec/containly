@@ -94,11 +94,12 @@ Forum: [containly.ch/forum](https://containly.ch/forum)
   copy next to the original, or replace in place after a server-side preview (a safety backup
   is made first).
 - **Encrypted by default.** Streaming tar, zstd and AES-256-GCM with a key from your
-  passphrase, which is never stored. Every set has a plaintext manifest and can be read
+  passphrase, which is never stored (a built-in generator creates a strong one). Every set has a plaintext manifest and can be read
   without Containly ([format](docs/backup-format.md)).
 - **Consistency.** Live, stop the containers during the backup, pre and post hooks, or a
   **database dump** for PostgreSQL, MariaDB/MySQL, MongoDB and Redis, detected per stack.
-- **Targets.** A folder on the Docker host or in the Containly container, and *(Pro)*
+- **Targets.** A folder on the Docker host or in the Containly container, picked with a
+  folder browser, and *(Pro)*
   **S3-compatible storage** (Amazon S3, Hetzner Object Storage, Backblaze B2, MinIO,
   Cloudflare R2, Wasabi) and **SFTP** with host key pinning.
 - **Plans.** Contents, target, key and retention in one plan; *(Pro)* schedules (hourly, on
@@ -112,7 +113,8 @@ Forum: [containly.ch/forum](https://containly.ch/forum)
   layer view, update badges.
 - **CVE scanning.** Trivy scans your images on demand or on a schedule. Severity counts
   in the list, and per image
-  the full list of CVEs with package, installed version and fixed version.
+  the full list of CVEs with package, installed version and fixed version. Not needed? Turn
+  scanning off in the settings and all CVE displays disappear.
 - **Volumes.** Create, remove, prune, find orphans, and browse a volume's files with
   upload and download.
 - **Networks.** Create bridge, macvlan, ipvlan or overlay networks (optionally internal),
@@ -181,7 +183,9 @@ Forum: [containly.ch/forum](https://containly.ch/forum)
   Install Containly as an app on your phone or desktop. When the server cannot be reached
   (VPN off, a proxy or firewall in between), a clear screen names the reason and retries on
   its own.
-- **Languages.** English and German.
+- **Languages.** English, German and Spanish. A language menu with flags in the header, on
+  the sign-in screen and in the profile switches instantly and is remembered per user. E-mails
+  (alerts, invitations, password resets) arrive in each user's language.
 
 ---
 

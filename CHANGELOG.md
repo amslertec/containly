@@ -5,6 +5,69 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.4.0] — 2026-10-13
+
+### Added
+
+- **Spanish.** The whole interface is available in Spanish (neutral international Spanish),
+  next to German and English. Dates, times and numbers follow the language (`Intl` locale `es`).
+- **Language menu with flags.** One compact menu replaces the DE | EN switch in the header, on
+  the sign-in and setup screens, in the phone menu and on the profile page: the round flag of the
+  current language opens a list with flag and native name (Deutsch, English, Español) and a check
+  on the active one. Full keyboard support (Enter or Space opens, arrow keys move, Escape closes),
+  screen readers hear the language name; the flags are bundled SVG files (circle-flags, MIT), so
+  they look the same on every system.
+- **Spanish e-mails.** Notifications, invitations, password resets, backup alerts, update notices
+  and the SMTP test mail are sent in Spanish to users who chose Spanish. Invitations can be sent
+  in Spanish.
+- **Backup targets: folder picker** for local folders and host paths (browse, create a folder,
+  pick) instead of typing the path. A "Browse" button next to the path field opens an explorer
+  with breadcrumb, root chips (`/backups`, `/data/backups`), read-only badges, an inline "New
+  folder" field and full keyboard support; on phones it is a full-screen sheet. Only folders
+  inside the allowed roots are listed (no symlink escapes); on the host, system and stack paths
+  are blocked and the host is read through a short-lived, read-only helper container. Folder
+  creation is audit-logged. The demo shows a simulated tree.
+- **Passphrase generator** in the "New backup key" dialog: "Generate" creates a strong
+  passphrase (6 words from the EFF large wordlist plus a 2-digit number, about 84 bits, from
+  `crypto.getRandomValues`), fills both fields, shows it and offers "Copy". The "stored in my
+  password manager" confirmation stays required.
+- **Settings: vulnerability scanning (Trivy) can be turned off;** CVE badges and the dashboard
+  tile disappear, no scans or database downloads run. The switch lives in Settings > Schedule,
+  is instance-wide (default on) and audit-logged; stored results are kept and show again when it
+  is switched back on.
+
+### Changed
+
+- The language preference of a user accepts `es`. Unknown or missing languages fall back to
+  English everywhere (interface, e-mails, help links, date formats).
+- Help, forum and account links open the English pages of containly.ch for Spanish until Spanish
+  pages exist.
+- The demo can be used in Spanish. Its start, busy and expiry pages follow the browser language
+  (English, German, Spanish; English otherwise), and the demo data (backup plans, keys, targets)
+  uses English names in every language.
+
+### Fixed
+
+- The app no longer loads `lemon.js` from `assets.lemonsqueezy.com` on every page; the overlay
+  checkout it served is gone since licences are bought in the Containly shop (new tab). The
+  Content-Security-Policy no longer allows Lemon Squeezy scripts, frames, connections or form
+  targets. Existing Lemon Squeezy keys keep working (validated by the server).
+
+- Dropdown menus: the selected item stayed unreadable while highlighted or focused (dark text on
+  dark in dark mode, light on light in light mode); all menus fixed.
+- Counts in the users list, notification recipients, the audit log hint and the restore messages
+  use proper singular and plural forms ("1 account", not "1 accounts").
+- The profile hint about e-mail language now says correctly that e-mails arrive in English until a
+  language is chosen.
+- Accepting an invitation now sets the new account's language to the invitation's language (or to
+  the language picked on the accept page), so later e-mails such as a password reset arrive in that
+  language.
+- Messages from the server (errors, connection test results of backup targets, backup and restore
+  errors, migration steps, validation errors) were shown in German in every language. They now
+  appear in the UI language (English, German, Spanish). The API keeps its fields and returns an
+  English text plus a stable message key with parameters (`messageI18n`, `detailI18n`, ...).
+  Backup failure e-mails show the error in the recipient's language.
+
 ## [2.3.0] — 2026-10-12
 
 ### Added
@@ -1579,6 +1642,7 @@ the filesystem instead of in a database.
 - **i18n** — German & English; light/dark theme.
 
 [Unreleased]: https://github.com/amslertec/containly/compare/v2.3.0...HEAD
+[2.4.0]: https://github.com/amslertec/containly/compare/v2.3.0...v2.4.0
 [2.3.0]: https://github.com/amslertec/containly/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/amslertec/containly/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/amslertec/containly/compare/v2.0.8...v2.1.0
