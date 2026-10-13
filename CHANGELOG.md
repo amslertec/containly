@@ -5,6 +5,29 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.4.2] — 2026-10-13
+
+### Added
+
+- **Clean up on all hosts.** The clean-up dialogs for images, volumes and networks offer
+  "All hosts" as the first host option (preselected when the page shows all hosts, otherwise
+  the current host). The preview lists per host what would be removed (count and approximate
+  size, total at the bottom; hosts with nothing to remove and skipped offline or locked hosts
+  are shown), the button shows the total, and confirming cleans up all online hosts in parallel
+  (at most four at a time). The result is shown per host (removed, freed space, errors); an
+  error on one host does not stop the others. Admin only, with an audit entry per host as before.
+
+### Fixed
+
+- **In-app notifications in each user's language.** Notifications were stored with English detail
+  text for everyone. They now store a message key with parameters (new nullable columns, schema
+  migration 43) and the notification panel shows the detail in the current UI language
+  (English, German, Spanish) and follows a language switch. All notification types are covered
+  (hosts, containers, performance, disk, updates, vulnerabilities, backups). Notifications created
+  before the update keep their stored text; e-mails are unchanged.
+- **One Escape closes the notifications panel.** With the settings gear tooltip open, the first
+  Escape only closed the tooltip; now it closes the panel as well.
+
 ## [2.4.1] — 2026-10-13
 
 ### Fixed
@@ -1668,6 +1691,7 @@ the filesystem instead of in a database.
 - **i18n** — German & English; light/dark theme.
 
 [Unreleased]: https://github.com/amslertec/containly/compare/v2.3.0...HEAD
+[2.4.2]: https://github.com/amslertec/containly/compare/v2.4.1...v2.4.2
 [2.4.1]: https://github.com/amslertec/containly/compare/v2.4.0...v2.4.1
 [2.4.0]: https://github.com/amslertec/containly/compare/v2.3.0...v2.4.0
 [2.3.0]: https://github.com/amslertec/containly/compare/v2.2.0...v2.3.0
