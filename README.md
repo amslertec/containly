@@ -328,6 +328,12 @@ configuration backup first if you want a fallback. What changed is in the [CHANG
 
 ---
 
+## Sponsor
+
+If Containly makes managing your Docker hosts easier, you can support its development through
+[GitHub Sponsors](https://github.com/sponsors/amslertec). Sponsorship is optional and helps fund
+maintenance, documentation and new features. It does not replace a Containly Pro licence.
+
 ## Support
 
 - **Guides and troubleshooting:** [help.containly.ch](https://help.containly.ch)
