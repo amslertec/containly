@@ -89,10 +89,15 @@ Forum: [containly.ch/forum](https://containly.ch/forum)
 
 ### Backups
 
-- **Stacks, containers and volumes.** Back up named volumes, the stack folder with the
+- **Stacks, containers and volumes.** Back up named volumes, **anonymous volumes** (kept by
+  container name and mount path, included by default, opt-out per plan), the stack folder with the
   Compose file and `.env`, and the container configuration with image digests. Restore as a
   copy next to the original, or replace in place after a server-side preview (a safety backup
   is made first).
+- **Restore to another host** *(Pro)*. Containers, volumes and Compose stacks can be restored
+  onto a different Docker host into a chosen stack folder with new volume names; the Compose file
+  is checked on the destination and source host paths and privileged settings are refused before
+  anything is written. Replacing existing data on the destination needs a safety backup there.
 - **Encrypted by default.** Streaming tar, zstd and AES-256-GCM with a key from your
   passphrase, which is never stored (a built-in generator creates a strong one). Every set has a plaintext manifest and can be read
   without Containly ([format](docs/backup-format.md)).
@@ -101,7 +106,10 @@ Forum: [containly.ch/forum](https://containly.ch/forum)
 - **Targets.** A folder on the Docker host or in the Containly container, picked with a
   folder browser, and *(Pro)*
   **S3-compatible storage** (Amazon S3, Hetzner Object Storage, Backblaze B2, MinIO,
-  Cloudflare R2, Wasabi) and **SFTP** with host key pinning.
+  Cloudflare R2, Wasabi), **SFTP** with host key pinning, **SMB3** shares (encryption required) and
+  **NFSv4** exports. SMB runs in an unprivileged network sandbox (Landlock), which needs
+  **Linux 6.7 or newer** and Docker's default seccomp profile; without it the SMB connection
+  test says so and SMB stays disabled (NFS and the other targets are unaffected).
 - **Plans.** Contents, target, key and retention in one plan; *(Pro)* schedules (hourly, on
   chosen weekdays or monthly), scheduled verification and a warning when backups go stale.
 - **Download and import.** Move a complete set to another Containly instance as one `.clbk`
@@ -223,7 +231,7 @@ with every core feature included, no account, self-hosted. For **unlimited hosts
 
 The free trial is available once per customer. A Pro license unlocks **unlimited hosts**,
 **Microsoft Entra ID single sign-on**, **themes and appearance** and the **Pro backup
-features** (schedules, S3, SFTP, scheduled verification), works **offline**, and your data
+features** (schedules, S3, SFTP, SMB, NFS, restore to another host, scheduled verification), works **offline**, and your data
 never leaves your server. Licences, invoices and the subscription are managed in your
 customer account at **[containly.ch/account](https://containly.ch/account)**. Current pricing
 is on **[containly.ch](https://containly.ch/#pricing)**.

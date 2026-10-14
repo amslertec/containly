@@ -5,6 +5,70 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+## [2.5.0] — 2026-10-14
+
+### Added
+
+- **Anonymous volumes in backups.** Container and stack backups include anonymous Docker volumes
+  by default (per-plan and ad-hoc opt-out). They are identified by container name and mount path,
+  not by the random volume name, and the new manifest entry type is documented in
+  `docs/backup-format.md`. Database dumps work on them. Restores map to the volume that is
+  mounted at that path now, or create a named local volume when the container is missing; stack
+  restores persist an external-volume Compose override and verify the effective mounts before and
+  after. Ambiguous replicas and unsafe partial selections fail closed. Old sets stay readable.
+- **SMB and NFS backup targets (Pro).** SMB3 with mandatory session encryption (encrypted
+  password, secret-free auth file, no credentials in process arguments or Docker metadata) and
+  NFSv4/v4.1 mounted by hardened, capability-free helpers on the selected Docker host. Connection
+  test with clear errors, configuration UI in English, German and Spanish, and simulated storage in
+  the demo. Existing sets on these targets stay scannable, verifiable, downloadable and
+  restorable after a licence downgrade.
+- **Restore to another host (Pro).** Containers, volumes and Compose stacks can be restored onto a
+  different Docker host, as a copy or by replacing the destination after a safety backup made on
+  that host. Stacks go into a chosen stack folder of the destination with new project and volume
+  names; the Compose file is checked on the destination and source host paths, host namespaces,
+  privileged mode and external resources are refused before anything is written. Raw volume data
+  and database dumps (PostgreSQL verified end to end) restore to identical data; the source host
+  is never touched. The restore wizard offers every host and stack folder, with a simulation in
+  the demo.
+
+### Changed
+
+- **Built-in local host name.** New installs store the neutral name "Local Docker". While the name
+  is unchanged it is shown in the interface language ("Local Docker", "Lokaler Docker", "Docker
+  local"); a renamed host keeps its name.
+- **Update check.** Only a strictly newer release counts as an update (semantic versioning,
+  pre-releases rank below their release), so a development or newer build is never offered an
+  older version. The release information is refreshed shortly after start and the release notes of
+  a version older than the installed one are never shown.
+- **Notifications.** The full translated detail text of a notification is available as a tooltip on
+  desktop and wraps to two lines on touch screens.
+
+### Fixed
+
+- **Backup progress:** the estimate only covers the volumes (stack folder, database dumps and the
+  container configuration come on top), so a run could show "1.22 GB / 822 MB · 100 %" while still
+  running. Once the written bytes pass the estimate, the progress shows the bytes alone with a busy
+  bar, and the percentage never reaches 100 % before the run is done.
+- **Backups no longer warn about host system files:** binds of `/etc/localtime`, `/etc/timezone`,
+  `/etc/hosts`, `/etc/resolv.conf`, the Docker socket and paths below `/dev`, `/proc`, `/sys`,
+  `/run` or `/usr/share/zoneinfo` are host files, not app data. They are skipped without the
+  "bind mount outside the stack folder" warning.
+- **Update notification:** the "new version" notification is no longer sent when the installed
+  version is not older than the latest release.
+
+### Security
+
+- **SMB confinement.** `smbclient` runs under a small unprivileged helper (Landlock TCP port rule
+  plus seccomp) and can only reach a one-shot loopback proxy that forwards to the validated,
+  pinned server address. A DFS referral or fallback address cannot send a single byte to another
+  peer (verified with a real Samba DFS proxy). This needs Linux 6.7 or newer and Docker's default
+  seccomp profile; without Landlock the SMB connection test reports it and SMB fails closed.
+- **Cross-host restore hardening.** The preview token signs the destination engine, name, stack
+  root and every mapping; destination volumes are always plain local volumes (no replayed driver
+  options); archived Compose overrides are never inherited; stale previews are rejected.
+
 ## [2.4.2] — 2026-10-13
 
 ### Added
@@ -1690,7 +1754,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v2.3.0...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v2.5.0...HEAD
+[2.5.0]: https://github.com/amslertec/containly/compare/v2.4.2...v2.5.0
 [2.4.2]: https://github.com/amslertec/containly/compare/v2.4.1...v2.4.2
 [2.4.1]: https://github.com/amslertec/containly/compare/v2.4.0...v2.4.1
 [2.4.0]: https://github.com/amslertec/containly/compare/v2.3.0...v2.4.0
