@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.5.2] — 2026-10-15
+
+### Changed
+
+- **Demo start page in German, English and Spanish.** The demo gateway now speaks the visitor's
+  language on every page it renders: start page, session ended, expired, maintenance, capacity
+  and rate-limit notices. A flag menu (Germany, United Kingdom, Spain) switches the language
+  with mouse or keyboard. The language is picked from an explicit `?lang=` link parameter
+  (the website passes its current language), then the stored demo choice, then the browser
+  language, then English. The chosen language is carried into the demo session, so the app
+  opens in it, and an explicit language change inside the demo is kept across logout, restart
+  and expiry.
+
+### Fixed
+
+- The demo start page was always German for visitors whose browser or website language was not
+  German, because the website language never reached the demo host.
+
 ## [2.5.1] — 2026-10-14
 
 ### Added
@@ -1780,7 +1798,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v2.5.1...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v2.5.2...HEAD
+[2.5.2]: https://github.com/amslertec/containly/compare/v2.5.1...v2.5.2
 [2.5.1]: https://github.com/amslertec/containly/compare/v2.5.0...v2.5.1
 [2.5.0]: https://github.com/amslertec/containly/compare/v2.4.2...v2.5.0
 [2.4.2]: https://github.com/amslertec/containly/compare/v2.4.1...v2.4.2
