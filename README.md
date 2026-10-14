@@ -31,9 +31,9 @@ version, back up and edit without Containly.
 **Watch the 8-minute tour:** [Containly on YouTube](https://www.youtube.com/watch?v=y7NTYoFYXoU)
 (install, dashboard, containers, stacks, scans, updates, hosts, phone).
 Install guide: [containly.ch/install](https://containly.ch/install) ·
-FAQ: [containly.ch/faq](https://containly.ch/faq) ·
-Help: [containly.ch/help](https://containly.ch/help) ·
-Forum: [containly.ch/forum](https://containly.ch/forum)
+FAQ: [faq.containly.ch](https://faq.containly.ch) ·
+Help: [help.containly.ch](https://help.containly.ch) ·
+Forum: [forum.containly.ch](https://forum.containly.ch)
 
 > **Security-critical.** Containly talks to the Docker socket, which is equivalent to root
 > on the host. Read [Security](#security) before you expose it.
@@ -107,9 +107,19 @@ Forum: [containly.ch/forum](https://containly.ch/forum)
   folder browser, and *(Pro)*
   **S3-compatible storage** (Amazon S3, Hetzner Object Storage, Backblaze B2, MinIO,
   Cloudflare R2, Wasabi), **SFTP** with host key pinning, **SMB3** shares (encryption required) and
-  **NFSv4** exports. SMB runs in an unprivileged network sandbox (Landlock), which needs
+  **NFSv4** exports. Every target dialog has an optional **Test connection** that checks the
+  unsaved settings with a temporary object (nothing is saved or left behind). SMB runs in an unprivileged network sandbox (Landlock), which needs
   **Linux 6.7 or newer** and Docker's default seccomp profile; without it the SMB connection
   test says so and SMB stays disabled (NFS and the other targets are unaffected).
+- **Overview.** Filter by status or **With backups** (hosts and resources with at least one
+  complete set).
+- **Free and Pro.** *Free:* manual backup and restore on the same host, all consistency modes
+  including database dumps, encryption, verification, retention, folder targets (Containly
+  container and Docker host), notifications, and download and import of `.clbk` files.
+  *Pro:* schedules, scheduled verification, S3, SFTP, SMB and NFS targets, and restore to another
+  host. Your data is never held hostage: if a licence lapses, existing sets on Pro targets stay
+  listable, verifiable, downloadable and restorable on the same host, and scheduled plans pause
+  and resume by themselves.
 - **Plans.** Contents, target, key and retention in one plan; *(Pro)* schedules (hourly, on
   chosen weekdays or monthly), scheduled verification and a warning when backups go stale.
 - **Download and import.** Move a complete set to another Containly instance as one `.clbk`
@@ -119,6 +129,8 @@ Forum: [containly.ch/forum](https://containly.ch/forum)
 
 - **Images.** Pull with Docker Hub search and tag picker, tag, remove, prune unused,
   layer view, update badges.
+- **Clean up on all hosts.** The prune dialogs for images, volumes and networks can preview and
+  clean up unused resources on every host at once.
 - **CVE scanning.** Trivy scans your images on demand or on a schedule. Severity counts
   in the list, and per image
   the full list of CVEs with package, installed version and fixed version. Not needed? Turn
@@ -133,7 +145,9 @@ Forum: [containly.ch/forum](https://containly.ch/forum)
 - **App catalog.** Browse templates, add your own template sources, deploy an app as a
   stack with its environment variables filled in.
 - **Updates.** Registry digest checks without pulling, semver detection for pinned version
-  tags, a server-side bulk update job with live progress that survives reloads.
+  tags, a server-side bulk update job with live progress that survives reloads. Only a strictly
+  newer Containly release counts as an update, so development builds are never offered an older
+  version.
 - **Self-update.** Containly recreates its own container in one click and rolls back if the
   new version is not healthy.
 - **Registry logins.** Several Docker Hub or private registry accounts, encrypted; the
@@ -166,7 +180,8 @@ Forum: [containly.ch/forum](https://containly.ch/forum)
   configuration, also on a schedule.
 - **Notifications.** In-app feed and email (SMTP) for offline hosts, crashed, unhealthy or
   OOM-killed containers, restart loops, CPU, memory and disk thresholds, image and
-  Containly updates, and new critical CVEs. Recipients per event type.
+  Containly updates, new critical CVEs, and backup failures or stale backups. Recipients per
+  event type; in-app entries and e-mails appear in each user's language.
 - **Schedules.** Update checks, vulnerability scans, backups, image and volume pruning,
   auto-updates and SSO sync, hourly, on chosen weekdays or monthly. Every run lands in the
   audit log.
@@ -308,15 +323,17 @@ docker compose pull
 docker compose up -d
 ```
 
-Or use the one-click self-update in the app. What changed is in the [CHANGELOG](CHANGELOG.md).
+Or use the one-click self-update in the app. Take a backup of the `containly-data` volume or a
+configuration backup first if you want a fallback. What changed is in the [CHANGELOG](CHANGELOG.md).
 
 ---
 
 ## Support
 
-- **Guides and troubleshooting:** [containly.ch/help](https://containly.ch/help)
+- **Guides and troubleshooting:** [help.containly.ch](https://help.containly.ch)
+- **Frequently asked questions:** [faq.containly.ch](https://faq.containly.ch)
 - **Questions, bug reports and ideas:** the community forum at
-  [containly.ch/forum](https://containly.ch/forum) (one account for licences, support and
+  [forum.containly.ch](https://forum.containly.ch) (one account for licences, support and
   the forum)
 - **Email:** support@amslertec.ch
 - **Security issues:** privately, see [SECURITY.md](SECURITY.md)

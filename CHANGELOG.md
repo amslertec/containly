@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.5.1] — 2026-10-14
+
+### Added
+
+- **Test connection in backup target dialogs.** New and edit dialogs for all six target types
+  (local folder, host folder, S3, SFTP, SMB, NFS) have an optional "Test connection" button that
+  checks the unsaved settings before you save. The test writes a uniquely named object, reads it
+  back, compares it and removes it again; it never creates folders, never overwrites existing
+  files, and reports a failed clean-up instead of claiming success. Nothing is saved, pinned or
+  recorded by a test. A stored secret is only reused for the same target and destination; if you
+  change the destination, enter the secret again. The result is cleared when a field changes. In
+  the demo the test is simulated without network access.
+- **"With backups" filter.** The backup overview has a new segment after "All" that lists only
+  hosts and resources that have at least one complete backup set (English, German, Spanish). The
+  counts follow the selected host and search.
+
+### Changed
+
+- The connection test of saved targets uses the same safer probe (exclusive test object, clean-up
+  reporting, translated error messages).
+
+### Fixed
+
+- **Backup list:** icons, names and the metadata line no longer touch the row borders; rows keep
+  even vertical spacing and centred actions.
+
 ## [2.5.0] — 2026-10-14
 
 ### Added
@@ -1754,7 +1780,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v2.5.0...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v2.5.1...HEAD
+[2.5.1]: https://github.com/amslertec/containly/compare/v2.5.0...v2.5.1
 [2.5.0]: https://github.com/amslertec/containly/compare/v2.4.2...v2.5.0
 [2.4.2]: https://github.com/amslertec/containly/compare/v2.4.1...v2.4.2
 [2.4.1]: https://github.com/amslertec/containly/compare/v2.4.0...v2.4.1
