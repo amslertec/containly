@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.6.1] — 2026-10-15
+
+### Changed
+
+- **Grouped lists start closed.** When a list is grouped (by stack, host, image, driver or
+  resource type), every group starts collapsed and shows only its header with the counts; a click
+  opens it. "Per page" now counts groups, so a page is a compact overview. Select all and keyboard
+  navigation only reach rows of opened groups.
+- **Images grouped by image across hosts.** In the Images view each repository is one group even
+  under All hosts (for example `alpine` on five hosts is one group, the header says how many hosts),
+  and every row names its host. The images themselves stay separate per host.
+- **Toolbar dropdowns share one row on phones.** View, Sort and Per page sit side by side whenever
+  they fit, instead of wrapping onto a second row. On phones the View dropdown shows its icon and
+  value without the word "View", so the row also fits in German and Spanish.
+
+### Fixed
+
+- The dashboard on phones could scroll sideways: a long event detail without spaces (for example
+  an image reference with a digest) widened the page. Long names and references on the dashboard
+  now wrap inside their cards.
+
 ## [2.6.0] — 2026-10-15
 
 ### Added
@@ -1844,7 +1865,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v2.6.0...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v2.6.1...HEAD
+[2.6.1]: https://github.com/amslertec/containly/compare/v2.6.0...v2.6.1
 [2.6.0]: https://github.com/amslertec/containly/compare/v2.5.2...v2.6.0
 [2.5.2]: https://github.com/amslertec/containly/compare/v2.5.1...v2.5.2
 [2.5.1]: https://github.com/amslertec/containly/compare/v2.5.0...v2.5.1
