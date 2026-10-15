@@ -7,6 +7,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.6.0] — 2026-10-15
+
+### Added
+
+- **View and grouping selector on every resource list.** Containers can be shown as a list, by
+  Compose stack (plus a group for standalone containers) or, under All hosts, by host. Images can
+  be shown as a list, as **Images** (all tags and versions of a repository together; different
+  registries stay separate), by the stacks that use them or by host. Volumes and networks group by
+  stack (from their real Compose labels and the containers that use them, with Standalone and
+  Unused groups) or by host; networks keep the driver grouping. The backup overview groups by
+  stack, resource type or host. A resource shared by several stacks appears under each of them,
+  while selection and bulk actions still count it once (per host and ID); identical stack names on
+  different hosts never merge. The selector is one accessible dropdown, also on phones, the choice
+  is remembered per page, and switching from All hosts to a single host falls back from Host to
+  List.
+- **Entra ID users show their sign-in name.** The user list, user detail and profile show the
+  Entra `preferred_username` (UPN) instead of the object ID. The immutable object ID stays the
+  only key that links a sign-in to an account and is shown separately as "Entra object ID" in the
+  account details. Existing Entra users get their sign-in name on their next sign-in. Local and
+  Entra accounts are never merged by e-mail or UPN.
+
+### Changed
+
+- **User detail.** Reset password is only in the three-dot menu (no separate header button on
+  desktop or phone), the role and sign-in source badges sit side by side in one row, and the
+  username is shown once (below the display name only when it differs).
+- **Container logs in English.** All operator-facing Docker logs (startup, migrations, background
+  jobs, helpers, licence checks and the first-setup banner with the setup token) are English,
+  independent of the UI language. The UI and API messages stay translated.
+- **Dark mode multi-select bar.** The bulk action bar is a raised dark surface with a border in
+  dark mode instead of a bright white bar (containers, images, volumes, networks, stacks, hosts,
+  updates, users). Light mode is unchanged.
+- The support address is now support@containly.ch (README, Docker Hub page, security policy, the
+  licence file and the licence error messages).
+
+### Fixed
+
+- **Restart-loop notification never fired.** The background monitor read the restart count from
+  the container list, which does not carry it, so every container counted as 0 restarts. The
+  count now comes from cached inspect data (refreshed only for running or restarting containers
+  that may have restarted), and the "restart loop" notification is sent again.
+- **Phones: Most restarts card.** Long container and host names no longer push the restart count
+  outside the card; the host sits under the name and long names wrap.
+- **Phones: Compose editor.** In the stack editor and the new stack dialog the editor frame stays
+  inside the screen; swiping sideways scrolls only the text, not the toolbar, dialog or page.
+
 ## [2.5.2] — 2026-10-15
 
 ### Changed
@@ -1798,7 +1844,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v2.5.2...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v2.6.0...HEAD
+[2.6.0]: https://github.com/amslertec/containly/compare/v2.5.2...v2.6.0
 [2.5.2]: https://github.com/amslertec/containly/compare/v2.5.1...v2.5.2
 [2.5.1]: https://github.com/amslertec/containly/compare/v2.5.0...v2.5.1
 [2.5.0]: https://github.com/amslertec/containly/compare/v2.4.2...v2.5.0

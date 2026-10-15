@@ -72,6 +72,9 @@ Forum: [forum.containly.ch](https://forum.containly.ch)
 - **Environment and files.** Edit environment variables with secrets masked, browse,
   upload, download and delete files inside a running container.
 - Published ports link straight to the service. Pause, kill and migrate are one menu away.
+- **Group the list.** View the containers as a plain list, by Compose stack (with a group for
+  standalone containers) or, under All hosts, by host. Identical stack names on different hosts
+  stay separate; the choice is remembered per page.
 
 ### Stacks
 
@@ -129,6 +132,12 @@ Forum: [forum.containly.ch](https://forum.containly.ch)
 
 - **Images.** Pull with Docker Hub search and tag picker, tag, remove, prune unused,
   layer view, update badges.
+- **Grouping.** Images can be listed flat, by repository (all tags and versions of an image
+  together, registries kept apart) or by the Compose stacks that use them; volumes and networks
+  by stack, using real Compose labels and the containers that use them, with Standalone and
+  Unused groups. A resource shared by several stacks shows under each of them. Under All hosts
+  every list can also be grouped by host. The backup overview groups by stack, resource type
+  or host.
 - **Clean up on all hosts.** The prune dialogs for images, volumes and networks can preview and
   clean up unused resources on every host at once.
 - **CVE scanning.** Trivy scans your images on demand or on a schedule. Severity counts
@@ -341,7 +350,7 @@ maintenance, documentation and new features. It does not replace a Containly Pro
 - **Questions, bug reports and ideas:** the community forum at
   [forum.containly.ch](https://forum.containly.ch) (one account for licences, support and
   the forum)
-- **Email:** support@amslertec.ch
+- **Email:** support@containly.ch
 - **Security issues:** privately, see [SECURITY.md](SECURITY.md)
 
 ---

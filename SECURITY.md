@@ -6,7 +6,7 @@ Treat a Containly instance as being as sensitive as the host itself.
 ## Reporting a vulnerability
 
 Please do **not** report vulnerabilities through public issues. Email
-**support@amslertec.ch** or use GitHub's private "Security Advisories".
+**support@containly.ch** or use GitHub's private "Security Advisories".
 We aim to acknowledge reports within 72 hours.
 
 ## Supported versions
