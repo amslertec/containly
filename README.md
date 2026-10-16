@@ -20,6 +20,10 @@
 </p>
 
 <p align="center">
+  <a href="https://alternativeto.net/software/containly/about/?utm_source=badge&utm_medium=referral"><img src="https://alternativeto.net/static/badges/badge-wide-color.svg" alt="Containly on AlternativeTo" width="284" height="51"></a>
+</p>
+
+<p align="center">
   <img src="docs/screenshots/dashboard-dark.png" alt="Containly dashboard in dark mode: status line, key numbers, timeline per host and stack, live events" width="100%">
 </p>
 
