@@ -15,7 +15,7 @@
 <p align="center">
   <a href="https://hub.docker.com/r/amslertec/containly"><img src="https://img.shields.io/docker/v/amslertec/containly?logo=docker&label=Docker%20Hub&sort=semver" alt="Docker Hub"></a>
   <a href="https://containly.ch"><img src="https://img.shields.io/badge/website-containly.ch-2bb6a2" alt="Website"></a>
-  <a href="https://www.youtube.com/watch?v=y7NTYoFYXoU"><img src="https://img.shields.io/badge/video-8%20min%20tour-red?logo=youtube" alt="Video: 8-minute tour"></a>
+  <a href="https://www.youtube.com/watch?v=UcSy6XeCf_8"><img src="https://img.shields.io/badge/video-7%20min%20tour-red?logo=youtube" alt="Video: 7-minute tour"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-proprietary%2C%20free%20for%202%20hosts-blue.svg" alt="License: proprietary, free for 2 hosts"></a>
 </p>
 
@@ -28,7 +28,7 @@ VPS or two, usually behind a reverse proxy. It shows what needs attention first,
 act on it in one click, and keeps your Compose files where they belong: in folders you can
 version, back up and edit without Containly.
 
-**Watch the 8-minute tour:** [Containly on YouTube](https://www.youtube.com/watch?v=y7NTYoFYXoU)
+**Watch the 7-minute tour:** [Containly on YouTube](https://www.youtube.com/watch?v=UcSy6XeCf_8)
 (install, dashboard, containers, stacks, scans, updates, hosts, phone).
 Install guide: [containly.ch/install](https://containly.ch/install) ·
 FAQ: [faq.containly.ch](https://faq.containly.ch) ·
