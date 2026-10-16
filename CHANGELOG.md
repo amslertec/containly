@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.6.2] — 2026-10-16
+
+### Security
+
+- **Base image moved to Alpine 3.23.** Both build stages of the app and demo images now use
+  `node:22-alpine3.23` pinned by digest (Node.js 22.23.3), with current OS package fixes applied
+  at build time.
+- **Samba client 4.22.10 fixes CVE-2026-2340.** The SMB client used for SMB backup targets moves
+  from 4.21.9 to 4.22.10-r0, the Alpine release that fixes CVE-2026-2340. SMB backups keep running
+  through the same confined, encrypted SMB3 client; it was re-tested against a real Samba server.
+- **OpenLDAP libraries 2.6.13** (were 2.6.8), pulled in by the Samba client. Some scanners report
+  CVE-2026-22185 against this package; that issue is in the LMDB `mdb_load` tool, which the
+  OpenLDAP package does not build and Containly never runs.
+- **Known findings without an upstream fix:** CVE-2025-60876 (BusyBox `wget`) and CVE-2025-62813
+  (lz4) have no fixed package in Alpine yet. Containly does not call `wget`, and lz4 is only a
+  library dependency of the Samba client with no fixed release available; both will be picked up
+  automatically by the next image build once Alpine ships a fix.
+
 ## [2.6.1] — 2026-10-15
 
 ### Changed
@@ -1865,7 +1883,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v2.6.1...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v2.6.2...HEAD
+[2.6.2]: https://github.com/amslertec/containly/compare/v2.6.1...v2.6.2
 [2.6.1]: https://github.com/amslertec/containly/compare/v2.6.0...v2.6.1
 [2.6.0]: https://github.com/amslertec/containly/compare/v2.5.2...v2.6.0
 [2.5.2]: https://github.com/amslertec/containly/compare/v2.5.1...v2.5.2
