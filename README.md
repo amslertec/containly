@@ -132,6 +132,24 @@ Forum: [forum.containly.ch](https://forum.containly.ch)
 - **Download and import.** Move a complete set to another Containly instance as one `.clbk`
   file.
 
+### Workflows *(Pro)*
+
+- **Automate routine reactions without scripting.** A workflow is a trigger, optional conditions
+  and ordered steps, with an "otherwise" branch. Triggers: container unhealthy, exited or killed
+  for lack of memory, restart loop, host offline or back online, sustained CPU or memory, backup
+  finished, and a schedule. Steps: notify (in-app and e-mail), restart, start or stop a
+  container, run a backup plan, update a container, wait until healthy, and wait.
+- **20 ready templates in six groups:** Health and recovery, Backups, Updates, Hosts, CPU and
+  memory, Schedules and maintenance. Pick a template, choose the containers, hosts or backup
+  plans it may touch, and enable it. New workflows start as drafts.
+- **Safe by design.** Changing steps act only on containers or stacks you picked explicitly. An
+  update runs only after a successful backup in the same run. Cooldowns and a circuit breaker
+  (default three changing actions per hour, then paused until an admin re-arms it) stop runaway
+  loops, and a workflow's own actions never trigger another workflow.
+- **Simulate, run now and history.** A dry run shows which steps would run, without changing
+  anything. Every run is kept with its condition results and step trace, and every action is in
+  the audit log as "Workflow: <name>".
+
 ### Images, volumes, networks
 
 - **Images.** Pull with Docker Hub search and tag picker, tag, remove, prune unused,
@@ -258,7 +276,7 @@ with every core feature included, no account, self-hosted. For **unlimited hosts
 | **Lifetime** | CHF 189 one-time | 1 Containly instance | none |
 
 The free trial is available once per customer. A Pro license unlocks **unlimited hosts**,
-**Microsoft Entra ID single sign-on**, **themes and appearance** and the **Pro backup
+**Microsoft Entra ID single sign-on**, **themes and appearance**, **workflows** and the **Pro backup
 features** (schedules, S3, SFTP, SMB, NFS, restore to another host, scheduled verification), works **offline**, and your data
 never leaves your server. Licences, invoices and the subscription are managed in your
 customer account at **[containly.ch/account](https://containly.ch/account)**. Current pricing

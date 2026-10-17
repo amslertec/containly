@@ -7,6 +7,64 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.7.0] — 2026-10-17
+
+### Added
+
+- **Workflows (Pro).** A new Workflows page automates routine reactions as typed rules:
+  a trigger, optional conditions (all or any) and ordered steps, with an "otherwise" branch.
+  No scripting and no free-form commands: triggers, conditions and steps are a fixed list.
+  - **Triggers:** container unhealthy, container exited unexpectedly or killed for lack of memory
+    (OOM), restart loop, host offline (for a set time) and back online, sustained CPU or memory
+    above a threshold, backup finished (failed, succeeded or any result) and a schedule with the
+    app's own time picker (hourly, chosen weekdays, monthly).
+  - **Conditions:** CPU or memory threshold, duration of the state, data freshness, host
+    reachable, backup target reachable and "not held by a running backup or restore". An unknown
+    value counts as not met, so nothing changes on stale data.
+  - **Steps:** notify (in-app and/or e-mail, recipients under Settings, Notifications, Workflow
+    notifications), restart, start or stop a container, run a backup plan and wait for its
+    result, wait until healthy, update a container, and wait.
+  - **Backup before update:** an update step only runs after a successful backup step earlier in
+    the same run. A failed backup, or one that finished with warnings, blocks the update, and the
+    run history says why. The update pulls the newest image for the container's tag and recreates
+    only that container.
+  - **Safety:** changing steps act only on containers or stacks you pick explicitly, never on a
+    whole host. Each event is handled once per workflow, host and resource (the same container
+    name on another host is separate); per-resource cooldown; a circuit breaker (default three
+    changing actions per 60 minutes) pauses the workflow for that resource until an admin re-arms
+    it; a workflow's own actions never trigger another workflow; locked or offline hosts are
+    skipped; at most three runs at a time. Every action is written to the audit log as
+    "Workflow: <name>". Engine state (cooldowns, breakers, attempts, runs) survives restarts.
+  - **Templates and builder:** 20 ready templates in six groups (Health and recovery, Backups,
+    Updates, Hosts, CPU and memory, Schedules and maintenance), for example unhealthy or crashed
+    container: notify and restart; restart loop alert; backup failed or succeeded; nightly or
+    weekly backup only when host and target are ready; weekly or monthly backup, update and health
+    check; host offline or back online; sustained CPU or memory alerts and restarts; weekly
+    restart, stop every night and start every morning. Every group starts closed and only one
+    group is open at a time (opening another closes the previous one), with mouse or keyboard.
+    Your own workflows are listed under their own "My workflows" heading with a count. The
+    builder shows the flow from trigger to steps, with an inline editor for each part. New
+    workflows start as drafts and do nothing until you pick their containers, hosts or plans and
+    enable them.
+  - **Simulate and history:** a dry run checks the conditions against the live state and shows
+    which steps would run, without changing anything or sending notifications. "Run now" starts
+    the real steps once with every safety check. The history shows each run with its condition
+    results and step trace.
+  - Only admins create, edit, enable or run workflows; viewers can read them. On Free the page
+    shows the templates as a read-only preview with an upgrade hint, and existing workflows pause
+    with reason "licence" until Pro is active again (they resume on their own). This is enforced
+    on the server, not only in the interface.
+  - Available in English, German and Spanish.
+- **Demo:** the public demo shows four sample workflows (two enabled, two drafts) with a short
+  run history, including a tripped circuit breaker. Simulate works there; "Run now" is refused
+  and the engine never acts on the simulated hosts.
+
+### Fixed
+
+- German interface: two messages still written with "ß" (password rule "at least one uppercase
+  letter" and the migration warning about bind mounts outside the allowed paths) now use the
+  Swiss spelling ("ss").
+
 ## [2.6.2] — 2026-10-16
 
 ### Security
@@ -1883,7 +1941,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v2.6.2...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v2.7.0...HEAD
+[2.7.0]: https://github.com/amslertec/containly/compare/v2.6.2...v2.7.0
 [2.6.2]: https://github.com/amslertec/containly/compare/v2.6.1...v2.6.2
 [2.6.1]: https://github.com/amslertec/containly/compare/v2.6.0...v2.6.1
 [2.6.0]: https://github.com/amslertec/containly/compare/v2.5.2...v2.6.0
