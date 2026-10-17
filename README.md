@@ -421,6 +421,31 @@ vulnerabilities privately (see that file), not via public issues.
 
 ---
 
+## Outbound connections
+
+Containly runs on your server and sends **no telemetry and no usage analytics**. The web app
+loads no third-party scripts. These are all connections the server itself opens to the internet:
+
+| What | Contacted | When | What is sent | Turn off |
+|---|---|---|---|---|
+| Licence check | `containly.ch/api/license/v1` | Only with a Pro key: on activation, 5 to 30 s after start and then about every 24 h | Licence key, a random installation ID, the container hostname, the Containly version, the number of connected hosts | Free installations make no licence calls. Removing the key stops them. Offline: the signed lease stays valid until it expires (up to 30 days after the last successful check, for subscriptions at most until 3 days after the paid period); if it expires while the server is unreachable, Pro stays on until at least 14 days after the last successful check |
+| Containly update check | `api.github.com` (latest release of `amslertec/containly`) | 5 s after start, then every 6 h, and on a manual check under **Settings > Version and licence** | An HTTP request with the user agent `containly`; no version, key or ID | No switch; if blocked, the Version card simply shows no newer release |
+| Image update checks | The registry of each image you run (for example Docker Hub, GHCR, quay.io), through the Docker engine of each host; tag lists from `registry-1.docker.io` for Docker Hub images with version tags | After start, every 6 h and on demand | Image names and tags, plus the registry sign-ins you saved under Settings | No switch |
+| Vulnerability scanning | The `aquasec/trivy` image from Docker Hub, then whatever the Trivy container downloads with its default settings (its vulnerability database), from the scanned host | 90 s after start and every 6 h | Image pull and Trivy's own downloads; your images are scanned locally and no scan result leaves the host | **Settings > Schedule > Vulnerability scanning (Trivy)**: off means no scans and no Trivy downloads |
+| App catalog | `raw.githubusercontent.com` (the default template list), or the sources you add | When the App catalog is opened (cached 10 min) | A plain download | Remove or disable the source under **App catalog > Sources** |
+| Image search and tags | `hub.docker.com` | While you type an image name or open its tags | The search term; your Docker Hub sign-in if you saved one | Do not use the search |
+| Image pulls | The registries of the images you deploy or update; Docker Hub for the helper images (`docker:cli`, and `alpine` for NFS backups) | When you deploy or update, and the first time a helper is needed on a host | What `docker pull` sends | Part of normal Docker use |
+| E-mail | Your SMTP server | Only if SMTP is configured | The notification mails | Leave SMTP empty |
+| Microsoft Entra ID sign-in | `login.microsoftonline.com`, `graph.microsoft.com` | Only if Entra SSO is configured: at sign-in and for group sync | The OAuth sign-in flow; group membership and profile photo lookups | Leave SSO off |
+| Backups | The S3, SFTP, SMB or NFS targets you configure | When a backup, verification, restore or connection test runs | Your encrypted backup data | Use local targets only |
+| Git stacks | The Git repositories you configure | When you deploy or sync such a stack | `git clone` / `git fetch` | Use local stacks |
+| Hosts | The Docker hosts you connect (TCP with TLS, SSH, agent) | Continuously while connected | Docker API calls | Part of normal use |
+| Legacy licence keys | `api.lemonsqueezy.com` | Only for old Lemon Squeezy keys, about every 24 h | Licence key and instance ID | Not used by `CL1-` keys |
+
+Links to containly.ch (help, forum, pricing, account) open in your browser only when you click them.
+
+---
+
 ## License
 
 Containly is proprietary software: free for up to 2 Docker hosts, for private and
