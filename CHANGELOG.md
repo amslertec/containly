@@ -7,6 +7,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.7.1] — 2026-10-19
+
+### Added
+
+- **Notification channels (Free).** Settings, Notifications has a new Channels card: send the
+  existing notifications to **ntfy** (ntfy.sh or your own server; access token or user and
+  password, priority per severity, optional click URL), **Gotify** (app token, priority per
+  severity) or a **generic webhook** (POST with a stable JSON body, optional HMAC-SHA256
+  signature, up to 10 custom headers). Every notification type that is switched on under Events
+  can go to channels; each channel has its own minimum severity, an optional subset of events
+  and a message language.
+- **Send test** in the add and edit dialog sends one real message with the entered settings and
+  saves nothing; the result is translated (for example "Sign-in refused (HTTP 401)" or "loopback
+  addresses are never allowed") and disappears as soon as a field changes. Saved channels have a
+  "Send test" button in the list.
+- **Delivery log** per channel (last 20 attempts: time, event, result, HTTP status, attempts;
+  never message content or secrets) and a status per channel (working, error, failing after 10
+  failed deliveries in a row).
+- **Workflows (Pro):** the notify step can pick saved channels next to in-app and e-mail. Using
+  channels in workflows needs Pro, checked on the server; normal notifications to channels stay
+  Free.
+- Generic webhook format (version 1): `{version, id, type, severity, title, message, target, link,
+  at, test, source}` with the headers `X-Containly-Event`, `X-Containly-Delivery` and, when signed,
+  `X-Containly-Timestamp` plus `X-Containly-Signature: sha256=<hex HMAC-SHA256 of
+  "<timestamp>.<body>">`. Rate limit summaries use the type `channel.suppressed` with a
+  `suppressed` count.
+
+### Security
+
+- Channel secrets (tokens, passwords, signing secret, header values) are stored AES-256-GCM
+  encrypted with the instance master key and are never returned by the API, written to logs or
+  to the audit log. Changing the destination (scheme, host or port) of a saved channel requires
+  entering its secrets again, so a stored token can never be forwarded to another server, also
+  not by a draft test.
+- Outbound policy for channel URLs (SSRF): loopback, `localhost`, link-local, cloud metadata
+  addresses (169.254.169.254, fd00:ec2::254, 100.100.100.200), reserved ranges and Containly's
+  own address and port are always refused; every resolved address is checked and the connection
+  is pinned to it (no DNS rebinding); no redirects are followed; plain `http://` is only allowed
+  to private network addresses. Private and LAN addresses are allowed by default because ntfy and
+  Gotify usually run there; the admin switch "Block private targets" (or
+  `CONTAINLY_CHANNELS_BLOCK_PRIVATE=1`, which forces it on) refuses them too.
+- Per channel at most 20 messages per minute; anything above is held back and summarised in one
+  message. Transient errors (HTTP 429, 5xx, timeouts, connection errors) are retried 3 times with
+  backoff (1 s, 2 s, 4 s, Retry-After honoured up to 30 s); other errors are not retried.
+
+### Changed
+
+- Database migration 46 adds the tables `notification_channels` and `notification_deliveries`.
+- The demo shows two sample channels with a delivery log; its test button is simulated and it
+  never sends anything.
+
 ## [2.7.0] — 2026-10-17
 
 ### Added
@@ -1941,7 +1992,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v2.7.0...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v2.7.1...HEAD
+[2.7.1]: https://github.com/amslertec/containly/compare/v2.7.0...v2.7.1
 [2.7.0]: https://github.com/amslertec/containly/compare/v2.6.2...v2.7.0
 [2.6.2]: https://github.com/amslertec/containly/compare/v2.6.1...v2.6.2
 [2.6.1]: https://github.com/amslertec/containly/compare/v2.6.0...v2.6.1

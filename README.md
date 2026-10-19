@@ -137,7 +137,8 @@ Forum: [forum.containly.ch](https://forum.containly.ch)
 - **Automate routine reactions without scripting.** A workflow is a trigger, optional conditions
   and ordered steps, with an "otherwise" branch. Triggers: container unhealthy, exited or killed
   for lack of memory, restart loop, host offline or back online, sustained CPU or memory, backup
-  finished, and a schedule. Steps: notify (in-app and e-mail), restart, start or stop a
+  finished, and a schedule. Steps: notify (in-app, e-mail and saved channels such as ntfy,
+  Gotify or a webhook), restart, start or stop a
   container, run a backup plan, update a container, wait until healthy, and wait.
 - **20 ready templates in six groups:** Health and recovery, Backups, Updates, Hosts, CPU and
   memory, Schedules and maintenance. Pick a template, choose the containers, hosts or backup
@@ -213,6 +214,28 @@ Forum: [forum.containly.ch](https://forum.containly.ch)
   OOM-killed containers, restart loops, CPU, memory and disk thresholds, image and
   Containly updates, new critical CVEs, and backup failures or stale backups. Recipients per
   event type; in-app entries and e-mails appear in each user's language.
+- **Notification channels (Free).** Send the same notifications to **ntfy** (ntfy.sh or your own
+  server, with access token or user and password), **Gotify** or any **webhook** (JSON body,
+  optional HMAC-SHA256 signature, custom headers), under **Settings > Notifications > Channels**.
+  Each channel has its own minimum severity, event selection and message language, a "Send test"
+  button that saves nothing, and a delivery log of the last 20 attempts. Secrets are stored
+  encrypted and never shown again. At most 20 messages per minute per channel (the rest is
+  summarised in one message), retries with backoff for temporary errors. Loopback, link-local and
+  cloud metadata addresses are always refused; LAN addresses are allowed unless you switch on
+  "Block private targets". In workflows (Pro) the notify step can pick saved channels too.
+
+  Webhook body (version 1):
+
+  ```json
+  {"version":1,"id":"<delivery id>","type":"container.exited","severity":"warning",
+   "title":"...","message":"...","target":"web","link":"https://containly.example.com/containers",
+   "at":"2026-10-19T08:00:00.000Z","test":false,"source":"notification"}
+  ```
+
+  When signed, Containly sends `X-Containly-Timestamp` (unix seconds) and
+  `X-Containly-Signature: sha256=<hex HMAC-SHA256 of "<timestamp>.<raw body>">`; also always
+  `X-Containly-Event` and `X-Containly-Delivery`. `source` is `notification`, `workflow`, `test`
+  or `summary` (type `channel.suppressed` with a `suppressed` count).
 - **Schedules.** Update checks, vulnerability scans, backups, image and volume pruning,
   auto-updates and SSO sync, hourly, on chosen weekdays or monthly. Every run lands in the
   audit log.
@@ -436,6 +459,7 @@ loads no third-party scripts. These are all connections the server itself opens 
 | Image search and tags | `hub.docker.com` | While you type an image name or open its tags | The search term; your Docker Hub sign-in if you saved one | Do not use the search |
 | Image pulls | The registries of the images you deploy or update; Docker Hub for the helper images (`docker:cli`, and `alpine` for NFS backups) | When you deploy or update, and the first time a helper is needed on a host | What `docker pull` sends | Part of normal Docker use |
 | E-mail | Your SMTP server | Only if SMTP is configured | The notification mails | Leave SMTP empty |
+| Notification channels | Only the ntfy, Gotify or webhook URLs you add under **Settings > Notifications > Channels** | When a notification matches a channel, a workflow notify step names it, or you press "Send test" | The notification (title, text, severity, affected object, link) and the token, password, signature or headers you configured for that channel | Add no channels, or switch a channel off |
 | Microsoft Entra ID sign-in | `login.microsoftonline.com`, `graph.microsoft.com` | Only if Entra SSO is configured: at sign-in and for group sync | The OAuth sign-in flow; group membership and profile photo lookups | Leave SSO off |
 | Backups | The S3, SFTP, SMB or NFS targets you configure | When a backup, verification, restore or connection test runs | Your encrypted backup data | Use local targets only |
 | Git stacks | The Git repositories you configure | When you deploy or sync such a stack | `git clone` / `git fetch` | Use local stacks |
