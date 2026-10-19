@@ -7,6 +7,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.7.2] — 2026-10-19
+
+### Added
+
+- **Four more notification channels (Free).** Settings, Notifications, Channels now also offers:
+  - **Discord**: paste the channel's webhook URL; messages arrive as an embed coloured by
+    severity (blue info, amber warning, red critical) with time, affected object and a link back
+    to Containly. Mentions are switched off and Markdown in names is escaped.
+  - **Telegram**: your own bot token (from @BotFather), a chat ID (number, `-100...` for groups
+    and channels, or `@channelname`) and an optional topic ID for groups with topics. HTML
+    formatting with escaped text and a link button text in the channel's language.
+  - **Slack**: an incoming webhook URL; messages use blocks (header, text, context, an "Open in
+    Containly" button) inside an attachment coloured by severity, plus a plain fallback text.
+  - **Pushover**: app token and user (or group) key, an optional device, and a priority per
+    severity from -2 to 2. Defaults are info -1, warning 0, critical 1; emergency priority 2 is
+    never a default, and choosing it shows a warning plus the repeat interval and stop time.
+  All four have the existing per-channel filter (minimum severity, events, message language),
+  "Send test" that saves nothing, delivery log, rate limit and retries.
+- **Web push to your own devices (Free).** Profile, Push notifications turns on push for the
+  current browser or the installed app (PWA) and lists every device of your account with rename,
+  minimum severity and event filter per device, "Send test" and remove. You get the
+  notifications for which you are a recipient under Settings, Notifications, also without an
+  e-mail address. Clicking a notification opens the relevant page in Containly. The page explains
+  why push is not available when the browser does not support it, the page is not served over
+  HTTPS, notifications are blocked, or an iPhone or iPad has not added Containly to the home
+  screen (Share, Add to Home Screen, iOS 16.4 or later).
+- **Workflows (Pro):** the notify step can also send **push to devices** (the recipients'
+  devices that pass their own minimum severity), next to in-app, e-mail and saved channels.
+  Checked on the server: on Free a workflow push is refused.
+
+### Security
+
+- Discord and Slack webhook URLs are only accepted on the official hosts and paths
+  (`https://discord.com/api/webhooks/...`, also `discordapp.com`, `ptb.` and `canary.`;
+  `https://hooks.slack.com/...`); Telegram and Pushover requests only ever go to
+  `api.telegram.org` and `api.pushover.net`. The URLs, bot token, app token and user key are
+  stored encrypted like all channel secrets and are never returned; the list shows a masked hint
+  (host and the last four characters of the webhook ID).
+- Web push needs no third-party service: Containly generates its own VAPID key pair once (private
+  key stored encrypted), encrypts every message for the receiving browser (RFC 8291, aes128gcm)
+  and posts it only to the browser vendors' push services (Google FCM, Mozilla, Apple, Microsoft
+  WNS). The push service only sees ciphertext. Subscription endpoints and keys are stored
+  encrypted and never returned by the API. A subscription is deleted as soon as the push service
+  answers 404 or 410 (app removed, permission revoked), and with its user.
+- Per device at most 20 push messages per minute; temporary errors are retried with the same
+  backoff as the channels.
+
+### Changed
+
+- Database migration 47 adds the table `push_subscriptions`; the VAPID key pair is stored in the
+  instance settings (`webpush_vapid`).
+- The channel type in the add dialog is now a dropdown (seven types).
+- The demo shows sample Discord, Telegram, Slack and Pushover channels (test simulated, nothing is
+  sent); the push page is visible but disabled with a hint, because push needs your own instance
+  with HTTPS.
+
+### Notes
+
+- The Discord, Telegram, Slack and Pushover request formats are verified against mock receivers
+  that check the vendor request shapes; no real vendor accounts were used before this release.
+  Web push was verified end to end with Google Chrome and the real FCM push service.
+
 ## [2.7.1] — 2026-10-19
 
 ### Added
@@ -1993,6 +2055,7 @@ the filesystem instead of in a database.
 - **i18n** — German & English; light/dark theme.
 
 [Unreleased]: https://github.com/amslertec/containly/compare/v2.7.1...HEAD
+[2.7.2]: https://github.com/amslertec/containly/compare/v2.7.1...v2.7.2
 [2.7.1]: https://github.com/amslertec/containly/compare/v2.7.0...v2.7.1
 [2.7.0]: https://github.com/amslertec/containly/compare/v2.6.2...v2.7.0
 [2.6.2]: https://github.com/amslertec/containly/compare/v2.6.1...v2.6.2
