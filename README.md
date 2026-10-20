@@ -87,10 +87,16 @@ Forum: [forum.containly.ch](https://forum.containly.ch)
   Compose labels and shown alongside.
 - **Compose editor.** Line numbers, file tree with `.env` and extra files, new file,
   unsaved changes marker.
+- **Override files.** `compose.override.yaml` and every other file Docker used for a project are
+  passed to each compose command (deploy, pull, start, stop, down, version updates) and open as
+  tabs next to the main file in the editor.
 - **Diff before deploy.** See exactly what changes on disk before you redeploy. Deploy,
   start, stop, restart and down stream their output live.
 - **Git stacks.** Clone a stack from a public or private repository (access token),
   optional auto-sync on a schedule, sync status per stack.
+- **CI redeploy (Free).** A pipeline (GitHub Actions, Gitea or Forgejo Actions, GitLab CI) redeploys
+  a stack with one `curl` and an API token: `git pull` for Git stacks, image pull and
+  `docker compose up -d`, then polls the job until it reports `ok`.
 - A `docker run` to `docker-compose.yml` converter, archive and restore, and stack-wide
   actions.
 
@@ -208,6 +214,16 @@ Forum: [forum.containly.ch](https://forum.containly.ch)
   groups mapped to roles, device-code login (works on plain HTTP without a domain) or
   redirect, and a scheduled role sync.
 - **Two-factor authentication.** TOTP with recovery codes.
+- **API tokens (Free).** Personal tokens under **Profile > API tokens** with the scopes Read,
+  Redeploy stacks (optionally limited to picked stacks) and Prometheus metrics, optional expiry,
+  shown once and stored only as a hash, last use visible, revocable; admins see every token under
+  **Settings > Integrations**. A token never does more than its owner's role, works only as
+  `Authorization: Bearer` on the API (never for sign-in, consoles or WebSockets) and shows in the
+  audit log as `<user> (Token: <name>)`.
+- **Prometheus export (Free).** `GET /metrics` for Prometheus and Grafana, off by default:
+  endpoint up, host CPU, memory and disk, and per container state, health, restarts, CPU and
+  memory (labels endpoint, stack, container, image). Served from Containly's own one-minute
+  samples, protected by a metrics token. Inbound only.
 - **Audit log.** Every change, with user, target, outcome and IP.
 - **Configuration backup.** Passphrase-encrypted backup and restore of Containly's own
   configuration, also on a schedule.
@@ -479,6 +495,8 @@ loads no third-party scripts. These are all connections the server itself opens 
 | Legacy licence keys | `api.lemonsqueezy.com` | Only for old Lemon Squeezy keys, about every 24 h | Licence key and instance ID | Not used by `CL1-` keys |
 
 Links to containly.ch (help, forum, pricing, account) open in your browser only when you click them.
+The Prometheus export (`/metrics`) and the CI redeploy API are inbound: Prometheus or your
+pipeline connects to Containly, Containly opens no connection for them.
 
 ---
 

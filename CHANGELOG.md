@@ -7,6 +7,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.7.3] — 2026-10-20
+
+### Fixed
+
+- **Compose override files are honoured everywhere.** Containly called `docker compose -f
+  <main file>`, and an explicit `-f` switches off Docker's automatic loading of
+  `compose.override.yaml`. Services or settings defined only in an override file (for example a
+  Mailpit service with its port mapping) were ignored by every deploy, pull, start, stop, restart,
+  down and logs action from Containly, and a version update of such an image failed with "version
+  tag not found". Containly now passes every compose file of a stack: the files Docker recorded in
+  the `com.docker.compose.project.config_files` label of the stack's containers (in that order,
+  plus a default override file that exists but is missing there, for example after an older
+  Containly redeployed the stack with the main file only), or, before the first deploy, the main file plus `compose.override.yaml` / `.yml` /
+  `docker-compose.override.yaml` / `.yml` exactly like `docker compose` does without `-f`. Only
+  regular files inside the stack folder are used (no paths outside it, no symlinks). This applies to
+  the stack actions, the app catalog, Git stacks, backups and restores, and stack migration.
+- **Version updates across compose files.** Updating a pinned version tag now searches every
+  compose file of the stack and `.env`, and patches exactly the file(s) that define the tag (inline
+  or through a variable). When several files define it, all are updated together; if the deploy
+  fails, every changed file is restored. When nothing matches, the message names the files that
+  were searched.
+
+### Added
+
+- **Override files in the stack editor.** When a stack has override files, the editor shows them as
+  tabs next to the main file (for example `compose.yaml` and `compose.override.yaml`), with the same
+  checks, and the "Check before deploy" diff now includes saved changes in override files. A deploy
+  from the live terminal now also becomes the baseline for that diff.
+- **API tokens (Free).** Profile, API tokens creates personal access tokens with a name, scopes and
+  an optional expiry (30 days, 90 days, 1 year or none): **Read** (lists of hosts, containers,
+  stacks, images, updates, backups), **Redeploy stacks** (optionally limited to picked stacks) and
+  **Prometheus metrics**. The token is shown once; Containly stores only an HMAC of it. The list
+  shows the last use and IP; tokens can be revoked at any time, and admins see and revoke every
+  user's tokens under Settings, Integrations. Tokens are accepted only as `Authorization: Bearer`
+  on an allow-list of API routes, never from a cookie, never for WebSockets, consoles, users,
+  settings or token management. A token never does more than its owner's current role: a viewer
+  cannot create a redeploy token, and tokens of a demoted, disabled or deleted user stop working.
+  Every action shows in the audit log as `<user> (Token: <name>)`. No CSRF header is needed with
+  a bearer token; requests are rate limited per token.
+- **CI redeploy API (Free).** `POST /api/stacks/<id>/redeploy` or `POST /api/stacks/redeploy` with
+  `{"name": "<stack>", "endpoint": "<host id, optional>"}` and a token with the Redeploy scope runs
+  `git pull` for Git stacks, `docker compose pull` and `up -d` with all compose files, and answers
+  `202` with a job; `GET /api/jobs/<id>` reports `queued`, `running`, `ok` or `error` with the last
+  output. A second request while a redeploy of the same stack runs returns the running job. At most
+  10 redeploys per minute per token.
+- **Prometheus export (Free).** Settings, Integrations, Prometheus switches on `GET /metrics`
+  (text exposition format, off by default): endpoint up, host CPU, memory and disk, containers per
+  state, and per container state, health, restart count, CPU and memory, labelled with endpoint,
+  stack, container and image (no container IDs, image digests removed, at most 500 containers per
+  endpoint). The values come from the samples Containly already takes every minute, so a scrape
+  never calls Docker. A token with the Prometheus metrics scope is required unless the admin allows
+  open scrapes for a trusted network. The card shows a ready `prometheus.yml` scrape config.
+  Inbound only: Containly sends nothing anywhere.
+- **Demo:** sample API tokens on the token pages (creating is disabled with a hint), the
+  Prometheus export shown switched off.
+
+### Security
+
+- Token requests skip CSRF only because a bearer header cannot be sent cross-site without CORS,
+  which Containly never allows; a bearer header always wins over a session cookie, so the two are
+  never mixed. An invalid bearer token is refused also when open scrapes are allowed.
+- Migrations 48 (`stack_deploys.extra_files`) and 49 (`api_tokens`).
+
 ## [2.7.2] — 2026-10-19
 
 ### Added
@@ -2055,6 +2118,7 @@ the filesystem instead of in a database.
 - **i18n** — German & English; light/dark theme.
 
 [Unreleased]: https://github.com/amslertec/containly/compare/v2.7.1...HEAD
+[2.7.3]: https://github.com/amslertec/containly/compare/v2.7.2...v2.7.3
 [2.7.2]: https://github.com/amslertec/containly/compare/v2.7.1...v2.7.2
 [2.7.1]: https://github.com/amslertec/containly/compare/v2.7.0...v2.7.1
 [2.7.0]: https://github.com/amslertec/containly/compare/v2.6.2...v2.7.0
