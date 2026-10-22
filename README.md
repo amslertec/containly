@@ -21,6 +21,7 @@
 
 <p align="center">
   <a href="https://alternativeto.net/software/containly/about/?utm_source=badge&utm_medium=referral"><img src="https://alternativeto.net/static/badges/badge-wide-color.svg" alt="Containly on AlternativeTo" width="284" height="51"></a>
+  <a href="https://www.saashub.com/containly-ch?utm_source=badge&utm_campaign=badge&utm_content=containly-ch&badge_variant=color&badge_kind=approved"><img src="https://cdn-b.saashub.com/img/badges/approved-color.png?v=1" alt="Containly approved on SaaSHub" width="153" height="51"></a>
 </p>
 
 <p align="center">
