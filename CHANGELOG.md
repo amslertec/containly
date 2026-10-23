@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.7.4] — 2026-10-23
+
+### Fixed
+
+- **Backups failed with "No such image: alpine:latest" when the helper image was removed from the
+  host.** Containly checked its backup helper image only once per process: after an image prune or
+  a host cleanup removed it later, the image was never pulled again and every backup (scheduled
+  and manual) failed with `(HTTP code 404) no such container - No such image: alpine:latest` until
+  Containly was restarted. The helper image is now checked before every use and pulled again when
+  it is missing; if it disappears between the check and the start of the helper, Containly pulls
+  it once more and retries. Concurrent backups still share one pull.
+- **Helper image pinned.** Backup, restore, folder browser and volume file helpers no longer use
+  the moving `alpine:latest` tag but a pinned Alpine 3.22.2 image by its multi-arch digest (the
+  same image the NFS target already used), so every host runs the same known tools. The helpers
+  keep their `ch.amslertec.containly.helper` label. The Docker CLI helper is re-checked and
+  re-pulled the same way.
+
+### Changed
+
+- **Empty states centred.** Empty states (for example Updates > "All up to date", empty lists,
+  no search hits, empty backup sections, settings tabs) now sit centred as one block, icon, title,
+  text and button, horizontally and vertically in the free content area instead of top-left, the
+  same on every page, on desktop and phone, in light and dark mode.
+
 ## [2.7.3] — 2026-10-20
 
 ### Fixed
@@ -2117,7 +2141,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v2.7.1...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v2.7.4...HEAD
+[2.7.4]: https://github.com/amslertec/containly/compare/v2.7.3...v2.7.4
 [2.7.3]: https://github.com/amslertec/containly/compare/v2.7.2...v2.7.3
 [2.7.2]: https://github.com/amslertec/containly/compare/v2.7.1...v2.7.2
 [2.7.1]: https://github.com/amslertec/containly/compare/v2.7.0...v2.7.1
