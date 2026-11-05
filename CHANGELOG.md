@@ -7,6 +7,66 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.7.5] — 2026-11-05
+
+### Security
+
+Security patch release. Trivy (0.76.2) now reports 0 vulnerabilities in the app and demo images
+(2.7.4: 20 and 17, all fixable) and `npm audit --omit=dev` reports 0 (2.7.4: 9). The only
+behaviour change is the pinned Compose helper image (see below).
+
+- **Base image: Node.js 22.23.4 on Alpine 3.24.** Both build stages of the app and demo images use
+  `node:22.23.4-alpine3.24` pinned by index digest (was `node:22-alpine3.23`, Node.js 22.23.3).
+  Node.js 22.23.4 is a Node.js security release.
+- **Alpine packages:** libexpat 2.9.0 to 2.10.0 fixes CVE-2026-113351, CVE-2026-117610 and
+  CVE-2026-118370 (all high). Samba client 4.22.10 to 4.23.8 (the SMB client used for SMB backup
+  targets, re-tested against a real Samba server with required SMB3 encryption and the outbound
+  confinement), OpenLDAP libraries 2.6.13 to 2.6.15, BusyBox 1.37.0-r30 to r31, lz4 1.10.0-r1,
+  musl 1.2.6, bash 5.3.9.
+- **Backup helper image:** the pinned Alpine image for backup, restore, folder picker, volume file
+  access and NFS helpers moves from Alpine 3.22.2 (101 fixable findings, among them 2 critical and
+  19 high in OpenSSL, musl and zlib) to Alpine 3.24.3 (0 findings), again pinned by digest for all
+  platforms. Hosts pull it automatically before the next backup.
+- **Compose helper image pinned.** The persistent helper container that runs `docker compose`
+  (deploy, stack start/stop/update, file access in stack folders) no longer uses the moving
+  `docker:cli` tag but `docker:29.9.3-cli` pinned by its multi-arch digest (amd64, arm64, arm/v6,
+  arm/v7). Before, a host kept whatever `docker:cli` it had pulled first, because a present image
+  was never pulled again. After the update Containly pulls the pinned image once per host and
+  recreates its helper container `containly-helper-<id>` one time (same mounts, same behaviour);
+  the old `docker:cli` image stays on the host until you remove it or prune images.
+- **Node.js libraries:**
+  - zod 4.6.5 to 4.6.7: memory exhaustion on oversized constrained collections
+    (GHSA-mrhx-c7xc-m3w5, high).
+  - fastify 5.12.5 to 5.12.8: header validation bypass via case-sensitive `propertyNames`
+    (GHSA-389g-gv7q-r4x8 / CVE-2026-107832, low); 5.12.8 also contains the fix for
+    GHSA-3qgw-9275-xf8w.
+  - ip-address 10.7.3 to 10.7.6 (via @fastify/rate-limit): quadratic-time zone identifier
+    matching (GHSA-rxp7-6hxx-x8q5 / CVE-2026-111997).
+  - fast-uri 3.1.8/4.2.1 to 3.1.9/4.2.3 (via fastify): GHSA-w74x-v6f9-j3xg (CVE-2026-110306),
+    GHSA-wjr9-j795-jxcr (CVE-2026-110180), GHSA-xhq7-xmqj-769h (CVE-2026-110095),
+    GHSA-333x-w4r6-6crp (CVE-2026-110725).
+  - @fastify/static 10.1.5 to 10.1.10 with glob 14.0.3 and minimatch 11.0.4:
+    GHSA-3g3m-2fjr-6pw4 (CVE-2026-118773) and GHSA-g3hv-75wg-m249 (CVE-2026-118764).
+  - nodemailer 10.0.16 to 10.1.7: address parser fixes GHSA-8c8m-p3m8-cjg8, GHSA-m943-m63m-w62w,
+    GHSA-85x2-q946-cp5h.
+  - seroval 1.6.9 to 1.7.7 (web app router): GHSA-9wx9-5pv9-3349 (CVE-2026-116582) and
+    GHSA-f86p-h4j2-7qgj (CVE-2026-116583).
+- **Known findings that remain (no fix available or not reachable):**
+  - The `docker:cli` image used for the Compose helper container comes from Docker upstream and is
+    not part of the Containly image. Its newest release (Docker 29.9.3, buildx 0.38.2, now pinned) still
+    bundles a buildx plugin with golang.org/x/net 0.59.0, github.com/moby/go-archive 0.2.0 and the
+    github.com/docker/docker 28.5.2 module: CVE-2026-78669 and CVE-2026-17106 (high),
+    CVE-2026-78659, CVE-2026-78660, CVE-2026-78663, CVE-2026-97032 and CVE-2026-33997 (medium)
+    have fixed module versions upstream; CVE-2026-41567, CVE-2026-42306 (high) and
+    CVE-2026-41568 (medium) have no fix yet. They clear once Docker publishes a rebuilt `docker:cli`
+    and Containly moves its pin to it; buildx only runs
+    when a stack builds its own image with `docker compose`.
+  - Some scanners (for example Docker Scout) also list CVE-2026-22185 for libldap (in the LMDB
+    `mdb_load` tool, which the OpenLDAP package does not build), CVE-2025-60876 for BusyBox `wget`
+    (no Alpine fix; Containly never calls `wget`) and CVE-2025-62813 for lz4 (no fix recorded in
+    Alpine, library dependency of the Samba client). Trivy does not report them because Alpine has
+    no fixed package.
+
 ## [2.7.4] — 2026-10-23
 
 ### Fixed
@@ -2141,7 +2201,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v2.7.4...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v2.7.5...HEAD
+[2.7.5]: https://github.com/amslertec/containly/compare/v2.7.4...v2.7.5
 [2.7.4]: https://github.com/amslertec/containly/compare/v2.7.3...v2.7.4
 [2.7.3]: https://github.com/amslertec/containly/compare/v2.7.2...v2.7.3
 [2.7.2]: https://github.com/amslertec/containly/compare/v2.7.1...v2.7.2
