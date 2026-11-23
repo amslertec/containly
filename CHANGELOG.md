@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.0.2] — 2026-11-23
+
+### Fixed
+
+- **Digest tooltips.** The tooltip of an image digest (current and new build in the update
+  dialog, the digest chip on the Images page) ran out of its box, because a `sha256` digest is
+  one long word without break points. It now shows a caption, the algorithm and the digest in
+  two fixed monospace lines. Tooltips in general wrap long words, so no tooltip text can leave
+  its box any more.
+- **Events on phones.** On phones and narrow windows (up to 860 px) the collapsed events panel
+  of the dashboard showed the desktop side rail: a tall band above the bottom navigation with the
+  word "Events" written vertically. It is now a slim bar directly above the bottom navigation
+  with an icon, the title, the warnings count and a red dot for new errors. A tap opens the
+  events as a bottom sheet with the filter and paging; pull it down or tap the close button to
+  close it. The bar keeps clear of the demo banner, the unsaved-changes bar (also in edit mode)
+  and the scroll-to-top button, and the page scrolls fully above it. The side rail with the
+  vertical label stays on desktop.
+- **Most restarts on phones.** Rows had an empty band under the container and host name (a
+  hidden second grid row with its gap). Rows are now one compact, vertically centred line.
+
 ## [3.0.1] — 2026-11-23
 
 ### Fixed
@@ -2343,7 +2363,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v3.0.1...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v3.0.2...HEAD
+[3.0.2]: https://github.com/amslertec/containly/compare/v3.0.1...v3.0.2
 [3.0.1]: https://github.com/amslertec/containly/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/amslertec/containly/compare/v2.7.5...v3.0.0
 [2.7.5]: https://github.com/amslertec/containly/compare/v2.7.4...v2.7.5
