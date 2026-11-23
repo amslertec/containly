@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.0.1] — 2026-11-23
+
+### Fixed
+
+- **Unsaved-changes bar.** One docked bar for every page with unsaved changes (all settings and
+  profile tabs, Appearance, the theme draft preview and edit mode on phones). On desktop it sits
+  at the bottom of the content area with a status line, a secondary Discard button and the save
+  button; on phones it is a full-width sheet directly above the bottom navigation with two equal
+  buttons, and the content gets room so nothing is covered. It follows the light or dark theme.
+  `Ctrl`/`Cmd` + `S` saves, `Esc` discards after a confirmation.
+- **Stack files on phones.** The file list is a normal full-height list again (it was squeezed
+  into a small box), and a file opens in its own full-screen editor with a back button that stays
+  above the on-screen keyboard. Logs, console, files and inspect tabs scroll normally on phones;
+  the fixed-height layout applies only to wider windows.
+- **Admin-only notice on compose files.** Any refused request for a stack file showed "Admins
+  only, env files often contain passwords", even for `docker-compose.yml` and for admins. The
+  notice now appears only for env files and non-admins; other errors show their real message.
+  All admin checks on the server use one shared helper, for local and Microsoft Entra accounts.
+- **Editor cursor on iPhone.** The cursor and selection sat to the right of the text being
+  edited because the edit layer used a larger font size than the highlighted text. Both now use
+  the same metrics (16 px on phones, so iOS does not zoom in).
+- **Blurry top bar in the installed iPhone app.** The phone top bar and bottom navigation are now
+  opaque and stacked above the seasonal effects layers, the effects render at the full pixel
+  density of the screen, the night tint layer exists only at night, and the browser and status
+  bar colour follows the active theme.
+- **Host folder check before a deploy.** The "Folders on the host" list in New stack and in the
+  pre-deploy review (first deploy, redeploy from the list or the inspector, and now also the first
+  deploy of a newly added Git stack) shows one compact line per folder: a status chip (New,
+  Exists, or a warning chip "Owner does not match" with the fix in its tooltip) and the owner as
+  `uid:gid`. The explanation of which user the service runs as appears once below the list
+  instead of in every row. While "Create folders with this owner" is on, a different owner can be
+  entered for the new folders. On phones the chips wrap under the path.
+- **Focus ring when the pre-deploy review opens.** Opening it with the mouse no longer draws the
+  keyboard focus ring on Cancel; the dialog itself takes focus and the ring appears only when
+  you navigate with the keyboard.
+
 ## [3.0.0] — 2026-11-23
 
 A major release: a new look for the whole app, a new logo, a much richer Endpoints page and
@@ -2307,7 +2343,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v3.0.0...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v3.0.1...HEAD
+[3.0.1]: https://github.com/amslertec/containly/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/amslertec/containly/compare/v2.7.5...v3.0.0
 [2.7.5]: https://github.com/amslertec/containly/compare/v2.7.4...v2.7.5
 [2.7.4]: https://github.com/amslertec/containly/compare/v2.7.3...v2.7.4
