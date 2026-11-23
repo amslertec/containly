@@ -27,7 +27,6 @@
 
 > **New in 3.0:** a new design for the whole app, the new «Nachtschild» logo, a much richer
 > Endpoints page, pinned stacks, a page edit mode and more (see the [changelog](CHANGELOG.md)).
-> The screenshots on this page still show 2.x; new ones follow shortly.
 
 Containly is built for homelabs and small fleets: a few Docker hosts at home, a NAS, a
 VPS or two, usually behind a reverse proxy. It shows what needs attention first, lets you
@@ -323,13 +322,21 @@ Forum: [forum.containly.ch](https://forum.containly.ch)
 | ![Live container logs](docs/screenshots/container-logs-dark.png) | ![Stack detail with the compose editor, light mode](docs/screenshots/stack-editor-light.png) |
 | **Image CVEs** | **Host page** |
 | ![Image inspector listing CVEs](docs/screenshots/images-cves-dark.png) | ![Endpoint host page](docs/screenshots/endpoint-host-dark.png) |
-| **Command palette** | **Sign-in** |
-| ![Command palette searching containers and images, light mode](docs/screenshots/command-palette-light.png) | ![Sign-in page](docs/screenshots/login-dark.png) |
+| **Endpoints** | **Updates** |
+| ![Endpoints page with a card per host: load, containers, updates and what needs attention, light mode](docs/screenshots/endpoints-light.png) | ![Updates table with change type, host, stack, release date, size and CVEs](docs/screenshots/updates-dark.png) |
+| **Repair permissions** | **Folder check before deploy** |
+| ![Repair permissions dialog: the container runs as 1000:1000 and gets write access to its folder and volume](docs/screenshots/permissions-repair-dark.png) | ![Deploy review listing the host folders of a stack with an owner warning, light mode](docs/screenshots/deploy-folder-check-light.png) |
+| **Appearance** | **Command palette** |
+| ![Appearance settings: mode, density, corners and font pairings, light mode](docs/screenshots/appearance-light.png) | ![Command palette searching containers and images, light mode](docs/screenshots/command-palette-light.png) |
+| **Sign-in** | **One of 15 themes (Copper)** |
+| ![Sign-in page](docs/screenshots/login-dark.png) | ![Dashboard in the Copper theme, dark mode](docs/screenshots/theme-copper-dark.png) |
 
 <p align="center">
-  <img src="docs/screenshots/phone-dashboard-dark.png" alt="Dashboard on a phone" width="260">
+  <img src="docs/screenshots/phone-dashboard-dark.png" alt="Dashboard on a phone with the bottom navigation" width="240">
   &nbsp;&nbsp;
-  <img src="docs/screenshots/phone-containers-dark.png" alt="Container list on a phone" width="260">
+  <img src="docs/screenshots/phone-containers-dark.png" alt="Container list on a phone" width="240">
+  &nbsp;&nbsp;
+  <img src="docs/screenshots/phone-stacks-light.png" alt="Stack list on a phone, light mode" width="240">
 </p>
 
 ---
