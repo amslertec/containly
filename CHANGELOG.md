@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.0.3] — 2026-11-23
+
+### Fixed
+
+- **Blocked requests are named correctly.** When a reverse proxy or a web application firewall
+  (for example the OWASP Core Rule Set) in front of Containly refuses a request with its own HTML
+  page, Containly no longer says "Containly is not reachable" and, for a single file, no longer
+  says "the list is requested again". Files, folders and lists (stack files, container and volume
+  files, all resource lists) now say that a firewall or proxy in front of Containly blocked the
+  request, show a detail line with the status, the title of the blocking page and the proxy's
+  Server header, and the request path (method and path, no cookies, secret looking values
+  removed) with a copy button, so the matching entry in the proxy or WAF log is easy to find.
+  A link opens the new help article "Running Containly behind a WAF" with the affected API paths
+  and recommended rule exclusions. The full-screen "not reachable" view still appears only when
+  Containly itself does not answer.
+- **Lists on phones.** Lists grouped by stack (and the plain lists) on Containers, Images,
+  Volumes, Networks, Backups and Stacks were a little wider than a phone screen, so the row menu
+  (`…`) was cut off at the right. The name column now takes the remaining width and shortens long
+  names; long group names wrap.
+- **Counts in stack dialogs.** "Compose creates 1 services" and similar texts in the deploy
+  check, the stop, down and delete confirmations, the Stacks page header and host groups and the
+  update check now use singular and plural correctly in English, German and Spanish.
+- **Stacks in deep folders.** Stacks whose folder path is longer than about 70 characters could
+  not be opened (every stack request answered 414). Stack IDs of any normal path length work now.
+
 ## [3.0.2] — 2026-11-23
 
 ### Fixed
