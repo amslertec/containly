@@ -7,6 +7,112 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.0.0] — 2026-11-23
+
+A major release: a new look for the whole app, a new logo, a much richer Endpoints page and
+several features that change how you work with Containly every day. Your data, stacks, backups
+and settings carry over; see **Upgrade notes** at the end of this section.
+
+### Design
+
+- **New design language.** The whole app (and the demo) now uses the calm Kladdox look: warm
+  neutral surfaces, floating cards with soft corners, pill buttons, Plus Jakarta Sans for text and
+  JetBrains Mono only for codes (image tags, IDs, ports, paths, logs). Status is shown once, as a
+  dot plus a word. Row actions appear on hover and stay visible on touch screens.
+- **New logo «Nachtschild».** The familiar shield with three dots in a dark tile with petrol and
+  orange layers. New favicons (16 to 48 px drawn on the pixel grid), app icons, maskable PWA icons,
+  Apple touch icon, sign-in page and the logo in e-mails.
+- **Fixed top bar.** Sidebar toggle (`Ctrl`/`Cmd` + `B`), page title, host scope switcher, search,
+  language, light/dark and notifications in one bar; on phones a slim bar with bottom navigation.
+- **15 themes and 11 font pairings** *(Pro)*, all rebuilt on the new base and checked for contrast
+  in light and dark: Terrakotta (new default), Nachtschild, Teal, Petrol, Ozean, Gletscher, Salbei,
+  Moos, Sand, Amber, Kupfer, Pflaume, Iris, Basalt and Kontrast; fonts Kladdox (new default),
+  Werkbank, Geist, Instrument, Bricolage, Inter, Manrope, IBM Plex, Atkinson Hyperlegible,
+  Figtree and Schibsted Grotesk. Fonts stay self-hosted and load only when chosen.
+
+### New
+
+- **Endpoints page.** Cards or a table for all hosts with what needs attention, filters, search
+  and sorting. Per host: CPU, memory and disk load with history (1 h, 24 h, 7 days), network traffic,
+  system facts (OS, kernel, Docker and API version, CPU model, uptime, storage driver), build
+  cache, connection health with response times, a history of status changes with the error text,
+  and TLS certificate expiry for TCP hosts. A clean-up dialog removes unused images, unused
+  volumes and the build cache per host.
+- **Repair permissions without SSH.** When a container cannot write to a bind-mounted folder
+  (typical for images that run as a non-root user), Containly shows a banner and fixes owner and
+  mode through a short-lived helper container, with a pre-check of what will change. System
+  folders are never touched.
+- **Richer Updates table.** Columns for the kind of change (new build, patch, minor, major, with
+  a database and major-version warning), host, stack, used by, release date and download size of
+  the new image, open critical/high CVEs of the current image and a release-notes link (from the
+  image's OCI labels). Sortable, columns can be hidden. Per row: update, **ignore until the next
+  version** (also hides it from the dashboard, bulk update and e-mails), open the image.
+- **Pinned stacks.** Pin the stacks you open often, from any host, to the sidebar (or the
+  «More» sheet on phones) with their state dot; reorder by drag and drop or `Alt` + arrow keys.
+  Stored per user on the server, so they follow you to every device.
+- **Page edit mode.** The pencil in the top bar rearranges the dashboard sections and hides
+  sections, filters and table columns on the list pages (containers, stacks, images, volumes,
+  networks, backups, updates, endpoints, app catalog, users). Saved per user on the server, with
+  reset and an «unsaved changes» prompt.
+- **Host scope switcher.** Show all hosts or a single host across the app from the top bar.
+- **Seasonal effects** with their own settings card under **Settings > Appearance**: pixel
+  snowflakes and a small winter village in December, New Year fireworks, an Easter egg to find,
+  Halloween, a short celebration when all containers run or the first backup succeeds, and a
+  time-of-day greeting. Every effect can be switched off per user, animations follow the system's
+  reduced-motion setting (or always/never), and admins can turn effects off for all users. Effects
+  pause in hidden tabs, never cover controls and play no sound.
+
+### Changed
+
+- **Sidebar in groups** (Dashboard, then Docker, Operations and Administration) with pinned stacks
+  and a collapsible icon rail; the collapsed state is saved per user.
+- **Drawers** for containers, stacks and hosts open from the list and close with a click into the
+  list; tabs scroll inside the drawer, not the page.
+- **Toasts use a single slot**: a new message replaces the previous one, errors stay a moment
+  longer, nothing piles up over the content.
+- **Own tooltips and dialogs everywhere.** No native browser `confirm()` and no native `title`
+  tooltips any more; every confirmation is an app dialog with keyboard focus, every tooltip works
+  with hover, keyboard and touch.
+- **Update confirmation** shows what changes before you update one or many containers.
+- **Environment editor** with name/value columns, masked secrets with a reveal button and
+  validation (empty, duplicate, invalid names).
+- **Demo landing page** in the new design, with a round flag language button.
+
+### Fixed
+
+- Demo: «Reset demo» asked with the browser's native confirm dialog; it now uses the app dialog.
+  A reset also resets pinned stacks and page layouts.
+- Demo: the demo pill covered the save buttons of settings pages (for example **Settings >
+  Appearance**) on desktop widths.
+- Licence card: the offline text said «7 days grace»; it now matches the real rule
+  («up to 14 days grace» after the last successful check).
+- Release notes in **Settings > Version** now say that they are only available in English.
+- Dark mode: the subtitle of toasts was unreadable; small accent chips in light themes now reach
+  the required contrast.
+
+### Security
+
+- `npm audit --omit=dev` reports 0 vulnerabilities; Trivy reports no fixable high or critical
+  findings in the app and demo images.
+- Per-user preferences are validated on the server (schema, at most 50 pins, 40 page layouts and
+  32 KB per user) and deleted together with the user.
+
+### Upgrade notes
+
+- **Database migrations 50 to 54 run automatically** on the first start (host load history,
+  connection checks, seasonal effects settings, ignored updates, per-user pins and layouts). Make
+  a backup of the data volume before a major upgrade, as always; going back to 2.7.5 afterwards
+  is not supported.
+- **Default look.** An instance that never changed its appearance moves from Teal + Werkbank to
+  the new default Terrakotta + Kladdox. A theme or font an admin chose stays, and so do personal
+  choices of users. Teal and Werkbank remain available under **Settings > Appearance**.
+- **Helper containers** are unchanged: no helper is recreated by this update. Host load and
+  permission repair use the existing short-lived Alpine helper.
+- **Outbound:** for a pending image update, Containly now also reads the manifest and config of
+  the new image from its registry (release date, download size, source link). Same registries and
+  sign-ins as the update check; no image is pulled.
+- Screenshots in the README and on Docker Hub still show 2.x; new ones follow shortly.
+
 ## [2.7.5] — 2026-11-05
 
 ### Security
@@ -2201,7 +2307,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v2.7.5...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v3.0.0...HEAD
+[3.0.0]: https://github.com/amslertec/containly/compare/v2.7.5...v3.0.0
 [2.7.5]: https://github.com/amslertec/containly/compare/v2.7.4...v2.7.5
 [2.7.4]: https://github.com/amslertec/containly/compare/v2.7.3...v2.7.4
 [2.7.3]: https://github.com/amslertec/containly/compare/v2.7.2...v2.7.3

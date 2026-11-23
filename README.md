@@ -1,8 +1,5 @@
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="Logos/containly-schild-teal-dark.svg">
-    <img src="Logos/containly-schild-teal.svg" alt="Containly" width="96">
-  </picture>
+  <img src="Logos/containly-nachtschild-app-icon.svg" alt="Containly logo: the Nachtschild shield" width="96">
 </p>
 
 <h1 align="center">Containly</h1>
@@ -28,6 +25,10 @@
   <img src="docs/screenshots/dashboard-dark.png" alt="Containly dashboard in dark mode: status line, key numbers, timeline per host and stack, live events" width="100%">
 </p>
 
+> **New in 3.0:** a new design for the whole app, the new «Nachtschild» logo, a much richer
+> Endpoints page, pinned stacks, a page edit mode and more (see the [changelog](CHANGELOG.md)).
+> The screenshots on this page still show 2.x; new ones follow shortly.
+
 Containly is built for homelabs and small fleets: a few Docker hosts at home, a NAS, a
 VPS or two, usually behind a reverse proxy. It shows what needs attention first, lets you
 act on it in one click, and keeps your Compose files where they belong: in folders you can
@@ -49,6 +50,9 @@ Forum: [forum.containly.ch](https://forum.containly.ch)
 
 ### Dashboard
 
+- **Your layout.** The pencil in the top bar starts the page edit mode: reorder the dashboard
+  sections, hide sections, filters and table columns on every list page. Saved per user on the
+  server, so the layout follows you to every device.
 - **Status line.** One sentence that says how things are: hosts online, containers that
   need you, pending updates, restarts today. Below it the key numbers for all hosts.
 - **Timeline.** The state of every host and stack over the last 24 h (or 6 h, 12 h,
@@ -185,7 +189,10 @@ Forum: [forum.containly.ch](https://forum.containly.ch)
 - **App catalog.** Browse templates, add your own template sources, deploy an app as a
   stack with its environment variables filled in.
 - **Updates.** Registry digest checks without pulling, semver detection for pinned version
-  tags, a server-side bulk update job with live progress that survives reloads. Only a strictly
+  tags, a server-side bulk update job with live progress that survives reloads. The Updates table
+  shows the kind of change (new build, patch, minor, major, with database and major-version
+  warnings), host, stack, release date and download size of the new image, open critical/high CVEs
+  and a release-notes link; ignore an update until the next version. Only a strictly
   newer Containly release counts as an update, so development builds are never offered an older
   version.
 - **Self-update.** Containly recreates its own container in one click and rolls back if the
@@ -199,8 +206,15 @@ Forum: [forum.containly.ch](https://forum.containly.ch)
   **SSH**, or the **agent**: a hardened `containly-agent` container that dials out to
   Containly over WSS, so the host needs no open Docker port or SSH and can sit behind NAT.
   Enrol with a one-time token and a copy-paste `docker run` or Compose snippet.
-- **Host pages.** Per host: status, resources over the last 24 h, what needs attention,
-  system details, containers and stack paths.
+- **Endpoints page.** All hosts as cards or a table with what needs attention, filters and
+  sorting. Per host: CPU, memory, disk and network over 1 h, 24 h or 7 days, system facts (OS,
+  kernel, Docker and API version, CPU model, uptime), build cache, connection health with
+  response times and a history of status changes, TLS certificate expiry for TCP hosts, and a
+  clean-up dialog for unused images, volumes and build cache.
+- **Repair permissions without SSH.** When a container cannot write to a bind-mounted folder,
+  Containly shows it and fixes owner and mode through a short-lived helper container, after a
+  pre-check of what will change. System folders are never touched.
+- **Host scope.** Switch the whole app between all hosts and a single host in the top bar.
 - **Agent-less remote stacks.** Manage Compose files on TCP and SSH hosts through a small
   helper container over the plain Docker API.
 - **Live migration.** Move a container or a whole Compose stack, with its image, volumes
@@ -270,13 +284,19 @@ Forum: [forum.containly.ch](https://forum.containly.ch)
 
 ### Appearance
 
+- **Calm design.** Warm neutral surfaces, floating cards, one status dot plus a word, row actions
+  on hover, own tooltips and dialogs that work with mouse, keyboard and touch.
 - **Light and dark.** Follow the system or pick a mode, per device.
-- **Eight themes** *(Pro)*, each tuned for both light and dark, plus **custom themes**
-  built from an accent colour.
+- **Pinned stacks.** Pin the stacks you open often, from any host, to the sidebar; stored per user.
+- **15 themes** *(Pro)*, each tuned for both light and dark (Terrakotta is the default), plus
+  **custom themes** built from an accent colour.
 - **Per-user override** *(Pro)*. Admins set the instance default; users may pick their
   own theme, font and density if the admin allows it.
-- **Density and fonts** *(Pro)*. Comfortable or compact rows, corner style, and four font
+- **Density and fonts** *(Pro)*. Comfortable or compact rows, corner style, and eleven font
   pairings. All fonts are self-hosted; nothing loads from a third party.
+- **Seasonal effects.** Snow and a small winter village in December, New Year fireworks, an Easter
+  egg, Halloween and a short celebration when everything runs. Off per user or for everyone,
+  following the system's reduced-motion setting.
 
 ### Keyboard, mobile, languages
 
@@ -481,7 +501,7 @@ loads no third-party scripts. These are all connections the server itself opens 
 |---|---|---|---|---|
 | Licence check | `containly.ch/api/license/v1` | Only with a Pro key: on activation, 5 to 30 s after start and then about every 24 h | Licence key, a random installation ID, the container hostname, the Containly version, the number of connected hosts | Free installations make no licence calls. Removing the key stops them. Offline: the signed lease stays valid until it expires (up to 30 days after the last successful check, for subscriptions at most until 3 days after the paid period); if it expires while the server is unreachable, Pro stays on until at least 14 days after the last successful check |
 | Containly update check | `api.github.com` (latest release of `amslertec/containly`) | 5 s after start, then every 6 h, and on a manual check under **Settings > Version and licence** | An HTTP request with the user agent `containly`; no version, key or ID | No switch; if blocked, the Version card simply shows no newer release |
-| Image update checks | The registry of each image you run (for example Docker Hub, GHCR, quay.io), through the Docker engine of each host; tag lists from `registry-1.docker.io` for Docker Hub images with version tags | After start, every 6 h and on demand | Image names and tags, plus the registry sign-ins you saved under Settings | No switch |
+| Image update checks | The registry of each image you run (for example Docker Hub, GHCR, quay.io), through the Docker engine of each host; tag lists from `registry-1.docker.io` for Docker Hub images with version tags; for a pending update the manifest and config of the new image from its registry (release date, download size, source link; no pull) | After start, every 6 h and on demand | Image names, tags and digests, plus the registry sign-ins you saved under Settings | No switch |
 | Vulnerability scanning | The `aquasec/trivy` image from Docker Hub, then whatever the Trivy container downloads with its default settings (its vulnerability database), from the scanned host | 90 s after start and every 6 h | Image pull and Trivy's own downloads; your images are scanned locally and no scan result leaves the host | **Settings > Schedule > Vulnerability scanning (Trivy)**: off means no scans and no Trivy downloads |
 | App catalog | `raw.githubusercontent.com` (the default template list), or the sources you add | When the App catalog is opened (cached 10 min) | A plain download | Remove or disable the source under **App catalog > Sources** |
 | Image search and tags | `hub.docker.com` | While you type an image name or open its tags | The search term; your Docker Hub sign-in if you saved one | Do not use the search |
