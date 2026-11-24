@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.0.7] — 2026-11-24
+
+### Fixed
+
+- **Menus, dialogs, panels and the update dialog follow the chosen colour palette in dark mode.**
+  They used a fixed warm tone and looked brown on neutral palettes like Basalt (and next to cool
+  palettes such as Nachtschild or Petrol). Menus (including notifications and the user menu),
+  dialogs, the command palette, side panels and the update dialog now take their colour from the
+  palette. The default Terrakotta palette looks the same as before. The icon tile in the effects
+  settings follows the palette too. Light mode was checked and already used the palette colours.
+
 ## [3.0.6] — 2026-11-24
 
 ### Fixed
@@ -2445,7 +2456,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v3.0.6...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v3.0.7...HEAD
+[3.0.7]: https://github.com/amslertec/containly/compare/v3.0.6...v3.0.7
 [3.0.6]: https://github.com/amslertec/containly/compare/v3.0.5...v3.0.6
 [3.0.5]: https://github.com/amslertec/containly/compare/v3.0.4...v3.0.5
 [3.0.4]: https://github.com/amslertec/containly/compare/v3.0.3...v3.0.4
