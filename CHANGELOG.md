@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.0.6] — 2026-11-24
+
+### Fixed
+
+- **E-mails: button in Outlook.** Outlook for Windows ignored the rounded shape and padding of the
+  action button in Containly mails (notifications, invitations, password reset) and showed a thin
+  link. The button is now drawn so that Outlook shows it in the same size, shape and colour as
+  other mail apps.
+- **E-mails: dark mode in Outlook.com and the new Outlook.** These apps ignore the usual dark mode
+  rules and recoloured the mails on their own, which made some text hard to read. Containly mails
+  now include matching dark colours for them.
+- **E-mails on phones.** The mail body had a fixed width of 560 pixels and could be wider than the
+  screen on phones, so text had to be scrolled sideways. It now shrinks to the screen width;
+  Outlook for Windows keeps the fixed width.
+
 ## [3.0.5] — 2026-11-24
 
 ### Fixed
@@ -2430,7 +2445,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v3.0.5...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v3.0.6...HEAD
+[3.0.6]: https://github.com/amslertec/containly/compare/v3.0.5...v3.0.6
 [3.0.5]: https://github.com/amslertec/containly/compare/v3.0.4...v3.0.5
 [3.0.4]: https://github.com/amslertec/containly/compare/v3.0.3...v3.0.4
 [3.0.3]: https://github.com/amslertec/containly/compare/v3.0.2...v3.0.3
