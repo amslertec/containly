@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.0.4] — 2026-11-24
+
+### Fixed
+
+- **Code editor: line numbers stay put.** In the editor for stack files, Compose files (also in
+  New stack) and `.env` files, a sideways swipe on a phone could move the whole editor, line
+  numbers included. The line numbers are now their own column outside the part that scrolls
+  sideways: only the text moves left and right, and the numbers scroll up and down together with
+  the text (also during momentum scrolling). The highlighted text and the input layer share one
+  scroll box, so the caret stays on the right character after scrolling, on long lines and while
+  typing. Swipes stay inside the editor; the page never moves sideways. The number column is only
+  as wide as the line count needs (narrower on phones).
+- **Editor status bar follows the caret.** "Line, column" now also updates when the caret is
+  placed by tapping, by the text loupe or by selection handles on iPhone and iPad.
+- **Phone editor header in one row.** The full-screen editor on phones shows back, file name,
+  Discard (icon) and Save in one row; the file name is no longer repeated below it. In narrow
+  editors on the desktop (inspector next to the list) Discard becomes an icon and the shortcut
+  hint is hidden, so the toolbar also stays one row.
+- **Editor status bar in one row.** The status bar below the editor (position, line count,
+  YAML check and the wrap switch) always stays on one row; on phones long parts are shortened
+  and the line count is hidden when space is tight.
+
+### Added
+
+- **Wrap lines.** A "Wrap lines" switch in the editor status bar wraps long lines instead of
+  scrolling sideways (off by default). Line numbers stay on the first row of each line. The choice
+  is saved per user and follows you to every device.
+
 ## [3.0.3] — 2026-11-23
 
 ### Fixed
@@ -2388,7 +2416,9 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v3.0.2...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v3.0.4...HEAD
+[3.0.4]: https://github.com/amslertec/containly/compare/v3.0.3...v3.0.4
+[3.0.3]: https://github.com/amslertec/containly/compare/v3.0.2...v3.0.3
 [3.0.2]: https://github.com/amslertec/containly/compare/v3.0.1...v3.0.2
 [3.0.1]: https://github.com/amslertec/containly/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/amslertec/containly/compare/v2.7.5...v3.0.0
