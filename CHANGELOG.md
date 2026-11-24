@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.0.5] — 2026-11-24
+
+### Fixed
+
+- **Code editor: horizontal scrollbar at the bottom of the editor.** On the desktop the sideways
+  scrollbar of the editor for stack files, Compose files (also in New stack) and `.env` files sat
+  directly under the last line of text and disappeared from view in long files. It now stays at
+  the bottom edge of the editor box, for short files and while scrolling through long ones. The
+  line numbers stay in place and still scroll up and down with the text. Phones are unchanged.
+- **Phone lists: toolbar in one row.** On phones the View, Sort and Per page controls above the
+  lists (for example Images in German, and most lists in Spanish) wrapped "Per page" onto a second
+  row. They are slightly more compact now and share one row at common phone widths in English,
+  German and Spanish.
+
 ## [3.0.4] — 2026-11-24
 
 ### Fixed
@@ -2416,7 +2430,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v3.0.4...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v3.0.5...HEAD
+[3.0.5]: https://github.com/amslertec/containly/compare/v3.0.4...v3.0.5
 [3.0.4]: https://github.com/amslertec/containly/compare/v3.0.3...v3.0.4
 [3.0.3]: https://github.com/amslertec/containly/compare/v3.0.2...v3.0.3
 [3.0.2]: https://github.com/amslertec/containly/compare/v3.0.1...v3.0.2
