@@ -7,6 +7,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.0.8] — 2026-11-24
+
+### Added
+
+- **Workflows (Pro): new Flow-Canvas editor.** A workflow now reads from top to bottom as a flow:
+  protection (cooldown, limits, tripped breakers), When, Applies to, Check, and then a visible fork
+  into the "Yes, met" and "Otherwise" lanes. A `+` on every connection inserts a step exactly at
+  that point, "+ Step" appends one. Selecting a node opens its settings in a side panel (a sheet on
+  phones); with nothing selected the panel shows the workflow itself: name, an editable
+  description, status and the list of missing details.
+- **Workflows: inline validation.** Every missing detail is shown on its node (dashed outline with a
+  short hint). A chip in the toolbar shows "complete" or how many details are missing and jumps to
+  each one. Saving as a draft still works while details are missing; activating needs them all.
+- **Workflows: simulation and runs on the canvas.** Simulate and History colour the path a run
+  takes: which side of the fork was taken, which steps would run or ran, and which did not.
+- **Workflows: start from a template.** "New workflow" opens a start screen with three featured
+  templates, an empty workflow, or the full list of templates. Keyboard: nodes can be reached with
+  Tab, Enter opens, Esc closes, Delete removes a step after a confirmation.
+- **App catalog: source switcher.** Next to Category a "Source" menu picks All sources or one
+  source with its template count. It appears when at least two sources deliver templates; the
+  choice is kept in the address (`/catalog?src=...`).
+- **App catalog: recommended sources.** The Sources dialog offers three recommended template lists
+  (Lissy93, LinuxServer.io via technorabilia, xneo1) with their licence, maintainer and repository
+  link; switch one on to add it. Every source shows its template count, the last load and errors.
+  A custom URL is checked when you add it, and "Reload" really loads the lists again. Portainer's
+  own templates.json format is read as well.
+- **App catalog: one card per app.** Under All sources an app listed in several sources shows once
+  (chip "in 2 sources"). The same app with different images (for example the official and the
+  LinuxServer.io image) shows as one card with its variants; you pick the image when installing,
+  the official one is preselected, and the dialog lists the differences in variables, volumes and
+  ports.
+
+### Changed
+
+- **Workflows: an opened workflow uses the full width.** Opening a workflow hides the list; the
+  button in the header brings it back.
+
+### Fixed
+
+- **Workflows: the editor did not scroll.** Long workflows were cut off at the bottom of the
+  editor and could not be scrolled, on the desktop and on phones. The editor now scrolls to its
+  last step.
+- **Workflows: oversized cards.** The step cards in the editor had a large empty area at the top
+  and took much more room than needed.
+
 ## [3.0.7] — 2026-11-24
 
 ### Fixed
@@ -2456,7 +2501,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v3.0.7...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v3.0.8...HEAD
+[3.0.8]: https://github.com/amslertec/containly/compare/v3.0.7...v3.0.8
 [3.0.7]: https://github.com/amslertec/containly/compare/v3.0.6...v3.0.7
 [3.0.6]: https://github.com/amslertec/containly/compare/v3.0.5...v3.0.6
 [3.0.5]: https://github.com/amslertec/containly/compare/v3.0.4...v3.0.5

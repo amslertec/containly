@@ -145,7 +145,8 @@ Forum: [forum.containly.ch](https://forum.containly.ch)
 ### Workflows *(Pro)*
 
 - **Automate routine reactions without scripting.** A workflow is a trigger, optional conditions
-  and ordered steps, with an "otherwise" branch. Triggers: container unhealthy, exited or killed
+  and ordered steps, with an "otherwise" branch, edited as a flow from top to bottom with a visible
+  fork, a `+` on every connection and missing details marked right on their step. Triggers: container unhealthy, exited or killed
   for lack of memory, restart loop, host offline or back online, sustained CPU or memory, backup
   finished, and a schedule. Steps: notify (in-app, e-mail, push to the recipients' devices and
   saved channels such as Discord, Telegram, Slack, Pushover, ntfy, Gotify or a webhook), restart,
@@ -185,8 +186,10 @@ Forum: [forum.containly.ch](https://forum.containly.ch)
 
 ### App catalog and updates
 
-- **App catalog.** Browse templates, add your own template sources, deploy an app as a
-  stack with its environment variables filled in.
+- **App catalog.** Browse templates, switch between sources (recommended lists from Lissy93,
+  LinuxServer.io and xneo1 with their licence, or your own URLs), deploy an app as a stack with its
+  environment variables filled in. An app offered with several images shows as one card; you pick
+  the image when installing.
 - **Updates.** Registry digest checks without pulling, semver detection for pinned version
   tags, a server-side bulk update job with live progress that survives reloads. The Updates table
   shows the kind of change (new build, patch, minor, major, with database and major-version
@@ -510,7 +513,7 @@ loads no third-party scripts. These are all connections the server itself opens 
 | Containly update check | `api.github.com` (latest release of `amslertec/containly`) | 5 s after start, then every 6 h, and on a manual check under **Settings > Version and licence** | An HTTP request with the user agent `containly`; no version, key or ID | No switch; if blocked, the Version card simply shows no newer release |
 | Image update checks | The registry of each image you run (for example Docker Hub, GHCR, quay.io), through the Docker engine of each host; tag lists from `registry-1.docker.io` for Docker Hub images with version tags; for a pending update the manifest and config of the new image from its registry (release date, download size, source link; no pull) | After start, every 6 h and on demand | Image names, tags and digests, plus the registry sign-ins you saved under Settings | No switch |
 | Vulnerability scanning | The `aquasec/trivy` image from Docker Hub, then whatever the Trivy container downloads with its default settings (its vulnerability database), from the scanned host | 90 s after start and every 6 h | Image pull and Trivy's own downloads; your images are scanned locally and no scan result leaves the host | **Settings > Schedule > Vulnerability scanning (Trivy)**: off means no scans and no Trivy downloads |
-| App catalog | `raw.githubusercontent.com` (the default template list), or the sources you add | When the App catalog is opened (cached 10 min) | A plain download | Remove or disable the source under **App catalog > Sources** |
+| App catalog | `raw.githubusercontent.com` (the default template list from Lissy93 and, only if you switch them on, the recommended lists from LinuxServer.io via technorabilia and xneo1), or the URLs you add | When the App catalog is opened (cached 10 min), when you add a source and when you press Reload | A plain download | Remove or disable the source under **App catalog > Sources** |
 | Image search and tags | `hub.docker.com` | While you type an image name or open its tags | The search term; your Docker Hub sign-in if you saved one | Do not use the search |
 | Image pulls | The registries of the images you deploy or update; Docker Hub for the helper images (a pinned `docker` CLI image for Compose, and a pinned `alpine` image for backups, restores and volume file access) | When you deploy or update, and when a helper is needed on a host and its image is missing there (pulled again after an image prune) | What `docker pull` sends | Part of normal Docker use |
 | E-mail | Your SMTP server | Only if SMTP is configured | The notification mails | Leave SMTP empty |
