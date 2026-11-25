@@ -186,10 +186,22 @@ Forum: [forum.containly.ch](https://forum.containly.ch)
 
 ### App catalog and updates
 
-- **App catalog.** Browse templates, switch between sources (recommended lists from Lissy93,
-  LinuxServer.io and xneo1 with their licence, or your own URLs), deploy an app as a stack with its
-  environment variables filled in. An app offered with several images shows as one card; you pick
-  the image when installing.
+- **App catalog.** Browse templates, switch between sources (the built-in Amslertec source, the
+  recommended lists from Lissy93, LinuxServer.io and xneo1 with their licence, or your own URLs),
+  deploy an app as a stack with its environment variables filled in. An app offered with several
+  images shows as one card; you pick the image when installing.
+- **Compose templates.** Templates with several containers (Portainer type 3) install as a stack:
+  Containly reads the compose file from a public GitHub, GitLab or Codeberg repository or from the
+  template itself, checks it first and shows a preview, a variables form saved as `.env`, the
+  stack folder check and the deploy output. Password and key variables that still hold a
+  placeholder get a random value (masked, with a button to generate a new one). Templates that
+  cannot be installed stay listed with the reason.
+- **Amslertec source.** Switched on by default and listed first: compose templates for Containly,
+  Cinarox and more Amslertec projects (free to use, source code not public), hosted on containly.ch with a
+  copy bundled in the image. Switch it off under **App catalog > Sources**; it is never added again.
+- **Resilient catalog loading.** Every source keeps its last good list on disk, asks only for
+  changes (ETag), reloads at most once an hour and backs off on rate limits (HTTP 429) or errors
+  instead of showing an empty list.
 - **Updates.** Registry digest checks without pulling, semver detection for pinned version
   tags, a server-side bulk update job with live progress that survives reloads. The Updates table
   shows the kind of change (new build, patch, minor, major, with database and major-version
@@ -513,7 +525,8 @@ loads no third-party scripts. These are all connections the server itself opens 
 | Containly update check | `api.github.com` (latest release of `amslertec/containly`) | 5 s after start, then every 6 h, and on a manual check under **Settings > Version and licence** | An HTTP request with the user agent `containly`; no version, key or ID | No switch; if blocked, the Version card simply shows no newer release |
 | Image update checks | The registry of each image you run (for example Docker Hub, GHCR, quay.io), through the Docker engine of each host; tag lists from `registry-1.docker.io` for Docker Hub images with version tags; for a pending update the manifest and config of the new image from its registry (release date, download size, source link; no pull) | After start, every 6 h and on demand | Image names, tags and digests, plus the registry sign-ins you saved under Settings | No switch |
 | Vulnerability scanning | The `aquasec/trivy` image from Docker Hub, then whatever the Trivy container downloads with its default settings (its vulnerability database), from the scanned host | 90 s after start and every 6 h | Image pull and Trivy's own downloads; your images are scanned locally and no scan result leaves the host | **Settings > Schedule > Vulnerability scanning (Trivy)**: off means no scans and no Trivy downloads |
-| App catalog | `raw.githubusercontent.com` (the default template list from Lissy93 and, only if you switch them on, the recommended lists from LinuxServer.io via technorabilia and xneo1), or the URLs you add | When the App catalog is opened (cached 10 min), when you add a source and when you press Reload | A plain download | Remove or disable the source under **App catalog > Sources** |
+| App catalog | `containly.ch/catalog/amslertec.json` (the built-in Amslertec source), `raw.githubusercontent.com` (the default template list from Lissy93 and, only if you switch them on, the recommended lists from LinuxServer.io via technorabilia and xneo1), or the URLs you add | When the App catalog is opened and a source was not loaded in the last hour, when you add a source and when you press Reload; unchanged lists are answered with 304 (ETag) and kept on disk | A plain download with the user agent `Containly/<version>` | Remove or disable the source under **App catalog > Sources** |
+| Compose files of catalog templates | The public repository named by the template on `raw.githubusercontent.com`, `gitlab.com` or `codeberg.org` (no other hosts, no redirects elsewhere) | Only when an admin opens the install dialog of such a template (cached 1 h, then asked for changes) | A plain download with the user agent `Containly/<version>` | Do not open compose templates of repository sources |
 | Image search and tags | `hub.docker.com` | While you type an image name or open its tags | The search term; your Docker Hub sign-in if you saved one | Do not use the search |
 | Image pulls | The registries of the images you deploy or update; Docker Hub for the helper images (a pinned `docker` CLI image for Compose, and a pinned `alpine` image for backups, restores and volume file access) | When you deploy or update, and when a helper is needed on a host and its image is missing there (pulled again after an image prune) | What `docker pull` sends | Part of normal Docker use |
 | E-mail | Your SMTP server | Only if SMTP is configured | The notification mails | Leave SMTP empty |
@@ -526,6 +539,8 @@ loads no third-party scripts. These are all connections the server itself opens 
 | Legacy licence keys | `api.lemonsqueezy.com` | Only for old Lemon Squeezy keys, about every 24 h | Licence key and instance ID | Not used by `CL1-` keys |
 
 Links to containly.ch (help, forum, pricing, account) open in your browser only when you click them.
+Template logos in the App catalog (for the Amslertec source from `containly.ch/catalog/logos`) are
+loaded by your browser, not by the server.
 The Prometheus export (`/metrics`) and the CI redeploy API are inbound: Prometheus or your
 pipeline connects to Containly, Containly opens no connection for them.
 

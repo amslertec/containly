@@ -7,6 +7,66 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.0.10] — 2026-11-25
+
+### Added
+
+- **Compose templates in the app catalog.** Templates of Portainer type 3 (a compose stack with
+  several containers) now show up in the catalog instead of being skipped: Lissy93 alone lists
+  about 400 of them. Containly reads the compose file from a public repository on GitHub, GitLab
+  or Codeberg (trying `main`, then `master`) or inline from the template (`x-containly-compose`),
+  checks it before offering the install and installs it as a stack: compose preview, a variables
+  form with defaults, descriptions and choice lists (saved as `.env`, plus `stack.env` when the
+  file reads it), the stack name from the template name (unique per host), host and stack folder
+  choice and the folder check before the first deploy, then the usual deploy output. Cards show a
+  **Stack** chip with the number of services. Templates that cannot be installed (for example
+  because a service has to be built from source code, a file is missing or the repository is not
+  public) stay listed as **Not installable** with the reason. Compose files are loaded only when
+  you open the install dialog, each with its own cache and the same rules as the sources (ETag,
+  Retry-After and backoff, a rate limit pauses every file of that host). Containly never follows
+  other hosts, credentials in the address or redirects to other hosts.
+- **Built-in source "Amslertec".** Every instance, new and updated, gets the source
+  `https://containly.ch/catalog/amslertec.json` switched on and at the top of the list, with
+  Containly, Cinarox and more Amslertec projects as compose templates. Their entries are marked as
+  official, so they are the default when another source lists the same app. Each card and install
+  dialog shows the licence note "Free to use, source code not public". The Containly entry is
+  pinned to the current release (variable `CONTAINLY_VERSION`), and the Cinarox stack uses the
+  database user and name `cinarox`. If you switch the
+  source off or remove it, Containly never adds or switches it on again. When containly.ch cannot
+  be reached and nothing is cached yet, the copy bundled with Containly is used.
+- **Random secrets in the stack install dialog.** Password, secret, key and token variables that
+  still hold the template's placeholder (for example `CHANGE_ME`) are filled with a random value
+  from the browser's cryptographic random generator (32 letters and digits, or hex or base64 when
+  the template asks for it). The value is masked with a show button, can be generated again with
+  **Generate again** and ends up in the stack's `.env`. The install no longer stops at these
+  fields; it still stops at other required variables that are empty. Keys you get from another
+  service (API keys, SMTP, cloud access keys) are never invented.
+- Catalog template extensions `x-containly-homepage` (link on the card), `x-containly-maintainer`,
+  `x-containly-official`, `x-containly-min-version` (templates for a newer Containly show as not
+  installable), `x-containly-license-note` (licence note on the card, `free-proprietary` is
+  translated) and the variable field `generate` (`password`, `hex32` or `base64-32`).
+
+### Fixed
+
+- **Catalog sources survive rate limits.** Several Containly instances behind one public IP share
+  GitHub's request limit for raw.githubusercontent.com, so a source could answer with HTTP 429 and
+  the catalog showed it with 0 templates. Every source now has its own cache with the last good
+  list, kept on disk across restarts and updates. Containly asks only for changes (ETag, an
+  unchanged list costs no download), reloads a source at most once an hour unless you press
+  Reload, and switching, adding or removing one source no longer reloads all the others. On a rate
+  limit, a server error or a network error the last good list stays in use, and the next attempt
+  waits for the time the source asks for (or a growing pause of up to 6 hours), also when you press
+  Reload. The sources dialog shows such a source as cached, with the reason, its template count
+  and when the next attempt happens, plus a short note about the shared limit. Requests now carry
+  the user agent `Containly/<version> (+https://containly.ch)`.
+
+### Changed
+
+- **"All sources" explains its count.** The source switcher shows the merged number of apps next
+  to the number of templates (for example `468 apps · 670 templates`), with a tooltip that apps
+  listed in several sources count once, and the page header says how many apps are in several
+  sources.
+
 ## [3.0.9] — 2026-11-25
 
 ### Fixed
@@ -2510,7 +2570,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v3.0.9...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v3.0.10...HEAD
+[3.0.10]: https://github.com/amslertec/containly/compare/v3.0.9...v3.0.10
 [3.0.9]: https://github.com/amslertec/containly/compare/v3.0.8...v3.0.9
 [3.0.8]: https://github.com/amslertec/containly/compare/v3.0.7...v3.0.8
 [3.0.7]: https://github.com/amslertec/containly/compare/v3.0.6...v3.0.7
