@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.0.9] — 2026-11-25
+
+### Fixed
+
+- **Streaming output keeps following the newest line.** The deploy output, the container logs and
+  the log viewer stopped following the end when output streamed in fast, because the scroll event
+  of the automatic scroll to the end could arrive after more lines were added. Now only a real
+  scroll up pauses following, and scrolling back to the end resumes it.
+
 ## [3.0.8] — 2026-11-24
 
 ### Added
@@ -2501,7 +2510,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v3.0.8...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v3.0.9...HEAD
+[3.0.9]: https://github.com/amslertec/containly/compare/v3.0.8...v3.0.9
 [3.0.8]: https://github.com/amslertec/containly/compare/v3.0.7...v3.0.8
 [3.0.7]: https://github.com/amslertec/containly/compare/v3.0.6...v3.0.7
 [3.0.6]: https://github.com/amslertec/containly/compare/v3.0.5...v3.0.6
