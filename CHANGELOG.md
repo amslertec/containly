@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.0.11] — 2026-11-26
+
+### Fixed
+
+- **Update check for pinned version tags.** A container that runs a pinned version tag (for example
+  `amslertec/containly:3.0.10`) is now checked against that tag even when the same image also
+  carries `latest` locally, so newer versions show up again. The check for a newer version tag also
+  runs when the registry's digest query fails.
+- **A failed update no longer stops the others.** When you update several containers at once and one
+  of them fails, the remaining updates continue. The option **Stop on error** in the update dialog
+  is now off by default; switch it on if you want the old behaviour.
+- The update dialog shows **Major** only once for a major version update.
+
+### Changed
+
+- **Bundled Amslertec catalog copy updated.** The copy of the Amslertec source that Containly uses
+  when containly.ch cannot be reached now includes TecGate and the current Cinarox logo, and an
+  outdated homepage link was removed.
+
 ## [3.0.10] — 2026-11-25
 
 ### Added
@@ -2570,7 +2589,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v3.0.10...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v3.0.11...HEAD
+[3.0.11]: https://github.com/amslertec/containly/compare/v3.0.10...v3.0.11
 [3.0.10]: https://github.com/amslertec/containly/compare/v3.0.9...v3.0.10
 [3.0.9]: https://github.com/amslertec/containly/compare/v3.0.8...v3.0.9
 [3.0.8]: https://github.com/amslertec/containly/compare/v3.0.7...v3.0.8
