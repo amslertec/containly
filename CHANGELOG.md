@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.0.12] — 2026-11-26
+
+### Fixed
+
+- **Updating a pinned version tag with a required variable.** Updating a pinned version tag now works
+  when the compose file uses a required or alternative variable in the `image:` line, for example
+  `image: example/app:${APP_VERSION:?set APP_VERSION}` or `${APP_VERSION:+...}`. Before, the update
+  stopped with the message that the version tag could not be found in any file.
+
+### Changed
+
+- **Bundled Amslertec catalog copy updated.** The copy of the Amslertec source that Containly uses
+  when containly.ch cannot be reached now pins Containly 3.0.11.
+
 ## [3.0.11] — 2026-11-26
 
 ### Fixed
@@ -2590,6 +2604,7 @@ the filesystem instead of in a database.
 - **i18n** — German & English; light/dark theme.
 
 [Unreleased]: https://github.com/amslertec/containly/compare/v3.0.11...HEAD
+[3.0.12]: https://github.com/amslertec/containly/compare/v3.0.11...v3.0.12
 [3.0.11]: https://github.com/amslertec/containly/compare/v3.0.10...v3.0.11
 [3.0.10]: https://github.com/amslertec/containly/compare/v3.0.9...v3.0.10
 [3.0.9]: https://github.com/amslertec/containly/compare/v3.0.8...v3.0.9
