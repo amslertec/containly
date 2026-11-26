@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.0.13] — 2026-11-26
+
+### Fixed
+
+- **Update check for containers on `latest`.** Containers that run `latest` are checked as `latest`
+  again and show new releases. Before, such a container was checked against the version tag of its
+  local image and no update showed up. The tag a container was started with is now always used, also
+  when it is written with a `docker.io/` prefix or when the tag has since moved to a newer local image.
+
+### Changed
+
+- **Bundled Amslertec catalog copy updated.** The copy of the Amslertec source that Containly uses
+  when containly.ch cannot be reached now pins Containly 3.0.12.
+
 ## [3.0.12] — 2026-11-26
 
 ### Fixed
@@ -2603,7 +2617,8 @@ the filesystem instead of in a database.
   registries, audit log + master key) for dev→prod migration.
 - **i18n** — German & English; light/dark theme.
 
-[Unreleased]: https://github.com/amslertec/containly/compare/v3.0.11...HEAD
+[Unreleased]: https://github.com/amslertec/containly/compare/v3.0.13...HEAD
+[3.0.13]: https://github.com/amslertec/containly/compare/v3.0.12...v3.0.13
 [3.0.12]: https://github.com/amslertec/containly/compare/v3.0.11...v3.0.12
 [3.0.11]: https://github.com/amslertec/containly/compare/v3.0.10...v3.0.11
 [3.0.10]: https://github.com/amslertec/containly/compare/v3.0.9...v3.0.10
